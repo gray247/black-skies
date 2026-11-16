@@ -893,7 +893,7 @@ function CommandTaskView({ model, actions, workspace }: Stage19WritingSpineViewP
           <Program7CreateDevelopView model={model} actions={actions} />
         ) : workspace === 'project-interchange' ? (
           <section className="stage19-text-interchange" aria-label="Text and Markdown interchange"><h2>Text and Markdown</h2>
-            <p>Bring in a text or Markdown file, or save a copy of your manuscript. Import opens a separate project for review. Export includes all saved writing sections; separate Notes, Ideas and Foundation answers are not included.</p>
+            <p>Import first asks for a text or Markdown file, then a folder where Black Skies will create a new project from it. The original file stays unchanged. Export saves all manuscript sections; separate Notes, Ideas and Foundation answers are not included.</p>
             {model.windowRole === 'writing' ? <>
               <div className="stage19-text-interchange__actions">
               <button type="button" disabled={model.manuscriptStructureLoading} onClick={() => void actions.importManuscriptStructure()}>Import Markdown / UTF-8 text</button>
@@ -1939,7 +1939,7 @@ export function ManuscriptStructureView({ model, actions }: Stage19WritingSpineV
           <div><span className="stage19-spine__eyebrow">Program 5 intake</span><h3>Structure</h3></div>
           <div className="stage19-manuscript-structure__actions">
             <button type="button" onClick={() => void actions.importManuscriptStructure()} disabled={model.manuscriptStructureLoading}>Import Markdown / UTF-8 text</button>
-            <p>Import stages a separate UTF-8 copy; the original stays untouched. Line endings become LF and an encoding BOM is removed. Review and Apply determine the writing destination. Text retains its source characters; Markdown characters can display as emphasis or headings. Word-processing styles, comments and layout are not imported.</p>
+            <p>Choose a text or Markdown file, then the folder for a new Black Skies project. The source file stays untouched. Review the imported sections before applying them to writing. Markdown emphasis and headings can be displayed; word-processing styles, comments and page layout are not imported.</p>
             {structure ? <button type="button" onClick={() => void actions.discoverManuscriptStructure()} disabled={model.manuscriptStructureLoading || structure.availability !== 'ready' || !['current', 'changed'].includes(structure.sourceStatus)}>Rediscover</button> : null}
           </div>
         </div>
@@ -2536,7 +2536,7 @@ function WritingTopRailView(props: Stage19WritingSpineViewProps): JSX.Element {
           </button>
           <button type="button" onClick={() => void actions.exportMarkdown('source-text')} disabled={!model.markdownExportAvailable || model.exportingMarkdown || model.markdownExportRequiresSave}>Export source text...</button>
           </div>
-          <p>Import opens a separate project for review. Cancel the file picker to stay here.</p>
+          <p>Choose the source file first, then the folder where Black Skies should save a new project from it. The original file stays unchanged. Cancel either picker to stay here.</p>
           <p>Both exports include all saved writing sections, including unpinned ideas. Source text retains Markdown characters and exact body whitespace with section titles; it is not a rendered document. Separate Notes, Foundation/Ideas records and staged intake are outside this manuscript export. Display preferences are not exported.</p>
           <p>Export follows the saved manuscript order and never includes unsaved prose.</p>
         </div>

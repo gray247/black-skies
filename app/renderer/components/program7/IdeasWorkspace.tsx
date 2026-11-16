@@ -175,7 +175,7 @@ export default function IdeasWorkspace({
     <section className="program7-ideas-workspace" aria-labelledby="program7-ideas-heading" data-testid="ideas-workspace" data-writing-gate="false">
       <header>
         <h1 id="program7-ideas-heading">Ideas</h1>
-        <p>Save rough possibilities here: a scene, a question, a line of dialogue, or a different way the story could go. Start with a title and Your idea, then select Save idea.</p>
+        <p>Ideas is intended for brainstorming with AI, exploring alternatives and keeping the ideas you choose. AI brainstorming is not available here yet. You can already save rough possibilities yourself: a scene, a question, dialogue, or a different way the story could go. Start with a title and Your idea, then select Save idea.</p>
         <p>A direction is a saved version of an idea you want to explore. Select a saved idea and use Explore a direction to try one. When you choose a direction, you can preview a copy in Story Foundation. Neither step rewrites your manuscript.</p>
         <p data-testid="ideas-optional">You can skip this workspace and continue writing at any time.</p>
         <p>{snapshot.document.seeds.length} idea{snapshot.document.seeds.length === 1 ? '' : 's'} · {snapshot.document.branches.length} direction{snapshot.document.branches.length === 1 ? '' : 's'}</p>

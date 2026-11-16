@@ -209,7 +209,7 @@ export default function StoryFoundation({
     >
       <header>
         <h1 id="program7-story-foundation-heading">Story Foundation</h1>
-        <p>Keep your current intentions for the story here: what it is about, its tone, who it is for, and what matters to you. Ideas holds possibilities; Story Foundation holds the choices you want to keep for now.</p>
+        <p>Story Foundation is your brief for AI critique and brainstorming: what the story is about, your themes, tone, reader experience and boundaries. Save your intentions here so future AI tools can judge the writing against what you want. That AI connection is not available here yet; this version keeps your answers with the project.</p>
         <p>Start with one useful question. Choose My answer, write a note and select Save answer. You can revise it later; earlier saved answers stay in its history. These notes do not rewrite the manuscript.</p>
         <p data-testid="story-foundation-optional">You may skip every question and keep writing. Nothing here blocks Writing Studio.</p>
         <p>{snapshot.document.entries.length} saved answer{snapshot.document.entries.length === 1 ? '' : 's'}</p>
