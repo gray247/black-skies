@@ -7855,14 +7855,31 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 .stage19-spine--writing .stage19-writing-shell__project-tools {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 8px 12px;
   margin-top: 4px;
   padding-top: 8px;
 }
 
+.stage19-writing-shell__file-actions,
+.stage19-text-interchange__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.stage19-spine .stage19-writing-shell__file-actions button,
+.stage19-spine .stage19-text-interchange__actions button {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+}
+.stage19-writing-shell__project-tools h3 { margin: 0; }
 .stage19-spine--writing .stage19-writing-shell__project-tools p {
+  overflow-wrap: anywhere;
   color: var(--stage19-semantic-muted);
   font-size: 0.8rem;
   line-height: 1.35;

@@ -4597,6 +4597,24 @@ describe('Stage19WritingSpineApp', () => {
     expect(project.bridge.reloadActiveProject).toHaveBeenCalledTimes(1);
   });
 
+  it('offers Import beside the exports in Project Tools and leaves the project alone when its picker is canceled', async () => {
+    const project = createBridge(snapshot('writing'));
+    const structureBridge = createManuscriptStructureBridge(structureSnapshot());
+    structureBridge.chooseMarkdown = vi.fn(async () => ({ canceled: true }));
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} manuscriptStructureBridge={structureBridge} />);
+    await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await openWritingRail('Project Tools');
+    const tools = screen.getByRole('region', { name: 'Project Tools' });
+    expect(within(tools).getByRole('button', { name: 'Export Markdown...' })).toBeVisible();
+    expect(within(tools).getByRole('button', { name: 'Export source text...' })).toBeVisible();
+    fireEvent.click(within(tools).getByRole('button', { name: 'Import text or Markdown...' }));
+    await waitFor(() => expect(structureBridge.chooseMarkdown).toHaveBeenCalledOnce());
+    expect(structureBridge.importMarkdown).not.toHaveBeenCalled();
+    expect(project.bridge.chooseDirectory).not.toHaveBeenCalled();
+    expect(project.bridge.openProject).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { name: 'Manuscript editor: First Unit' })).toHaveValue('Alpha body');
+  });
+
   it('imports Markdown through the Structure controller into a disposable project', async () => {
     const project = createBridge(snapshot('writing'));
     project.bridge.chooseDirectory = vi.fn(async () => ({ canceled: false, path: 'C:\\imports' }));

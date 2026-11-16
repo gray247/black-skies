@@ -32,7 +32,7 @@ export interface DraftValue {
 
 const postureOptions: readonly { readonly value: StoryFoundationPosture; readonly label: string }[] = [
   { value: 'blank', label: 'Leave blank' },
-  { value: 'unknown', label: 'Deliberately unknown' },
+  { value: 'unknown', label: 'Leave open' },
   { value: 'undecided', label: 'Not decided yet' },
   { value: 'answered', label: 'My answer' },
 ];
@@ -62,7 +62,7 @@ function postureHelp(posture: StoryFoundationPosture): string {
   if (posture === 'blank') return 'Skipping this question is allowed.';
   if (posture === 'unknown') return 'You are choosing to leave this question open.';
   if (posture === 'undecided') return 'This can remain open while you write.';
-  return 'Only what you save here is kept as guidance for this project.';
+  return 'Save the answer you want to keep with this project. You can change it later.';
 }
 
 function provenanceLabel(version: StoryFoundationAnswerVersionV1 | null): string {
@@ -126,7 +126,7 @@ function QuestionCard({
           value={draft.text}
           maxLength={STORY_FOUNDATION_MAX_ANSWER_LENGTH}
           disabled={archived}
-          placeholder={draft.posture === 'answered' ? 'Write only what you want to keep as project guidance.' : 'Optional explanation'}
+          placeholder={draft.posture === 'answered' ? 'Write what you currently want for the story.' : 'Optional explanation'}
           onChange={(event) => onDraftChange(question.id, { ...draft, text: event.target.value })}
         />
       </div>
@@ -209,7 +209,8 @@ export default function StoryFoundation({
     >
       <header>
         <h1 id="program7-story-foundation-heading">Story Foundation</h1>
-        <p>Use these optional questions to note what you want for the story. Your answers do not change the manuscript.</p>
+        <p>Keep your current intentions for the story here: what it is about, its tone, who it is for, and what matters to you. Ideas holds possibilities; Story Foundation holds the choices you want to keep for now.</p>
+        <p>Start with one useful question. Choose My answer, write a note and select Save answer. You can revise it later; earlier saved answers stay in its history. These notes do not rewrite the manuscript.</p>
         <p data-testid="story-foundation-optional">You may skip every question and keep writing. Nothing here blocks Writing Studio.</p>
         <p>{snapshot.document.entries.length} saved answer{snapshot.document.entries.length === 1 ? '' : 's'}</p>
       </header>

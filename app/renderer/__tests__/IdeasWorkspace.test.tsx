@@ -159,15 +159,15 @@ describe('IdeasWorkspace component', () => {
     const base = snapshot({ document: { ...snapshot().document, seeds: [seed('seed-a'), seed('seed-b')], branches: [branchData] } });
     const { rerender } = render(<IdeasWorkspace snapshot={base} onArchiveBranch={onArchiveBranch} onRestoreBranch={onRestoreBranch} />);
     const branchCard = screen.getByTestId('idea-branch-branch-a');
-    expect(within(branchCard).getByRole('heading', { name: 'Current premise' }).parentElement).toHaveTextContent('A friendship becomes a haunting.');
-    expect(within(branchCard).getByText(/intentional ambiguity/)).toBeInTheDocument();
+    expect(within(branchCard).getByRole('heading', { name: 'Current idea' }).parentElement).toHaveTextContent('A friendship becomes a haunting.');
+    expect(within(branchCard).getByText('Left open')).toBeInTheDocument();
     expect(within(branchCard).getByText('The haunted branch')).toBeInTheDocument();
     expect(within(branchCard).getByText('Saved direction')).toBeInTheDocument();
     expect(within(branchCard).getByText('Seed seed-a, Seed seed-b')).toBeInTheDocument();
-    fireEvent.click(within(branchCard).getByRole('button', { name: 'Archive branch' }));
+    fireEvent.click(within(branchCard).getByRole('button', { name: 'Archive direction' }));
     expect(onArchiveBranch).toHaveBeenCalledWith(branchData);
     rerender(<IdeasWorkspace snapshot={snapshot({ document: { ...snapshot().document, seeds: [seed('seed-a'), seed('seed-b')], branches: [{ ...branchData, posture: 'archived' }] } })} onArchiveBranch={onArchiveBranch} onRestoreBranch={onRestoreBranch} />);
-    fireEvent.click(within(screen.getByTestId('idea-branch-branch-a')).getByRole('button', { name: 'Restore branch' }));
+    fireEvent.click(within(screen.getByTestId('idea-branch-branch-a')).getByRole('button', { name: 'Restore direction' }));
     expect(onRestoreBranch).toHaveBeenCalledWith(expect.objectContaining({ id: 'branch-a', posture: 'archived' }));
   });
 
@@ -181,11 +181,11 @@ describe('IdeasWorkspace component', () => {
     fireEvent.click(within(seedA).getByRole('checkbox'));
     fireEvent.click(within(seedB).getByRole('checkbox'));
     fireEvent.change(screen.getByRole('textbox', { name: 'Combination name' }), { target: { value: 'Combined thread' } });
-    fireEvent.change(screen.getByRole('textbox', { name: 'Combination premise' }), { target: { value: 'Two images become one premise.' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Combined idea' }), { target: { value: 'Two images become one premise.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Combine selected ideas' }));
     const branchCard = screen.getByTestId('idea-branch-branch-a');
     fireEvent.change(within(branchCard).getByRole('textbox', { name: IDEATION_FIXED_CORE_QUESTIONS[0].prompt }), { target: { value: 'A witness.' } });
-    fireEvent.click(within(branchCard).getByRole('button', { name: 'Explore this premise' }));
+    fireEvent.click(within(branchCard).getByRole('button', { name: 'Save exploration notes' }));
     expect(onCombineSeeds).toHaveBeenCalledWith(['seed-a', 'seed-b'], 'Combined thread', 'Two images become one premise.', expect.arrayContaining([expect.objectContaining({ seedId: 'seed-a', sourceVersionId: 'seed-a-v1' })]));
     expect(onTestPremise).toHaveBeenCalledWith(branchData, expect.objectContaining({ 'focal-force': 'A witness.' }));
     expect(within(branchCard).getByText(/do not change the manuscript/)).toBeInTheDocument();

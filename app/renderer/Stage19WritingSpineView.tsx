@@ -892,12 +892,14 @@ function CommandTaskView({ model, actions, workspace }: Stage19WritingSpineViewP
         ) : workspace === 'create-develop' ? (
           <Program7CreateDevelopView model={model} actions={actions} />
         ) : workspace === 'project-interchange' ? (
-          <section aria-label="Text and Markdown interchange"><h2>Text and Markdown</h2>
-            <p>Imports stage a new project for source review. Manuscript exports include all saved writing sections, with no purpose-based exclusions. Notes and other project records need their own portable-project contract; this is not a whole-project archive or named version.</p>
+          <section className="stage19-text-interchange" aria-label="Text and Markdown interchange"><h2>Text and Markdown</h2>
+            <p>Bring in a text or Markdown file, or save a copy of your manuscript. Import opens a separate project for review. Export includes all saved writing sections; separate Notes, Ideas and Foundation answers are not included.</p>
             {model.windowRole === 'writing' ? <>
+              <div className="stage19-text-interchange__actions">
               <button type="button" disabled={model.manuscriptStructureLoading} onClick={() => void actions.importManuscriptStructure()}>Import Markdown / UTF-8 text</button>
               <button type="button" disabled={!model.markdownExportAvailable || model.markdownExportRequiresSave || model.exportingMarkdown} onClick={() => void actions.exportMarkdown()}>Export saved Markdown</button>
               <button type="button" disabled={!model.markdownExportAvailable || model.markdownExportRequiresSave || model.exportingMarkdown} onClick={() => void actions.exportMarkdown('source-text')}>Export saved source text</button>
+              </div>
               <p>Source text retains Markdown characters and body whitespace with section titles. Display typography and spacing are outside both export formats. Save current prose before exporting.</p>
               {model.markdownExportNotice ? <p role={model.markdownExportNotice.tone === 'failure' ? 'alert' : 'status'}>{model.markdownExportNotice.message}</p> : null}
             </> : <button type="button" onClick={() => void actions.showWritingSurface()}>Open Writing Studio for import/export</button>}
@@ -2522,6 +2524,9 @@ function WritingTopRailView(props: Stage19WritingSpineViewProps): JSX.Element {
       <ProjectLifecycleView {...props} />
       {model.snapshot.project ? (
         <div className="stage19-writing-shell__project-tools">
+          <h3>Import and export</h3>
+          <div className="stage19-writing-shell__file-actions">
+          <button type="button" disabled={model.manuscriptStructureLoading} onClick={() => void actions.importManuscriptStructure()}>Import text or Markdown...</button>
           <button
             type="button"
             onClick={() => void actions.exportMarkdown()}
@@ -2530,6 +2535,8 @@ function WritingTopRailView(props: Stage19WritingSpineViewProps): JSX.Element {
             {model.exportingMarkdown ? 'Exporting...' : 'Export Markdown...'}
           </button>
           <button type="button" onClick={() => void actions.exportMarkdown('source-text')} disabled={!model.markdownExportAvailable || model.exportingMarkdown || model.markdownExportRequiresSave}>Export source text...</button>
+          </div>
+          <p>Import opens a separate project for review. Cancel the file picker to stay here.</p>
           <p>Both exports include all saved writing sections, including unpinned ideas. Source text retains Markdown characters and exact body whitespace with section titles; it is not a rendered document. Separate Notes, Foundation/Ideas records and staged intake are outside this manuscript export. Display preferences are not exported.</p>
           <p>Export follows the saved manuscript order and never includes unsaved prose.</p>
         </div>

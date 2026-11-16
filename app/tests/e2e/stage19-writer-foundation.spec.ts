@@ -317,6 +317,35 @@ test('Catalog B6 text intake and full saved-source export preserve writing and c
     expect(sources.join('')).toContain('Forest **idea** 🌲.');
     expect(sources.join('')).toContain('Mara waits at the gate.');
     await openWritingStudioRail(writing, 'Project Tools');
+    const tools = writing.getByRole('region', { name: 'Project Tools', exact: true });
+    if (await tools.getByRole('button', { name: 'Keep open', exact: true }).isVisible()) await tools.getByRole('button', { name: 'Keep open', exact: true }).click();
+    for (const width of [1440, 640]) {
+      await writing.setViewportSize({ width, height: 900 });
+      const actions = tools.locator('.stage19-writing-shell__file-actions');
+      await actions.scrollIntoViewIfNeeded();
+      await expect(actions.getByRole('button', { name: 'Import text or Markdown...', exact: true })).toBeVisible();
+      const layout = await tools.evaluate(panel => {
+        const actions = panel.querySelector('.stage19-writing-shell__file-actions')!, frame = actions.getBoundingClientRect();
+        return { overflow: panel.scrollWidth - panel.clientWidth, buttons: [...actions.querySelectorAll('button')].map(button => {
+          const rect = button.getBoundingClientRect();return { width: rect.width, height: rect.height, inside: rect.left >= frame.left - 1 && rect.right <= frame.right + 1 };
+        }) };
+      });
+      expect(layout.overflow).toBeLessThanOrEqual(1);
+      expect(layout.buttons).toHaveLength(3);
+      for (const button of layout.buttons) { expect(button.inside).toBe(true); expect(button.width).toBeLessThan(340); expect(button.height).toBeLessThan(100); }
+    }
+    const beforeCancel = await writing.evaluate(() => window.projectSpine!.getSession());
+    await electronApp.evaluate(({ dialog }) => {
+      const cancel = Object.assign(async () => { cancel.calls += 1; return { canceled: true, filePaths: [] }; }, { calls: 0 });
+      dialog.showOpenDialog = cancel as typeof dialog.showOpenDialog;
+    });
+    await tools.getByRole('button', { name: 'Import text or Markdown...', exact: true }).click();
+    await expect.poll(() => electronApp.evaluate(({ dialog }) => (dialog.showOpenDialog as unknown as { calls: number }).calls)).toBe(1);
+    const afterCancel = await writing.evaluate(() => window.projectSpine!.getSession());
+    expect(afterCancel.project!.projectId).toBe(beforeCancel.project!.projectId);
+    expect(afterCancel.project!.path).toBe(beforeCancel.project!.path);
+    expect(afterCancel.project!.drafts).toEqual(beforeCancel.project!.drafts);
+    await writing.setViewportSize({ width: 1440, height: 900 });
     await expect(writing.getByText(/Both exports include all saved writing sections/)).toBeVisible();
     await electronApp.evaluate(({ dialog }) => { dialog.showSaveDialog = async () => ({ canceled: true, filePath: '' }); });
     await writing.getByRole('button', { name: 'Export source text...', exact: true }).click();
@@ -328,6 +357,16 @@ test('Catalog B6 text intake and full saved-source export preserve writing and c
     for (const source of sources) expect(exported).toContain(extractProjectSpineDraftBody(source));
     expect(await readFile(sourcePath)).toEqual(original);
     expect(await Promise.all(applied.units.map(unit => readFile(join(intake.projectPath, 'drafts', `${unit.id}.md`), 'utf8')))).toEqual(sources);
+    await showCommandInWriting(writing);
+    await writing.getByRole('button', { name: 'Project Interchange', exact: true }).click();
+    for (const width of [1440, 640]) {
+      await writing.setViewportSize({ width, height: 900 });
+      const interchange = writing.getByRole('region', { name: 'Text and Markdown interchange' });
+      const buttons = interchange.locator('.stage19-text-interchange__actions button');
+      await expect(buttons).toHaveCount(3);
+      expect(await interchange.evaluate(node => node.scrollWidth - node.clientWidth)).toBeLessThanOrEqual(1);
+      for (const button of await buttons.all()) { const rect = await button.boundingBox(); expect(rect!.width).toBeLessThan(340); expect(rect!.height).toBeLessThan(100); }
+    }
     await testInfo.attach('source-text-qualification', { body: JSON.stringify({ intake: intake.document.source, exported, originalUnchanged: true, nativePickerStubbed: true }), contentType: 'application/json' });
   } finally { await removeTemporaryDirectory(parent); }
 });

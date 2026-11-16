@@ -53,7 +53,7 @@ export default function Program7CreateDevelopWorkspace(props: Program7CreateDeve
     <section className="program7-create-develop" aria-labelledby="program7-create-develop-heading" data-testid="program7-create-develop" data-writing-gate="false" data-truth-owner="parent-owned">
       <header>
         <h1 id="program7-create-develop-heading">Develop your story</h1>
-        <p>The concern you chose opens directly in Revision Desk. The other sections hold your story foundation, ideas, and earlier decisions. Unfinished Foundation and Ideas forms stay with this project in this window while you switch tools or projects. Save them before reloading or closing the app.</p>
+        <p>Use Revision Desk to compare wording, Ideas to save possibilities, Story Foundation to keep your current intentions, and History to find saved decisions. Start with whichever helps you. Save unfinished notes before closing or reloading the app.</p>
       </header>
       <nav aria-label="Create and Develop sections" className="program7-create-develop__nav">
         {sections.map((section) => (

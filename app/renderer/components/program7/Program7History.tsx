@@ -70,10 +70,10 @@ function HistoryCard({ item, onOpenSource, onOpenRecurrence, onOpenConcern, rend
       {item.concernId ? <p>Concern <code>{item.concernId}</code></p> : null}
       <p className="program7-history__summary">{protectedItem ? 'Content hidden by protection policy.' : item.summary}</p>
       <dl className="program7-history__metadata">
-        <div><dt>Source</dt><dd>{sourceLabel(item.sourceStatus)}</dd></div>
+        <div><dt>Source</dt><dd>{item.ownerKind === 'revision-candidate' && item.lifecycle === 'accepted' && item.sourceStatus === 'stale' ? 'Earlier wording, before this revision' : sourceLabel(item.sourceStatus)}</dd></div>
         <div><dt>Created by</dt><dd>{originLabel(item.provenance.origin)}</dd></div>
         {item.acceptance !== 'none' || item.ownerKind === 'revision-candidate'
-          ? <div><dt>Outcome</dt><dd>{acceptanceLabel(item.acceptance)}</dd></div>
+          ? <div><dt>Outcome</dt><dd>{item.ownerKind === 'revision-candidate' && item.acceptance === 'complete' ? 'Applied to manuscript' : acceptanceLabel(item.acceptance)}</dd></div>
           : null}
         {item.ownerKind === 'revision-candidate' ? <>
           <div><dt>Created</dt><dd><RecordedTime value={item.occurredAt} /></dd></div>
@@ -106,7 +106,7 @@ export default function Program7History({ projection, onOpenSource, onOpenRecurr
     <section className="program7-history" aria-labelledby="program7-history-heading" data-testid="program7-history" data-history-store="projection-only">
       <header>
         <h1 id="program7-history-heading">History</h1>
-        <p>Revisit revision work, ideas, and choices from this project. History preserves earlier decisions; it does not establish fresh reading or a new analysis. Opening a source checks its current availability.</p>
+        <p>Find revisions by the purpose you entered. Applied revisions appear under Resolved and archived history with Applied beside the title. Set aside means the proposal was kept without changing the manuscript. Ideas you are still using appear under Active records.</p>
         <p>{projection.items.length} recent item{projection.items.length === 1 ? '' : 's'} shown.</p>
       </header>
       {projection.trimmedCount > 0 ? <p role="status" data-testid="program7-history-trimmed">Showing the newest {projection.items.length} items. {projection.trimmedCount} older item{projection.trimmedCount === 1 ? ' is' : 's are'} not shown.</p> : null}
