@@ -4918,6 +4918,9 @@ describe('Stage19WritingSpineApp', () => {
     fireEvent.select(editor);
     fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
     await screen.findByText('Click the beginning of the unit.');
+    fireEvent.pointerUp(screen.getByRole('button', { name: /^Write here: .*section 2$/u }));
+    expect(screen.getByText('Click the beginning of the unit.')).toBeVisible();
+    expect(screen.queryByText('First pin placed. Click its end.')).not.toBeInTheDocument();
     fireEvent.pointerUp(editor);
     await screen.findByText('First pin placed. Click its end.');
     const preview = document.querySelector('[data-writing-source]')!;

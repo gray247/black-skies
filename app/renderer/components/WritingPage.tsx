@@ -560,7 +560,7 @@ export function WritingPageProvider({
       // not a text gesture and must not reopen a menu over the new editor.
       if (
         !(event.target instanceof Element) ||
-        !event.target.closest('.cm-content, [data-writing-source]') ||
+        event.target.closest('.stage19-continuous-manuscript__heading') ||
         !event.target.closest('[data-stage19-role="writing"] [data-manuscript-unit-id]') ||
         event.target.closest('[data-writing-decoration]')
       )

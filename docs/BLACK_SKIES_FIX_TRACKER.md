@@ -10353,3 +10353,6 @@ The desktop revision sample reproduced five failed saves in 20 runs. Each observ
 Clicking a section heading with an existing cross-passage selection could reopen the local actions over the next selection. The text gesture handler now limits these menus to text. The forward and backward drag and Batch A checks pass. The paint checks now choose actual viewport lines and use real native window bounds on each available display. The earlier simulated viewport produced mismatched compositor geometry when moved to the secondary display. All four physical display configurations passed. The historical missing-paint symptom remains unresolved.
 
 The final clean local matrix, repeated renderer and revision cases, and Windows first-launch offline package proof remain required before the single planned author review.
+
+
+The Windows run for `651f3751` exposed an overbroad section-menu filter in beginning/end Pin. The filter now excludes only the section heading. The same integration journey checks that the heading leaves Pin armed and both genuine text endpoints create one linked unit. The superseded hosted and local receipts remain retained. The physical-display baseline on preserved Electron 39 also passed all four configurations, so the historical missing-paint observation remains open.
