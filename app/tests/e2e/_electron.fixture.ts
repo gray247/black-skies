@@ -59,6 +59,39 @@ const restartedAppsByRoot = new WeakMap<ElectronApplication, ElectronApplication
 const rootAppByRestart = new WeakMap<ElectronApplication, ElectronApplication>();
 
 async function prepareDiagnosticDevTools(application: ElectronApplication): Promise<void> {
+  if (process.env.BLACKSKIES_STABILITY_CAPTURE_TRACE === '1') {
+    const writing = await application.firstWindow();
+    await writing.waitForFunction(() => window.projectSpine?.windowRole === 'writing');
+    await application.evaluate(({ ipcMain }) => {
+      const state = globalThis as typeof globalThis & { __captureReplies?: unknown[] };
+      if (state.__captureReplies) return;
+      const handlers = (ipcMain as unknown as { _invokeHandlers: Map<string, (...args: unknown[]) => Promise<unknown>> })._invokeHandlers;
+      const channel = 'revision-candidates:create-manual', original = handlers.get(channel);
+      if (!original) throw Error('The existing capture handler is unavailable for diagnostics.');
+      state.__captureReplies = [];
+      const captureReplies = state.__captureReplies;
+      const fs = process.getBuiltinModule('node:fs/promises') as typeof import('node:fs/promises');
+      const originalRename = fs.rename.bind(fs);
+      fs.rename = async (oldPath, newPath) => {
+        try { await originalRename(oldPath, newPath); }
+        catch (error) {
+          if (String(newPath).endsWith('revision-candidates.json')) {
+            const failure = error as NodeJS.ErrnoException;
+            captureReplies.push({ syscall: failure.syscall ?? 'rename', code: failure.code });
+          }
+          throw error;
+        }
+      };
+      handlers.set(channel, async (...args) => {
+        const request = args[1] as { operationId: string; expectedRevision: number; purpose: string };
+        try {
+          const result = await original(...args) as { ok: boolean; error?: { code: string; message: string } };
+          state.__captureReplies!.push({ operationId: request.operationId, expectedRevision: request.expectedRevision, purpose: request.purpose, ok: result.ok, error: result.error });
+          return result;
+        } catch (error) { state.__captureReplies!.push({ operationId: request.operationId, thrown: String(error) }); throw error; }
+      });
+    });
+  }
   if (process.env.BLACKSKIES_STABILITY_DEVTOOLS !== 'detached') return;
   // Bind the real first product window before DevTools creates an auxiliary page.
   const writing = await application.firstWindow();
@@ -642,6 +675,14 @@ export const test = base.extend<Fixtures>({
     try {
       await use(application);
     } finally {
+      if (process.env.BLACKSKIES_STABILITY_CAPTURE_TRACE === '1') {
+        const contexts = [application, ...(restartedAppsByRoot.get(application) ?? [])];
+        const replies = await Promise.all(contexts.map(instance => instance.evaluate(() => ({
+          pid: process.pid,
+          replies: (globalThis as typeof globalThis & { __captureReplies?: unknown[] }).__captureReplies,
+        })).catch(() => ({ exitedBeforeCollection: true }))));
+        await testInfo.attach('capture-replies-all-live-processes', { body: JSON.stringify(replies), contentType: 'application/json' });
+      }
       if (process.env.BLACKSKIES_STABILITY_EVIDENCE === '1') {
         const output = launchContext.getOutput();
         await testInfo.attach('stability-process.json', {

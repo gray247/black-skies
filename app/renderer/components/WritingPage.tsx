@@ -556,8 +556,11 @@ export function WritingPageProvider({
       event.preventDefault();
     };
     const pointerUp = (event: PointerEvent) => {
+      // A section heading changes the active editor. Its pointer release is
+      // not a text gesture and must not reopen a menu over the new editor.
       if (
         !(event.target instanceof Element) ||
+        !event.target.closest('.cm-content, [data-writing-source]') ||
         !event.target.closest('[data-stage19-role="writing"] [data-manuscript-unit-id]') ||
         event.target.closest('[data-writing-decoration]')
       )
@@ -1707,11 +1710,13 @@ export function WritingPreferences() {
   );
   return <div className="stage19-writing-preferences">
     <span role="status" aria-label="Story word count">{count.toLocaleString()} words{goal ? ` / ${goal.toLocaleString()} goal${count >= goal ? ' · reached' : ''}` : ''}</span>
-    <details open={open} onToggle={event => {
-      const next = event.currentTarget.open;
-      if (next && !open) { setValues(saved?.values ?? DEFAULT_WRITING_PREFERENCES); setBaseRevision(saved?.revision ?? 0); setMessage(''); setResetInvalid(false); }
-      setOpen(next);
-    }}><summary>Writing preferences</summary>
+    <details open={open} onToggle={event => setOpen(event.currentTarget.open)}><summary onClick={event => {
+      event.preventDefault();
+      // Initialize at activation, before the author can type. Native toggle is
+      // queued and must not reset a draft that was edited before its delivery.
+      if (!open) { setValues(saved?.values ?? DEFAULT_WRITING_PREFERENCES); setBaseRevision(saved?.revision ?? 0); setMessage(''); setResetInvalid(false); }
+      setOpen(!open);
+    }}>Writing preferences</summary>
       <form aria-label="Writing preferences" onSubmit={event => {
         event.preventDefault();
         const bridge = window.projectSpine;

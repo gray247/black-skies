@@ -183,7 +183,7 @@ export async function openWritingStudioRail(
   const opening = writing.getByRole('button', { name: `Open ${label}` });
   // Use the public reveal interaction. A hovered cue becomes a clipped keyboard
   // close control, so clicking its old box is not a reliable mouse action.
-  if ((writing.viewportSize()?.width ?? 1200) < 800) await opening.press('Enter');
+  if (await writing.evaluate(() => innerWidth < 800)) await opening.press('Enter');
   else await opening.hover();
   await expect(closeControl).toBeVisible();
 }

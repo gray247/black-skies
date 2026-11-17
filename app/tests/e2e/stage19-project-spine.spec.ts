@@ -182,6 +182,7 @@ test('cancelled project switch leaves the editor immediately editable', async ({
     await electronApp.evaluate(({ dialog }, targetPath) => {
       dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [targetPath] });
     }, projects.pathB);
+    await openWritingStudioRail(writing, 'Project Tools');
     await writing.getByRole('button', { name: 'Open project…' }).click();
     await writing.getByRole('dialog', { name: 'Unsaved manuscript changes' })
       .getByRole('button', { name: 'Discard changes' })

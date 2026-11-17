@@ -135,6 +135,42 @@ describe('revision candidate repository', () => {
     expect(saved.document.captures![0]!.payload).toEqual(prepared.document.captures![0]!.payload);
   });
 
+  it('keeps one capture when a short sharing lock interrupts atomic replacement', async () => {
+    const root = await project();
+    const repository = store(root);
+    const first = await repository.createManual('project-a', 0, manualInput());
+    const file = join(root, REVISION_CANDIDATES_FILENAME);
+    const protectedBytes = await fs.readFile(file, 'utf8');
+    const originalRename = fs.rename.bind(fs);
+    const blockedSources: string[] = [];
+    let locksRemaining = 2;
+    const replace = vi.spyOn(fs, 'rename').mockImplementation(async (from, to) => {
+      if (String(to) === file && locksRemaining > 0) {
+        locksRemaining -= 1;
+        blockedSources.push(String(from));
+        expect(await fs.readFile(file, 'utf8')).toBe(protectedBytes);
+        throw Object.assign(new Error('Windows file sharing violation'), { code: 'EPERM' });
+      }
+      await originalRename(from, to);
+    });
+    try {
+      const input = { ...manualInput(), candidateText: '  Keep exactly this wording.  ' };
+      const committed = await repository.createManual('project-a', 1, input);
+      expect(blockedSources).toHaveLength(2);
+      expect(new Set(blockedSources).size).toBe(1);
+      expect(committed.document.candidates).toHaveLength(2);
+      expect(committed.document.candidates[0]).toEqual(first.document.candidates[0]);
+      expect(committed.document.captures?.[1]).toMatchObject({
+        operationId: input.operationId, status: 'committed', committedRevision: 2,
+        payload: { candidateText: input.candidateText },
+      });
+      expect(await new RevisionCandidateRepository(root).createManual('project-a', 1, input)).toEqual(committed);
+      expect((await readdir(root)).filter(name => name.endsWith('.tmp'))).toEqual([]);
+    } finally {
+      replace.mockRestore();
+    }
+  });
+
   it('reconciles a committed file when durable readback fails after rename', async () => {
     const root = await project(), repo = store(root), input = manualInput();
     const realRead = fs.readFile.bind(fs);

@@ -15,7 +15,7 @@ import {
   showCommandInWriting,
 } from './program7-e2e-support';
 
-import { openWritingStudioRail } from './stage19-electron-support';
+import { openSavedWritingSections, openWritingStudioRail } from './stage19-electron-support';
 
 test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
@@ -330,7 +330,7 @@ test('Project Tools remains reachable below a long source-return notice in both 
     .getByRole('button', { name: 'Open passage in Writing Studio', exact: true }).click();
   const notice = writing.locator('.stage19-spine__source-return-confirmation');
   const tools = writing.getByRole('button', { name: 'Open Project Tools', exact: true });
-  for (const width of [1907, 1280, 640, 456]) {
+  for (const width of [1907, 1280, 750, 740, 725, 640, 456]) {
     const height = width === 456 ? 496 : 900;
     await writing.setViewportSize({ width, height });
     for (const theme of ['dark', 'light'] as const) {
@@ -345,6 +345,10 @@ test('Project Tools remains reachable below a long source-return notice in both 
       expect(noticeBox).not.toBeNull();
       expect(toolsBox).not.toBeNull();
       expect(toolsBox!.y).toBeGreaterThanOrEqual(noticeBox!.y + noticeBox!.height);
+      if (width <= 760) {
+        const controls = await writing.getByRole('navigation', { name: 'Writing Studio edge controls' }).boundingBox();
+        expect(controls!.height, `narrow navigation must not inherit desktop half-window hit areas at ${width}px`).toBeLessThanOrEqual(64);
+      }
       const canvasBox = await writing.locator('[data-manuscript-scroll-owner]').boundingBox();
       expect(canvasBox).not.toBeNull();
       expect(canvasBox!.y, 'Project Tools must stay above manuscript prose').toBeGreaterThanOrEqual(toolsBox!.y + toolsBox!.height);
@@ -379,6 +383,14 @@ test('Project Tools remains reachable below a long source-return notice in both 
       await writing.getByRole('button', { name: 'Exit Focus mode', exact: true }).click();
     }
   }
+  await writing.setViewportSize({ width: 740, height: 650 });
+  await openSavedWritingSections(writing);
+  const firstSection = writing.locator('.stage19-story-rail__unit-title').first();
+  const sectionLabel = await firstSection.getAttribute('aria-label');
+  expect(sectionLabel).toMatch(/^\d+\s+\S/u);
+  const sectionTitle = sectionLabel!.replace(/^\d+\s+/u, '');
+  await firstSection.click();
+  await expect(writing.getByRole('textbox', { name: `Manuscript editor: ${sectionTitle}`, exact: true })).toBeVisible();
   await openWritingStudioRail(writing, 'Project Tools');
   await expect(writing.getByRole('region', { name: 'Project Tools', exact: true })).toBeVisible();
 });

@@ -9987,7 +9987,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-spine[data-writing-page="true"] .stage19-writing-page-tools label { min-width: 0; width: auto; flex: 0 0 auto; display: inline-flex; align-items: center; gap: .4rem; }
 .stage19-spine[data-writing-page="true"] .stage19-writing-page-tools input[type="checkbox"] { width: 1rem; min-width: 1rem; max-width: 1rem; height: 1rem; min-height: 0; flex: none; margin: 0; padding: 0; accent-color: var(--bs-accent-primary); }
 .stage19-spine[data-writing-page="true"] .stage19-writing-page-tools [aria-label="Writing highlights"] { gap: 1.25rem; }
-@media (min-width: 721px) {
+@media (min-width: 761px) {
   .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge { border-color: transparent; background: transparent; box-shadow: none; }
   .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge--left,
   .stage19-spine[data-writing-page="true"] .stage19-writing-shell__edge--right { width: 44px; min-width: 44px; height: 50vh; padding: 0; }

@@ -944,7 +944,7 @@ test('Catalog B3 manual concern keeps paired evidence, guarded alternatives, aut
     await writing.getByRole('button', { name: 'Apply all of this alternative' }).click();
     await expect.poll(() => body(0)).toBe('Mara unsealed the gate.');
     await showWritingInWriting(writing);
-    await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await writing.getByRole('button', { name: 'Undo applied revision', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
     await expect.poll(() => body(0)).toBe(bodies[0]);
@@ -2423,7 +2423,7 @@ for (const size of [
   });
 }
 
-test('Writer selection crosses pinned, unpinned and active section boundaries in both directions', async ({ electronApp, page }) => {
+test('Writer selection crosses pinned, unpinned and active section boundaries in both directions', async ({ electronApp, page }, testInfo) => {
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-cross-selection-'));
   try {
     const { writing } = await getStage19Windows(electronApp, page);
@@ -2486,13 +2486,43 @@ test('Writer selection crosses pinned, unpinned and active section boundaries in
     }, { id: fixture.ids[index]!, offset });
     const drag = async (reverse: boolean) => {
       await writing.bringToFront();
+      await writing.setViewportSize({ width: 1280, height: 1000 });
+      // Begin a new selection, rather than starting a native drag of an old
+      // highlight. Activating a later section may also have scrolled the page.
+      await writing.locator('[data-manuscript-scroll-owner]').evaluate(element => { element.scrollTop = 0; });
+      await writing.evaluate(() => { window.getSelection()?.removeAllRanges(); });
+      await writing.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
       const start = await coordinate(reverse ? 2 : 0, reverse ? bodies[2]!.length - 2 : 2);
       const end = await coordinate(reverse ? 0 : 2, reverse ? 2 : bodies[2]!.length - 2);
+      const viewport = await writing.evaluate(() => ({ width: innerWidth, height: innerHeight }));
+      for (const point of [start, end]) {
+        expect(point.x).toBeGreaterThanOrEqual(0); expect(point.x).toBeLessThan(viewport.width);
+        expect(point.y).toBeGreaterThanOrEqual(0); expect(point.y).toBeLessThan(viewport.height);
+      }
+      const pointHit = (point: { x: number; y: number }) => writing.evaluate(({ x, y }) => {
+        const target = document.elementFromPoint(x, y);
+        return { unitId: target?.closest<HTMLElement>('[data-manuscript-unit-id]')?.dataset.manuscriptUnitId,
+          className: target?.className, decoration: Boolean(target?.closest('[data-writing-decoration]')) };
+      }, point);
+      const initialHit = await pointHit(start);
+      expect(initialHit).toMatchObject({ unitId: fixture.ids[reverse ? 2 : 0], decoration: false });
       await writing.mouse.move(start.x, start.y);
       await writing.mouse.down();
       await writing.mouse.move(end.x, end.y, { steps: 24 });
       await writing.mouse.up();
-      await expect.poll(() => writing.evaluate(() => window.getSelection()?.toString())).toContain(bodies[1]);
+      try {
+        await expect.poll(() => writing.evaluate(() => window.getSelection()?.toString())).toContain(bodies[1]);
+      } catch (error) {
+        const selection = await writing.evaluate(() => ({
+          focus: document.hasFocus(),
+          active: document.activeElement?.className,
+          anchor: window.getSelection()?.anchorNode?.parentElement?.className,
+          head: window.getSelection()?.focusNode?.parentElement?.className,
+          readingMode: document.querySelector('.cm-content')?.getAttribute('data-document-selection'),
+        }));
+        await testInfo.attach('cross-passage-drag', { body: JSON.stringify({ reverse, start, end, viewport, initialHit, finalHit: await pointHit(end), selection }), contentType: 'application/json' });
+        throw error;
+      }
       await expect(writing.getByRole('button', { name: 'Merge pins', exact: true })).toBeEnabled();
       const paint = await writing.locator('.cm-content .cm-line').first().evaluate(line => getComputedStyle(line, '::selection').backgroundColor);
       expect(paint).not.toBe('rgba(0, 0, 0, 0)');
@@ -2528,6 +2558,7 @@ test('Writer selection crosses pinned, unpinned and active section boundaries in
 
     await writing.getByRole('button', { name: 'Write here: Passage 3, section 3', exact: true }).click();
     await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Passage 3', exact: true })).toBeVisible();
+    await expect(writing.getByRole('button', { name: 'Close menu', exact: true })).toHaveCount(0);
     await expect(writing.getByRole('button', { name: 'Undo', exact: true })).toBeEnabled();
     await drag(true);
     await writing.getByRole('button', { name: 'Write here: Passage 2, section 2', exact: true }).click();
@@ -2712,7 +2743,22 @@ for (const configuration of [
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-paint-witness-'));
   try {
     const { writing } = await getStage19Windows(electronApp, page);
-    await writing.setViewportSize({ width: configuration.width, height: 900 });
+    const owner = await electronApp.browserWindow(writing);
+    const displays = await electronApp.evaluate(({ screen }) => screen.getAllDisplays().map(display => ({ id: display.id, workArea: display.workArea, scaleFactor: display.scaleFactor })));
+    await testInfo.attach('available-displays', { body: JSON.stringify(displays), contentType: 'application/json' });
+    const showOnDisplay = async (area: (typeof displays)[number]['workArea']) => {
+      await owner.evaluate((window, { area, width, height }) => {
+        window.unmaximize();
+        window.setBounds({ x: area.x + 12, y: area.y + 12, width, height });
+        window.show(); window.focus(); window.webContents.focus();
+      }, { area, width: Math.min(configuration.width + 18, area.width - 48), height: Math.min(938, area.height - 48) });
+      await expect.poll(async () => {
+        const viewport = await writing.evaluate(() => ({ width: innerWidth, height: innerHeight }));
+        const bounds = await owner.evaluate(window => window.getContentBounds());
+        return Math.max(Math.abs(viewport.width - bounds.width), Math.abs(viewport.height - bounds.height));
+      }).toBeLessThanOrEqual(3);
+    };
+    await showOnDisplay(displays[0]!.workArea);
     await electronApp.evaluate(({ app }, enabled) => { app.setAccessibilitySupportEnabled(enabled); }, configuration.accessibility);
     const body = Array.from({ length: configuration.paragraphs }, (_, index) => `Passage ${index + 1}: Moonlight crossed the quiet water while Mara watched the forest.`).join('\n\n');
     const fixture = await writing.evaluate(async ({ parentPath, body }) => {
@@ -2735,7 +2781,20 @@ for (const configuration of [
     const before = await readFile(join(fixture.projectPath, 'drafts', fixture.unitId + '.md'), 'utf8');
     const observe = async (name: string, expectedInk = true) => {
       await writing.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-      const line = editor.locator('.cm-line').last();
+      const lines = editor.locator('.cm-line');
+      // CodeMirror overscans beyond the viewport. Observe an actually visible
+      // glyph range without scrolling it (which could mask missing painting).
+      const index = await lines.evaluateAll(nodes => {
+        const canvas = document.querySelector('[data-manuscript-scroll-owner]')!.getBoundingClientRect();
+        let last = -1;
+        nodes.forEach((node, index) => {
+          const rect = node.getBoundingClientRect();
+          if (node.textContent?.trim() && rect.top >= Math.max(0, canvas.top) && rect.bottom <= Math.min(innerHeight, canvas.bottom)) last = index;
+        });
+        return last;
+      });
+      expect(index, 'the scrolled manuscript must contain a fully visible line').toBeGreaterThanOrEqual(0);
+      const line = lines.nth(index);
       const result = await readWritingPaintWitness(electronApp, line);
       await testInfo.attach(`${name}-native-window`, { body: Buffer.from(result.native.png, 'base64'), contentType: 'image/png' });
       await testInfo.attach(`${name}-renderer`, { body: Buffer.from(result.renderer.png, 'base64'), contentType: 'image/png' });
@@ -2763,6 +2822,18 @@ for (const configuration of [
     await tools.evaluate(element => { element.scrollTop = element.scrollHeight; });
     await tools.getByRole('button', { name: 'Close', exact: true }).click();
     await observe('project-tools-scroll-return');
+    // Historical review launchers used the other physical display. Exercise
+    // every display this host actually has; retain the inventory on single-screen CI.
+    for (const display of displays.slice(1)) {
+      await showOnDisplay(display.workArea);
+      await editor.press('Control+End');
+      await openWritingStudioRail(writing, 'Project Tools');
+      await tools.evaluate(element => { element.scrollTop = element.scrollHeight; });
+      await tools.getByRole('button', { name: 'Close', exact: true }).click();
+      await observe(`physical-display-${display.id}-scroll-return`);
+      await showCommandInWriting(writing); await showWritingInWriting(writing);
+      await observe(`physical-display-${display.id}-surface-return`);
+    }
     if (configuration.name === 'short wide') {
       await editor.locator('.cm-line').last().evaluate(element => { (element as HTMLElement).style.visibility = 'hidden'; });
       try { await observe('missing-paint-negative-control', false); }

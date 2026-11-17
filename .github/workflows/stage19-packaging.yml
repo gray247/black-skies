@@ -131,5 +131,9 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
           path: |
+            test-results
+            playwright-report
             app/test-results
             app/playwright-report
+            ${{ env.STAGE19_LIFECYCLE_ROOT }}/offline-spelling-witness.json
+            ${{ env.STAGE19_LIFECYCLE_ROOT }}/stage19-22-lifecycle-evidence.json

@@ -59,7 +59,11 @@ test('P4 Companion orientation is temporary, local, and absent after project reo
     await openWritingStudioRail(writing, 'Companion');
     const prompt = writing.getByRole('textbox', { name: 'Ask Black Skies' });
     await prompt.click();
-    await writing.getByRole('heading', { name: 'Companion Boundary Project' }).hover();
+    const viewport = await writing.evaluate(() => ({ width: innerWidth, height: innerHeight }));
+    // Leave the rail with the pointer while the field owns keyboard focus.
+    // The heading can be clipped when the actual desktop is very short.
+    await writing.mouse.move(viewport.width / 2, 2);
+    await expect(prompt).toBeFocused();
     await prompt.pressSequentially('Where am I?', { delay: 35 });
     await expect(prompt).toHaveValue('Where am I?');
     await prompt.press('Enter');

@@ -563,7 +563,7 @@ test('Manual capture receipts survive simultaneous saves, a lost completion and 
         if (String(to) === projectPath + '/revision-candidates.json' || String(to).replaceAll('\\', '/') === projectPath.replaceAll('\\', '/') + '/revision-candidates.json') {
           const text = await fs.readFile(from, 'utf8');
           if (text.includes('prepared-restart') && text.includes('"purpose": "  Exact purpose 2  "') && JSON.parse(text).captures.some((item: { operationId: string; status: string }) => item.operationId === 'prepared-restart' && item.status === 'committed')) {
-            fs.rename = rename; throw Object.assign(new Error('Injected capture commit failure after preparation'), { code: 'EBUSY' });
+            fs.rename = rename; throw Object.assign(new Error('Injected capture commit failure after preparation'), { code: 'EIO' });
           }
         }
         return rename(from, to);

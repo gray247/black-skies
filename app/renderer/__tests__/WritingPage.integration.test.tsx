@@ -279,6 +279,18 @@ async function renameEdgeGroup(label: string, name: string) {
 }
 
 describe('Outstanding writer edge cases after completed Batch A', () => {
+  it('retains typed preference values when a delayed native details toggle arrives', async () => {
+    await setup();
+    const summary = screen.getByText('Writing preferences', { exact: true });
+    const details = summary.closest('details')!;
+    // Native toggle is queued separately from activation. Input may already
+    // have changed before that event is delivered on a slower host.
+    details.open = true;
+    fireEvent.change(screen.getByLabelText('Text size (px)', { selector: 'input' }), { target: { value: '24' } });
+    fireEvent(details, new Event('toggle'));
+    expect(screen.getByLabelText('Text size (px)', { selector: 'input' })).toHaveValue(24);
+  });
+
   it('saves mapped unit links after durable revision application and retains one chronological Undo', async () => {
     let finish!: () => void;
     const pending = new Promise<void>(resolve => { finish = resolve; });
