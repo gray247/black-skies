@@ -48,6 +48,7 @@ jobs:
           $qualificationTemp = (Resolve-Path -LiteralPath $qualificationTemp).Path
           "TEMP=$qualificationTemp" | Out-File -FilePath $env:GITHUB_ENV -Append
           "TMP=$qualificationTemp" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "STAGE19_LIFECYCLE_ROOT=$(Join-Path $qualificationTemp 'lifecycle')" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Set up Python for repository hygiene gate
         uses: actions/setup-python@v6
         with:
@@ -84,30 +85,44 @@ jobs:
           ./scripts/stage19-installed-lifecycle.ps1 `
             -InstallerPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
             -ReceiptPath ./app/release/stage19-package-receipt.json `
-            -WorkingRoot ./.tmp/stage19-22-lifecycle
+            -WorkingRoot $env:STAGE19_LIFECYCLE_ROOT `
+            -StabilitySpellingProof
       - name: Verify receipt-bound installed candidate
         shell: pwsh
         run: |
           node ./scripts/stage19-22-qualification-witness.mjs `
             --receipt ./app/release/stage19-package-receipt.json `
             --installer ./app/release/BlackSkies-Setup-1.0.0-rc1.exe `
-            --install-dir ./.tmp/stage19-22-lifecycle/installed `
-            --external-root ./.tmp/stage19-22-lifecycle/external-data `
-            --lifecycle-evidence ./.tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json `
-            --expected-manifest ./.tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
+            --install-dir "$env:STAGE19_LIFECYCLE_ROOT/installed" `
+            --external-root "$env:STAGE19_LIFECYCLE_ROOT/external-data" `
+            --lifecycle-evidence "$env:STAGE19_LIFECYCLE_ROOT/stage19-22-lifecycle-evidence.json" `
+            --expected-manifest "$env:STAGE19_LIFECYCLE_ROOT/stage19-22-external-manifest.json"
       - name: Enforce Program 3/4 Writing-first installed qualification
         run: pnpm program3:performance -- --receipt app/release/stage19-package-receipt.json
-      - name: Upload qualified RC installer and receipt
+      - name: Assemble and bind the development candidate artifact
+        shell: pwsh
+        run: |
+          $artifactRoot = Join-Path $env:RUNNER_TEMP 'black-skies-qualified-development'
+          New-Item -ItemType Directory -Path $artifactRoot -ErrorAction Stop | Out-Null
+          Copy-Item -LiteralPath ./app/release/BlackSkies-Setup-1.0.0-rc1.exe -Destination $artifactRoot
+          Copy-Item -LiteralPath ./app/release/stage19-package-receipt.json -Destination $artifactRoot
+          Copy-Item -LiteralPath ./app/release/win-unpacked -Destination $artifactRoot -Recurse
+          foreach ($name in @('offline-spelling-witness.json', 'stage19-22-lifecycle-evidence.json', 'stage19-22-external-manifest.json')) {
+            Copy-Item -LiteralPath (Join-Path $env:STAGE19_LIFECYCLE_ROOT $name) -Destination $artifactRoot
+          }
+          node ./scripts/stage19-regression.mjs `
+            --manifest docs/testing/program7_stability_repair_manifest.json `
+            --phase packaged --artifact-root $artifactRoot `
+            --evidence-root (Join-Path $artifactRoot 'qualification')
+          if ($LASTEXITCODE -ne 0) { throw 'Development package binding failed.' }
+          "STAGE19_ARTIFACT_ROOT=$artifactRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Upload qualified development candidate
         uses: actions/upload-artifact@v6
         with:
           name: black-skies-1.0.0-rc1-${{ steps.validate_source.outputs.sha }}
           retention-days: 14
           if-no-files-found: error
-          path: |
-            app/release/BlackSkies-Setup-1.0.0-rc1.exe
-            app/release/stage19-package-receipt.json
-            .tmp/stage19-22-lifecycle/stage19-22-lifecycle-evidence.json
-            .tmp/stage19-22-lifecycle/stage19-22-external-manifest.json
+          path: ${{ env.STAGE19_ARTIFACT_ROOT }}/**
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v6

@@ -1,4 +1,4 @@
-﻿import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+﻿import { app, BrowserWindow, dialog, ipcMain, shell, session } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { screen } from 'electron';
 import { randomUUID } from 'node:crypto';
@@ -67,6 +67,8 @@ import { deriveSplitCommandInitialPlacement, type InitialWindowBounds } from './
 import { PROJECT_SPINE_CHANNELS, type ProjectSpineWindowRole } from '../shared/ipc/projectSpine.js';
 import {
   getProjectSpineSnapshot,
+  provisionOfflineSpelling,
+  withProjectSpineRevisionCapture,
   registerProjectSpineIpc,
 } from './projectSpineIpc.js';
 import {
@@ -127,6 +129,7 @@ function resolveProjectRoot(): string {
 }
 
 const projectRoot = resolveProjectRoot();
+let offlineSpellingReady = process.platform === 'darwin';
 const STAGE19_STARTUP_PROBE_KEY = Symbol.for('blackskies.stage19.internal.startupProbe');
 const stage19StartupProbeStartedAt =
   process.env.STAGE19_INTERNAL_STARTUP_PROBE === '1' ? process.hrtime.bigint() : null;
@@ -1234,8 +1237,8 @@ async function createMainWindow(initialBounds?: InitialWindowBounds): Promise<Br
       sandbox: app.isPackaged,
       preload: ACTIVE_PRELOAD_PATH,
       additionalArguments: splitCommandLifecycleSeam
-        ? [...splitCommandLifecycleSeam.launchArguments]
-        : [],
+        ? [...splitCommandLifecycleSeam.launchArguments, `--blackskies-offline-spelling=${offlineSpellingReady ? 'ready' : 'unavailable'}`]
+        : [`--blackskies-offline-spelling=${offlineSpellingReady ? 'ready' : 'unavailable'}`],
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
@@ -1340,7 +1343,7 @@ async function createSplitCommandSecondaryWindow(
       nodeIntegration: false,
       sandbox: app.isPackaged,
       preload: ACTIVE_PRELOAD_PATH,
-      additionalArguments: [...contract.launchArguments],
+      additionalArguments: [...contract.launchArguments, `--blackskies-offline-spelling=${offlineSpellingReady ? 'ready' : 'unavailable'}`],
     },
   } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
   const window = new BrowserWindow(windowOptions);
@@ -1841,6 +1844,23 @@ if (!hasSingleInstanceLock) {
     .whenReady()
     .then(async () => {
       await initializeMainLogging(app);
+      if (process.platform !== 'darwin') {
+        const dictionary = await provisionOfflineSpelling(
+          app.isPackaged ? join(process.resourcesPath, 'dictionaries') : join(projectRoot, 'resources', 'dictionaries'),
+          app.getPath('sessionData'),
+        );
+        if (process.env.BLACKSKIES_STABILITY_SPELLING_TRACE === '1' && process.env.BLACKSKIES_E2E_MODE === '1') {
+          session.defaultSession.on('spellcheck-dictionary-initialized', (_event, language) => console.log('[spelling] dictionary initialized', language));
+          session.defaultSession.on('spellcheck-dictionary-download-begin', (_event, language) => console.log('[spelling] download began', language));
+          session.defaultSession.on('spellcheck-dictionary-download-failure', (_event, language) => console.log('[spelling] download failed', language));
+          console.log('[spelling] verified source', dictionary, 'session', session.defaultSession.storagePath);
+        }
+        offlineSpellingReady = dictionary.available;
+        session.defaultSession.setSpellCheckerEnabled(offlineSpellingReady);
+        if (offlineSpellingReady) session.defaultSession.setSpellCheckerLanguages(['en-US']);
+        ensureMainLogger()[offlineSpellingReady ? 'info' : 'warn']('Offline spelling initialization', dictionary);
+      }
+
       registerRendererLogSink();
       registerProjectLoaderIpc();
       registerProjectSpineIpc({
@@ -1874,6 +1894,7 @@ if (!hasSingleInstanceLock) {
         localInferenceService: program7LocalInferenceService,
       });
       registerRevisionCandidateIpc({
+        withCaptureSession: withProjectSpineRevisionCapture,
         resolveWindowRole: resolveProjectSpineWindowRole,
         getWritingSnapshot: () => getProjectSpineSnapshot('writing'),
         localInferenceService: program7LocalInferenceService,

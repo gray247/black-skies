@@ -31,7 +31,12 @@ const ipcRendererMock = vi.hoisted(() => ({
   send: vi.fn(),
 }));
 
+const spellingProviderMock = vi.hoisted(() => vi.fn());
+
+const nativeSpellingMock = vi.hoisted(() => ({ isWordMisspelled: vi.fn(), getWordSuggestions: vi.fn() }));
+
 vi.mock('electron', () => ({
+  webFrame: { setSpellCheckProvider: spellingProviderMock, isWordMisspelled: nativeSpellingMock.isWordMisspelled, getWordSuggestions: nativeSpellingMock.getWordSuggestions },
   contextBridge: {
     exposeInMainWorld: vi.fn((key: string, value: unknown) => exposed.set(key, value)),
   },
@@ -73,6 +78,36 @@ describe('dedicated Stage 19 preload', () => {
   });
 
   afterEach(restoreGlobals);
+
+  it('preserves the native macOS checker without installing the Windows provider', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(process, 'platform')!;
+    spellingProviderMock.mockReset();
+    nativeSpellingMock.isWordMisspelled.mockImplementation(word => word !== 'forest');
+    nativeSpellingMock.getWordSuggestions.mockReturnValue(['forest']);
+    try {
+      Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
+      await import('../stage19Preload');
+      expect(spellingProviderMock).not.toHaveBeenCalled();
+      const bridge = exposed.get('projectSpine') as import('../../shared/ipc/projectSpine').ProjectSpineBridge;
+      expect(await bridge.checkSpelling!('foorrrest')).toEqual({ available: true, misspelled: true, suggestions: ['forest'] });
+      expect(await bridge.checkSpelling!('forest')).toMatchObject({ available: true, misspelled: false });
+    } finally { Object.defineProperty(process, 'platform', descriptor); }
+  });
+
+  it('keeps checking ordinary words beside unsupported long tokens in bounded provider batches', async () => {
+    spellingProviderMock.mockReset();
+    await import('../stage19Preload');
+    const provider = spellingProviderMock.mock.calls.at(-1)![1] as { spellCheck(words: string[], callback: (misspelled: string[]) => void): void };
+    ipcRendererMock.invoke.mockImplementation(async (_channel, request) => request.words.some((word: string) => word.length > 80)
+      ? [] : request.words.map((word: string) => ({ available: true, misspelled: word === 'foorrrest' })));
+    const words = ['x'.repeat(81), '123', 'foorrrest', ...Array<string>(260).fill('forest')];
+    const callback = vi.fn();
+    await new Promise<void>(resolve => provider.spellCheck(words, result => { callback(result); resolve(); }));
+    expect(callback).toHaveBeenCalledExactlyOnceWith(['foorrrest']);
+    const requests = ipcRendererMock.invoke.mock.calls.filter(([channel]) => channel === PROJECT_SPINE_CHANNELS.checkSpelling).map(([, request]) => request);
+    expect(requests).toHaveLength(3);
+    expect(requests.every(request => request.words.length <= 128 && request.words.every((word: string) => /^[\p{L}\p{M}'’–-]{1,80}$/u.test(word)))).toBe(true);
+  });
 
   it('keeps its channel table equal to canonical contracts', async () => {
     const { STAGE19_PRELOAD_CHANNELS } = await import('../stage19Preload');

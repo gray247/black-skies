@@ -3,7 +3,10 @@
 // Owner: app/tests/e2e/program7-revision.spec.ts
 // Retire when: installed-build qualification provides equivalent source-return, acceptance, persistence and History coverage without harness-only dependencies.
 
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { removeTemporaryDirectory } from './stage19-electron-support';
 import path from 'node:path';
 import { expect, restartElectronApp, test } from './_electron.fixture';
 import {
@@ -203,6 +206,7 @@ test('Program 7 routes a current Carmilla finding through no-AI revision review 
     const expectedDraft = `${header}\n${expectedBody}`;
     await expect.poll(async () => await readFile(draftPath, 'utf8')).toBe(expectedDraft);
     await expect(writing.getByText('This is the alternative you applied.', { exact: true })).toBeVisible();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
 
     const restarted = await restartElectronApp(electronApp);
     const restartedPage = await restarted.firstWindow();
@@ -230,6 +234,7 @@ test('A changed saved passage blocks the earlier alternative without another man
   await showCommandInWriting(writing);
   await writing.locator('#program7-candidate-purpose').fill('Review the current opening.');
   await writing.locator('#program7-candidate-text').fill('An alternative that must become stale.');
+  if (await writing.getByLabel('Use this entire saved section for the alternative', { exact: true }).isVisible()) await writing.getByLabel('Use this entire saved section for the alternative', { exact: true }).check();
   await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
   const draftPath = path.join(projectPath, 'drafts', 'carmilla-chapter-01.md');
   const before = await readFile(draftPath, 'utf8');
@@ -285,7 +290,8 @@ test('A changed saved passage blocks the earlier alternative without another man
     await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
     await writing.locator('#program7-candidate-purpose').fill(`Current B — ${label}`);
     await writing.locator('#program7-candidate-text').fill('A current alternative that will not change the manuscript.');
-    await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
+    if (await writing.getByLabel('Use this entire saved section for the alternative', { exact: true }).isVisible()) await writing.getByLabel('Use this entire saved section for the alternative', { exact: true }).check();
+  await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
     await writing.getByRole('button', { name: 'History', exact: true }).click();
     await expect(writing.getByTestId(staleCardId)).toContainText('Original has changed');
     await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
@@ -503,4 +509,117 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   expect(await readFile(otherPath, 'utf8')).toBe(otherBefore);
   await finalWriting.screenshot({ path: testInfo.outputPath('inactive-preview-revision-reopened.png') });
 
+});
+
+test('Manual capture receipts survive simultaneous saves, a lost completion and a prepared-save process restart', async ({ electronApp, page }, testInfo) => {
+  const parent = await mkdtemp(path.join(tmpdir(), 'black-skies-capture-transaction-'));
+  let writing = (await getProgram7Windows(electronApp, page)).writing;
+  try {
+    const bodies = ['First source: Moonlight crossed the quiet water.', 'Second source: Mara watched the forest.'];
+    const fixture = await writing.evaluate(async ({ parent, bodies }) => {
+      const api = window.projectSpine!;
+      const made = await api.createProject({ parentPath: parent, title: 'Disposable capture transaction', operationId: 'capture-proof-project' });
+      if (!made.ok) throw Error(made.error.message);
+      const binding = { projectId: made.snapshot.project!.projectId, projectPath: made.snapshot.project!.path, generation: made.snapshot.generation };
+      const ids: string[] = [];
+      for (const [index, body] of bodies.entries()) {
+        const unit = await api.createUnit!({ ...binding, title: `Capture source ${index + 1}`, operationId: `capture-proof-unit-${index}` });
+        if (!unit.ok) throw Error(unit.error.message);
+        ids.push(unit.data.unitId);
+        const raw = unit.snapshot.project!.drafts![unit.data.unitId]!;
+        const saved = await api.saveUnit!({ ...binding, unitId: unit.data.unitId, expectedMarkdown: raw, markdown: raw + body + '\n', submittedProse: body, operationId: `capture-proof-source-${index}` });
+        if (!saved.ok) throw Error(saved.error.message);
+      }
+      return { ...binding, ids };
+    }, { parent, bodies });
+    const file = path.join(fixture.projectPath, 'revision-candidates.json');
+    const originalV1 = JSON.stringify({ schemaVersion: 'BlackSkiesRevisionCandidates v1', projectId: fixture.projectId, revision: 0, candidates: [] }, null, 3) + '\r\n';
+    await writeFile(file, originalV1, 'utf8');
+    const request = (index: number, operationId: string, expectedRevision: number): import('../../shared/ipc/revisionCandidates').CreateManualRevisionCandidateRequest => ({
+      projectId: fixture.projectId, projectPath: fixture.projectPath, generation: fixture.generation, operationId, expectedRevision, unitId: fixture.ids[index]!,
+      sourceSnapshot: { unitId: fixture.ids[index]!, text: bodies[index]!, bodySha256: createHash('sha256').update(bodies[index]!).digest('hex') },
+      sourceAnchor: { unitId: fixture.ids[index]!, selectionStart: 0, selectionEnd: bodies[index]!.length, selectionFingerprint: createHash('sha256').update(bodies[index]!).digest('hex') },
+      purpose: `  Exact purpose ${index + 1}  `, candidateText: `  Exact proposed wording ${index + 1}.\n`, protection: { excluded: false, class: 'ordinary' },
+    });
+    await writing.evaluate(({ binding, id }) => window.projectSpine!.selectUnit({ ...binding, unitId: id, operationId: 'capture-inactive-source' }), { binding: fixture, id: fixture.ids[1]! });
+    const first = request(0, 'simultaneous-capture', 0);
+    const simultaneous = await writing.evaluate(request => Promise.all([window.revisionCandidates!.createManual(request), window.revisionCandidates!.createManual(request)]), first);
+    expect(simultaneous.some(result => result.ok)).toBe(true);
+    expect(simultaneous.every(result => result.ok || result.error.code === 'CAPTURE_IN_PROGRESS')).toBe(true);
+    const disk = async () => JSON.parse(await readFile(file, 'utf8'));
+    expect((await disk()).candidates).toHaveLength(1);
+    const firstId = (await disk()).candidates[0].id;
+    expect((await writing.evaluate(() => window.projectSpine!.getSession())).activeUnitId).toBe(fixture.ids[1]);
+    expect(await readFile(path.join(fixture.projectPath, 'revision-candidates.v1.backup.json'), 'utf8')).toBe(originalV1);
+    const retry = await writing.evaluate(request => window.revisionCandidates!.createManual(request), first);
+    expect(retry.ok && retry.data.document.candidates[0]!.id).toBe(firstId);
+    const conflict = await writing.evaluate(request => window.revisionCandidates!.createManual({ ...request, candidateText: 'Different wording under the same identity' }), first);
+    expect(conflict.ok).toBe(false);
+
+    // Fail the committed write only, after its prepared receipt is durable.
+    await electronApp.evaluate(async (_electron, projectPath) => {
+      const fs = process.getBuiltinModule('fs/promises') as typeof import('node:fs/promises'), rename = fs.rename.bind(fs);
+      fs.rename = async (from, to) => {
+        if (String(to) === projectPath + '/revision-candidates.json' || String(to).replaceAll('\\', '/') === projectPath.replaceAll('\\', '/') + '/revision-candidates.json') {
+          const text = await fs.readFile(from, 'utf8');
+          if (text.includes('prepared-restart') && text.includes('"purpose": "  Exact purpose 2  "') && JSON.parse(text).captures.some((item: { operationId: string; status: string }) => item.operationId === 'prepared-restart' && item.status === 'committed')) {
+            fs.rename = rename; throw Object.assign(new Error('Injected capture commit failure after preparation'), { code: 'EBUSY' });
+          }
+        }
+        return rename(from, to);
+      };
+    }, fixture.projectPath);
+    const second = request(1, 'prepared-restart', 1);
+    const interrupted = await writing.evaluate(request => window.revisionCandidates!.createManual(request), second);
+    expect(interrupted.ok).toBe(false);
+    const prepared = (await disk()).captures.find((item: { operationId: string }) => item.operationId === second.operationId);
+    expect(prepared).toMatchObject({ status: 'prepared', payload: { purpose: second.purpose, candidateText: second.candidateText } });
+    const restarted = await restartElectronApp(electronApp);
+    writing = (await getProgram7Windows(restarted, await restarted.firstWindow())).writing;
+    await openProgram7Project(writing, fixture.projectPath); await showCommandInWriting(writing);
+    await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
+    await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
+    await expect(writing.locator('#program7-candidate-purpose')).toHaveValue(second.purpose);
+    await expect(writing.locator('#program7-candidate-text')).toHaveValue(second.candidateText);
+    await expect(writing.locator('#program7-candidate-text')).toBeDisabled();
+    await writing.getByRole('button', { name: 'Check save', exact: true }).click();
+    await expect.poll(async () => (await disk()).captures.find((item: { operationId: string }) => item.operationId === second.operationId).status).toBe('committed');
+    expect((await disk()).candidates.map((item: { id: string }) => item.id)).toEqual([firstId, prepared.candidateId]);
+    const state = await writing.evaluate(() => window.projectSpine!.getSession());
+    const replay = await writing.evaluate(request => window.revisionCandidates!.createManual(request), { ...second, generation: state.generation });
+    expect(replay.ok && replay.data.document.candidates.map(item => item.id)).toEqual([firstId, prepared.candidateId]);
+    expect((await disk()).candidates[1]).toMatchObject({ purpose: second.purpose, candidateText: second.candidateText, sourceSnapshot: second.sourceSnapshot, sourceAnchor: second.sourceAnchor });
+    expect(await readFile(path.join(fixture.projectPath, 'revision-candidates.v1.backup.json'), 'utf8')).toBe(originalV1);
+    // Commit is durable, but its exact readback/confirmation is deliberately
+    // lost. Retrying after another full exit must replay, never append.
+    await restarted.evaluate(async (_electron, projectPath) => {
+      const fs = process.getBuiltinModule('fs/promises') as typeof import('node:fs/promises');
+      const read = fs.readFile.bind(fs);
+      fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+        const value = await read(...args);
+        if (String(args[0]).replaceAll('\\', '/') === projectPath.replaceAll('\\', '/') + '/revision-candidates.json') {
+          const text = value.toString();
+          if (text.includes('lost-completion') && JSON.parse(text).captures.some((item: { operationId: string; status: string }) => item.operationId === 'lost-completion' && item.status === 'committed')) {
+            fs.readFile = read; throw Object.assign(new Error('Injected lost durable readback'), { code: 'EIO' });
+          }
+        }
+        return value;
+      }) as typeof fs.readFile;
+    }, fixture.projectPath);
+    const third = { ...request(0, 'lost-completion', 2), generation: state.generation, purpose: '  Exact purpose 3  ', candidateText: '  Third exact alternative.\n' };
+    const lost = await writing.evaluate(request => window.revisionCandidates!.createManual(request), third);
+    expect(lost.ok).toBe(false);
+    expect(!lost.ok && lost.error.code).toBe('CANDIDATE_WRITE_FAILED');
+    const committed = (await disk()).captures.find((item: { operationId: string }) => item.operationId === third.operationId);
+    expect(committed.status).toBe('committed');
+    expect((await disk()).candidates).toHaveLength(3);
+    const finalProcess = await restartElectronApp(restarted);
+    writing = (await getProgram7Windows(finalProcess, await finalProcess.firstWindow())).writing;
+    await openProgram7Project(writing, fixture.projectPath);
+    const finalState = await writing.evaluate(() => window.projectSpine!.getSession());
+    const confirmed = await writing.evaluate(request => window.revisionCandidates!.createManual(request), { ...third, generation: finalState.generation });
+    expect(confirmed.ok && confirmed.data.document.candidates.map(item => item.id)).toEqual([firstId, prepared.candidateId, committed.candidateId]);
+    expect((await disk()).candidates[2]).toMatchObject({ id: committed.candidateId, purpose: third.purpose, candidateText: third.candidateText, sourceAnchor: third.sourceAnchor });
+    await testInfo.attach('capture-native-transaction', { body: JSON.stringify({ ids: [firstId, prepared.candidateId], preparedIdentitySurvived: true, lostCompletionReplayed: true, exactWhitespaceSurvived: true, exactV1Backup: true, doubleSaveCount: 1, restartedGeneration: state.generation }), contentType: 'application/json' });
+  } finally { await removeTemporaryDirectory(parent); }
 });

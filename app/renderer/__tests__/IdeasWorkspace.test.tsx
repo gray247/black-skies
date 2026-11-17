@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { IDEATION_FIXED_CORE_QUESTIONS, type IdeationBranchPosture, type IdeationSnapshotV1 } from '../../shared/ipc/ideation';
@@ -58,6 +58,28 @@ function branch(id = 'branch-a', posture: IdeationBranchPosture = 'active') {
 }
 
 describe('IdeasWorkspace component', () => {
+  it('withholds an old destination preview while a fresh preview is still being saved', async () => {
+    const direction = branch();
+    const prepared = { id: 'old-preview', branchId: direction.id, seedIds: direction.seedIds, destination: 'author-intent' as const,
+      selectedText: direction.premiseVersions[0]!.text, selectedTextSha256: 'a'.repeat(64), sourceContributions: [], preparedAt: '2026-11-17T00:00:00Z',
+      provenance: { kind: 'author' as const, actor: 'author' as const, capturedAt: '2026-11-17T00:00:00Z', sourceReference: ':premise=branch-a-premise-v1:', authorRequested: true }, status: 'prepared' as const };
+    const data = snapshot({ document: { ...snapshot().document, branches: [direction], promotionPackages: [prepared] } });
+    let finish!: () => void;
+    const pending = new Promise<void>(resolve => { finish = resolve; });
+    const prepare = vi.fn(() => pending), route = vi.fn();
+    render(<IdeasWorkspace snapshot={data} onPreparePromotion={prepare} onRoutePromotion={route} />);
+    const send = screen.getByRole('button', { name: 'Send to Story Foundation' });
+    expect(send).toBeEnabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Preview destination' }));
+    expect(send).toBeDisabled();
+    fireEvent.click(send);
+    expect(route).not.toHaveBeenCalled();
+    await act(async () => { finish(); await pending; });
+    await waitFor(() => expect(send).toBeEnabled());
+    fireEvent.click(send);
+    expect(route).toHaveBeenCalledOnce();
+  });
+
   it('retains unfinished seed/direction fields by project/path and leaves a different project blank', () => {
     const memory = new Map<string, IdeasUnfinishedWork>();
     const a = render(<IdeasWorkspace snapshot={snapshot()} draftKey="a:path-a" draftMemory={memory} />);

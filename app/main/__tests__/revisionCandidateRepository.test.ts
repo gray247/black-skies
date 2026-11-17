@@ -42,8 +42,10 @@ function store(root: string, sequence = { value: 0 }) {
     () => `id-${++sequence.value}`,
   );
 }
+let manualOperation = 0;
 function manualInput() {
   return {
+    operationId: `manual-operation-${++manualOperation}`,
     sourceSnapshot: source,
     sourceAnchor: {
       unitId: 'unit-a',
@@ -97,6 +99,121 @@ function response(): Program7LocalInferenceResponseV1 {
 }
 
 describe('revision candidate repository', () => {
+  it('preserves exact proposal whitespace and clones author input before asynchronous preparation', async () => {
+    const root = await project(), repo = store(root);
+    const input = { ...manualInput(), purpose: '  Keep rhythm.  ', candidateText: '\n  A different rhythm.\n' };
+    let release!: () => void, entered!: () => void;
+    const waiting = new Promise<void>(resolve => { release = resolve; });
+    const prepared = new Promise<void>(resolve => { entered = resolve; });
+    const saving = repo.createManual('project-a', 0, input, async () => { entered(); await waiting; });
+    await prepared;
+    input.candidateText = 'Changed after Save';
+    release();
+    const saved = await saving;
+    expect(saved.document.candidates[0]).toMatchObject({ purpose: '  Keep rhythm.  ', candidateText: '\n  A different rhythm.\n' });
+    expect(saved.document.captures![0]!.payload.candidateText).toBe('\n  A different rhythm.\n');
+  });
+
+  it('serializes simultaneous same-operation saves into one identity and one creation event', async () => {
+    const root = await project(), repo = store(root), input = manualInput();
+    const [first, second] = await Promise.all([repo.createManual('project-a', 0, input), repo.createManual('project-a', 0, input)]);
+    expect(second).toEqual(first);
+    expect(second.document.candidates).toHaveLength(1);
+    expect(second.document.candidates[0]!.history).toHaveLength(1);
+    expect(second.document.captures).toHaveLength(1);
+  });
+
+  it('resumes a prepared capture after interruption without retargeting or a second candidate', async () => {
+    const root = await project(), repo = store(root), input = manualInput();
+    await expect(repo.createManual('project-a', 0, input, async () => { throw new Error('Simulated process interruption'); })).rejects.toThrow('Simulated process interruption');
+    const prepared = await new RevisionCandidateRepository(root).read('project-a');
+    expect(prepared.availability).toBe('ready');
+    expect(prepared.document.candidates).toEqual([]);
+    expect(prepared.document.captures![0]!.status).toBe('prepared');
+    const saved = await new RevisionCandidateRepository(root).createManual('project-a', 999, input);
+    expect(saved.document.candidates.map(candidate => candidate.id)).toEqual([prepared.document.captures![0]!.candidateId]);
+    expect(saved.document.captures![0]!.payload).toEqual(prepared.document.captures![0]!.payload);
+  });
+
+  it('reconciles a committed file when durable readback fails after rename', async () => {
+    const root = await project(), repo = store(root), input = manualInput();
+    const realRead = fs.readFile.bind(fs);
+    let failed = false;
+    const read = vi.spyOn(fs, 'readFile').mockImplementation(async (...args: Parameters<typeof fs.readFile>) => {
+      const value = await realRead(...args);
+      if (!failed && String(args[0]) === join(root, REVISION_CANDIDATES_FILENAME) && String(value).includes('"status": "committed"')) {
+        failed = true; throw Object.assign(new Error('Lost completion'), { code: 'EIO' });
+      }
+      return value;
+    });
+    await expect(repo.createManual('project-a', 0, input)).rejects.toMatchObject({ code: 'WRITE_FAILED' });
+    read.mockRestore();
+    expect(failed).toBe(true);
+    const validate = vi.fn(async () => { throw new Error('Already committed source must not be revalidated'); });
+    const replay = await new RevisionCandidateRepository(root).createManual('project-a', 0, input, validate);
+    expect(validate).not.toHaveBeenCalled();
+    expect(replay.document.candidates).toHaveLength(1);
+    expect(replay.document.captures![0]!.status).toBe('committed');
+  });
+
+  it('preserves V1 bytes and existing candidates before the first V2 mutation', async () => {
+    const root = await project(), repo = store(root);
+    const first = await repo.createManual('project-a', 0, manualInput());
+    const legacy = { schemaVersion: REVISION_CANDIDATE_SCHEMA_VERSION, projectId: 'project-a', revision: 1, candidates: first.document.candidates };
+    const original = JSON.stringify(legacy, null, 4).replace(/\n/g, '\r\n') + '\r\n';
+    await writeFile(join(root, REVISION_CANDIDATES_FILENAME), original);
+    expect((await repo.read('project-a')).document).toEqual(legacy);
+    const saved = await repo.createManual('project-a', 1, manualInput());
+    expect(await readFile(join(root, 'revision-candidates.v1.backup.json'), 'utf8')).toBe(original);
+    expect(saved.document.candidates[0]).toEqual(first.document.candidates[0]);
+    expect(await new RevisionCandidateRepository(root).read('project-a')).toEqual(saved);
+  });
+
+  it('refuses a conflicting migration backup without overwriting either original', async () => {
+    const root = await project(), repo = store(root);
+    const original = JSON.stringify({ schemaVersion: REVISION_CANDIDATE_SCHEMA_VERSION, projectId: 'project-a', revision: 0, candidates: [] });
+    await writeFile(join(root, REVISION_CANDIDATES_FILENAME), original);
+    await writeFile(join(root, 'revision-candidates.v1.backup.json'), 'Other preserved history');
+    await expect(repo.createManual('project-a', 0, manualInput())).rejects.toMatchObject({ code: 'WRITE_FAILED' });
+    expect(await readFile(join(root, REVISION_CANDIDATES_FILENAME), 'utf8')).toBe(original);
+    expect(await readFile(join(root, 'revision-candidates.v1.backup.json'), 'utf8')).toBe('Other preserved history');
+  });
+
+  it('retains a definitive source rejection and never turns its retry into a different capture', async () => {
+    const root = await project(), repo = store(root), input = manualInput();
+    const rejected = new RevisionCandidateRepositoryError('STALE', 'Exact source changed.');
+    await expect(repo.createManual('project-a', 0, input, async () => { throw rejected; })).rejects.toMatchObject({ code: 'STALE' });
+    const snapshot = await repo.read('project-a');
+    expect(snapshot.document.candidates).toEqual([]);
+    expect(snapshot.document.captures![0]).toMatchObject({ status: 'rejected', rejection: { code: 'STALE', message: 'Exact source changed.' } });
+    await expect(new RevisionCandidateRepository(root).createManual('project-a', 0, input)).rejects.toMatchObject({ code: 'STALE' });
+    expect(await repo.read('project-a')).toEqual(snapshot);
+  });
+
+  it('replays the same capture after a lost reply and fresh repository without another candidate', async () => {
+    const root = await project(), repo = store(root);
+    const input = { ...manualInput(), operationId: 'same-deliberate-save' };
+    const committed = await repo.createManual('project-a', 0, input);
+    const id = committed.document.candidates[0]!.id;
+    const reopened = new RevisionCandidateRepository(root);
+    const replay = await reopened.createManual('project-a', 0, input);
+    expect(replay).toEqual(committed);
+    expect(replay.document.candidates.map(candidate => candidate.id)).toEqual([id]);
+    const disk = JSON.parse(await readFile(join(root, REVISION_CANDIDATES_FILENAME), 'utf8'));
+    expect(disk.captures).toHaveLength(1);
+    expect(disk.captures[0]).toMatchObject({ operationId: input.operationId, status: 'committed', candidateId: id, committedRevision: 1 });
+  });
+
+  it('refuses reuse of a capture identity for different text and preserves the original bytes', async () => {
+    const root = await project(), repo = store(root);
+    const input = { ...manualInput(), operationId: 'immutable-deliberate-save' };
+    const first = await repo.createManual('project-a', 0, input);
+    const bytes = await readFile(join(root, REVISION_CANDIDATES_FILENAME), 'utf8');
+    await expect(repo.createManual('project-a', first.document.revision, { ...input, candidateText: 'Different text.' })).rejects.toMatchObject({ code: 'INVALID' });
+    expect(await readFile(join(root, REVISION_CANDIDATES_FILENAME), 'utf8')).toBe(bytes);
+    expect((await new RevisionCandidateRepository(root).read('project-a')).document.candidates).toHaveLength(1);
+  });
+
   it('retains an explicit empty deletion alternative, refuses unlinked or accidental blank alternatives', async () => {
     const root = await project(), repo = store(root);
     await expect(repo.createManual('project-a', 0, { ...manualInput(), candidateText: '' })).rejects.toMatchObject({ code: 'INVALID' });

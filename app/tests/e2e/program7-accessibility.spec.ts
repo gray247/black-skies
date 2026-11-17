@@ -15,6 +15,8 @@ import {
   showCommandInWriting,
 } from './program7-e2e-support';
 
+import { openWritingStudioRail } from './stage19-electron-support';
+
 test.use({ splitCommandRuntimeConfig: true, disableLocalAi: true, preserveTestArtifacts: true });
 
 const PROGRAM7_SECTIONS = ['Revision Desk', 'Story Foundation', 'Ideas', 'History'] as const;
@@ -278,6 +280,8 @@ test('Program 7 reaches objective accessibility matrix gates on attached and det
         await writing.getByRole('button', { name: 'Revision Desk', exact: true }).click();
         await writing.locator('#program7-candidate-purpose').fill('Clarify the opening transition.');
         await writing.locator('#program7-candidate-text').fill(`Author-written alternative at ${profile.id}.`);
+        const wholeSectionConsent = writing.getByRole('checkbox', { name: 'Use this entire saved section for the alternative', exact: true });
+        if (await wholeSectionConsent.isVisible()) await wholeSectionConsent.check();
         await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
         const latestComparison = writing.getByTestId('revision-comparison').last();
         await expect(latestComparison).toBeVisible();
@@ -345,20 +349,26 @@ test('Project Tools remains reachable below a long source-return notice in both 
       expect(canvasBox).not.toBeNull();
       expect(canvasBox!.y, 'Project Tools must stay above manuscript prose').toBeGreaterThanOrEqual(toolsBox!.y + toolsBox!.height);
       if (width === 456) {
-        const companionBox = await writing.locator('.stage19-companion-bar').boundingBox();
+        await expect(writing.locator('.stage19-companion-bar')).toHaveCount(0);
+        await openWritingStudioRail(writing, 'Companion');
+        const companionBox = await writing.locator('#stage19-writing-rail-bottom').boundingBox();
+        const openCanvasBox = await writing.locator('[data-manuscript-scroll-owner]').boundingBox();
         const compactLayout = await writing.evaluate(() => {
           const describe = (selector: string) => {
             const element = document.querySelector<HTMLElement>(selector);
             if (!element) return null;
             const rect = element.getBoundingClientRect();
             const style = getComputedStyle(element);
-            return { height: rect.height, y: rect.y, position: style.position, maxHeight: style.maxHeight, minHeight: style.minHeight, flex: style.flex, overflow: style.overflow };
+            return { height: rect.height, y: rect.y, position: style.position, maxHeight: style.maxHeight, minHeight: style.minHeight, flex: style.flex, overflow: style.overflow, padding: style.padding, margin: style.margin, display: style.display };
           };
-          return { viewport: { width: innerWidth, height: innerHeight }, shell: describe('.stage19-writing-shell'), topbar: describe('.stage19-writing-shell__topbar'), notice: describe('.stage19-writing-shell__notice-row'), controls: describe('.stage19-writing-shell__edge-controls'), workspace: describe('.stage19-writing-shell__workspace'), canvas: describe('[data-manuscript-scroll-owner]'), companion: describe('.stage19-companion-bar') };
+          return { viewport: { width: innerWidth, height: innerHeight }, shell: describe('.stage19-writing-shell'), topbar: describe('.stage19-writing-shell__topbar'), notice: describe('.stage19-writing-shell__notice-row'), controls: describe('.stage19-writing-shell__edge-controls'), workspace: describe('.stage19-writing-shell__workspace'), canvas: describe('[data-manuscript-scroll-owner]'), companion: describe('.stage19-companion-bar'), bottomHost: describe('#stage19-writing-rail-bottom'), toolbar: describe('.stage19-writing-page-tools'), writingPage: document.querySelector('[data-writing-page]')?.getAttribute('data-writing-page') };
         });
         expect(canvasBox!.height, `narrow enlarged layout must retain a usable manuscript viewport: ${JSON.stringify(compactLayout)}`).toBeGreaterThanOrEqual(80);
         expect(companionBox).not.toBeNull();
-        expect(companionBox!.y, 'Companion must follow the manuscript instead of covering it').toBeGreaterThanOrEqual(canvasBox!.y + canvasBox!.height);
+        await test.info().attach('compact-open-companion-' + theme, { body: JSON.stringify(compactLayout), contentType: 'application/json' });
+        expect(openCanvasBox!.height, JSON.stringify(compactLayout)).toBeGreaterThanOrEqual(80);
+        expect(companionBox!.y, 'Companion must follow the manuscript instead of covering it').toBeGreaterThanOrEqual(openCanvasBox!.y + openCanvasBox!.height);
+        await writing.getByRole('region', { name: 'Companion', exact: true }).getByRole('button', { name: 'Close', exact: true }).click();
       }
       await tools.focus();
       await expect(tools).toBeFocused();
@@ -369,6 +379,6 @@ test('Project Tools remains reachable below a long source-return notice in both 
       await writing.getByRole('button', { name: 'Exit Focus mode', exact: true }).click();
     }
   }
-  await tools.click();
+  await openWritingStudioRail(writing, 'Project Tools');
   await expect(writing.getByRole('region', { name: 'Project Tools', exact: true })).toBeVisible();
 });

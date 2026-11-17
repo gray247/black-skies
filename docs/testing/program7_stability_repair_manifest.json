@@ -1,0 +1,205 @@
+{
+  "schema": "black-skies.stability-manifest.v1",
+  "revision": 2,
+  "minimumRepetitions": 60,
+  "requiredDefects": [
+    "R1",
+    "R2",
+    "R3",
+    "S1",
+    "S2",
+    "V1",
+    "V2"
+  ],
+  "electronFiles": [
+    "tests/e2e/stage19-project-spine.spec.ts",
+    "tests/e2e/stage19-recovery.spec.ts",
+    "tests/e2e/stage19-command-center-integrity.spec.ts",
+    "tests/e2e/stage19-ai-critique.spec.ts",
+    "tests/e2e/stage19-gate1-workflows.spec.ts",
+    "tests/e2e/stage19-surface-host.spec.ts",
+    "tests/e2e/stage19-writing-shell.spec.ts",
+    "tests/e2e/stage19-accessibility.spec.ts",
+    "tests/e2e/stage19-performance.spec.ts",
+    "tests/e2e/stage19-program3-performance.spec.ts",
+    "tests/e2e/stage19-program3-presentation.spec.ts",
+    "tests/e2e/stage19-program3-visual.spec.ts",
+    "tests/e2e/stage19-companion-orientation.spec.ts",
+    "tests/e2e/program6-story-intelligence.spec.ts",
+    "tests/e2e/stage19-writer-foundation.spec.ts",
+    "tests/e2e/program7-revision.spec.ts",
+    "tests/e2e/program7-create-develop.spec.ts",
+    "tests/e2e/program7-accessibility.spec.ts",
+    "tests/e2e/program7-long-form.spec.ts",
+    "tests/e2e/program7-scale-performance.spec.ts"
+  ],
+  "checks": [
+    {
+      "id": "tracked-hygiene",
+      "command": "python",
+      "args": [
+        "scripts/check_repo_hygiene.py",
+        "--tracked"
+      ]
+    },
+    {
+      "id": "foundation-inventory",
+      "command": "$node",
+      "args": [
+        "scripts/verify-foundation-inventory.mjs"
+      ]
+    },
+    {
+      "id": "diff-hygiene",
+      "command": "git",
+      "args": [
+        "diff",
+        "--check"
+      ]
+    },
+    {
+      "id": "packaging-policy",
+      "command": "$node",
+      "args": [
+        "scripts/stage19-packaging-workflow-policy.mjs"
+      ]
+    },
+    {
+      "id": "app-lint",
+      "command": "$node",
+      "args": [
+        "scripts/run-app-eslint.mjs"
+      ]
+    },
+    {
+      "id": "stage19-lint",
+      "command": "$node",
+      "args": [
+        "scripts/run-stage19-eslint.mjs"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "command": "$pnpm",
+      "args": [
+        "--dir",
+        "app",
+        "run",
+        "typecheck:all"
+      ]
+    },
+    {
+      "id": "production-build",
+      "command": "$pnpm",
+      "args": [
+        "--dir",
+        "app",
+        "run",
+        "build:production"
+      ]
+    }
+  ],
+  "allowedUnitSkips": [
+    {
+      "file": "app/main/__tests__/aiCritiqueQualification.test.ts",
+      "title": "runs two independent schema-and-evidence-valid requests for every frozen fixture",
+      "reason": "External live provider qualification is outside this offline repair."
+    },
+    {
+      "file": "app/main/__tests__/aiCritiqueQualificationArtifacts.test.ts",
+      "title": "verifies the immutable packets-finalized capture without scoring it",
+      "reason": "External immutable capture not supplied."
+    }
+  ],
+  "repetitions": [
+    {
+      "id": "R1-notes-normal",
+      "file": "tests/e2e/stage19-writer-foundation.spec.ts",
+      "title": "B1 writer units, Notes, rails, Find/Replace, follow and Back use the real desktop owners$",
+      "profile": "fresh profile and project per process; restart assertions use retained profile",
+      "env": {
+        "BLACKSKIES_STABILITY_EVIDENCE": "1"
+      },
+      "expectedTitle": "B1 writer units, Notes, rails, Find/Replace, follow and Back use the real desktop owners"
+    },
+    {
+      "id": "R2-concern-undo-normal",
+      "file": "tests/e2e/stage19-writer-foundation.spec.ts",
+      "title": "Edited concern sources retain markers, decision quotes and History-only reopening through source Undo$",
+      "profile": "fresh profile and project per process; restart assertions use retained profile",
+      "env": {
+        "BLACKSKIES_STABILITY_EVIDENCE": "1"
+      },
+      "expectedTitle": "Edited concern sources retain markers, decision quotes and History-only reopening through source Undo"
+    },
+    {
+      "id": "V1-inactive-capture",
+      "file": "tests/e2e/program7-revision.spec.ts",
+      "title": "Manual sentence replacement distinguishes a collapsed caret, whole section and selected source through a fresh restart$",
+      "profile": "fresh profile and project per process; same scenario includes retained-profile restart",
+      "env": {
+        "BLACKSKIES_STABILITY_EVIDENCE": "1"
+      },
+      "expectedTitle": "Manual sentence replacement distinguishes a collapsed caret, whole section and selected source through a fresh restart"
+    },
+    {
+      "id": "R1-notes-detached",
+      "file": "tests/e2e/stage19-writer-foundation.spec.ts",
+      "title": "B1 writer units, Notes, rails, Find/Replace, follow and Back use the real desktop owners$",
+      "profile": "fresh profile and project per process; restart assertions use retained profile",
+      "env": {
+        "BLACKSKIES_STABILITY_EVIDENCE": "1",
+        "BLACKSKIES_STABILITY_DEVTOOLS": "detached"
+      },
+      "expectedTitle": "B1 writer units, Notes, rails, Find/Replace, follow and Back use the real desktop owners"
+    },
+    {
+      "id": "R2-concern-undo-detached",
+      "file": "tests/e2e/stage19-writer-foundation.spec.ts",
+      "title": "Edited concern sources retain markers, decision quotes and History-only reopening through source Undo$",
+      "profile": "fresh profile and project per process; restart assertions use retained profile",
+      "env": {
+        "BLACKSKIES_STABILITY_EVIDENCE": "1",
+        "BLACKSKIES_STABILITY_DEVTOOLS": "detached"
+      },
+      "expectedTitle": "Edited concern sources retain markers, decision quotes and History-only reopening through source Undo"
+    }
+  ],
+  "performance": {
+    "create100MsExclusive": 15000,
+    "selectMsExclusive": 3000,
+    "scaleOpenMsInclusive": {
+      "17": 5000,
+      "34": 7500,
+      "68": 10000,
+      "136": 20000
+    },
+    "railRenderMsExclusive": 5000,
+    "frameGapMsInclusive": 100,
+    "surfaceReadyMsExclusive": 5000,
+    "surfaceTransitionMsExclusive": 2000,
+    "steadyWorkingSetBytesExclusive": 1073741824,
+    "coldLaunches": 5,
+    "coldLaunchMedianMsInclusive": 5000
+  },
+  "pendingCoverage": [],
+  "publication": {
+    "branch": "codex/program7-5-stabilization",
+    "release": false,
+    "humanReview": "one planned combined review after clean committed candidate and artifact qualification"
+  },
+  "candidateRuntime": {
+    "version": "45.3.3",
+    "supportVerifiedDate": "2026-11-16",
+    "officialRelease": "https://releases.electronjs.org/release/v45.3.3",
+    "qualified": false
+  },
+  "caseRenames": [
+    {
+      "file": "stage19-writer-foundation.spec.ts",
+      "from": "Catalog B5 qualifies the actual Electron US-English dictionary offline",
+      "to": "Catalog B5 qualifies the bundled US-English dictionary, correction and reopening offline",
+      "reason": "The native Windows checker failed truthfully; the strengthened case qualifies the pinned bundled local checker and retains typo, correction and fresh-process assertions."
+    }
+  ]
+}

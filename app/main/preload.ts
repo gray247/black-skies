@@ -2412,11 +2412,34 @@ function normalizeSplitCommandSurfaceHostResult(
 
 const projectSpineWindowRole = isCommandCenterPreload ? 'command' : 'writing';
 
+// Words stay local. This uses the same verified dictionary as the explicit
+// check control; accepted words continue to belong to the Session owner.
+if (process.platform !== 'darwin' && projectSpineWindowRole === 'writing' && typeof webFrame.setSpellCheckProvider === 'function') {
+  webFrame.setSpellCheckProvider('en-US', { spellCheck: (words, callback) => {
+    void (async () => {
+      const misspelled: string[] = [];
+      const supported = words.filter(word => typeof word === 'string' && /^[\p{L}\p{M}'’–-]{1,80}$/u.test(word));
+      for (let from = 0; from < supported.length; from += 128) {
+        const chunk = supported.slice(from, from + 128);
+        const results = await ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.checkSpelling, { words: chunk, suggestions: false });
+        chunk.forEach((word, index) => { if (results[index]?.available && results[index].misspelled) misspelled.push(word); });
+      }
+      callback(misspelled);
+    })().catch(() => callback([]));
+  } });
+}
+
 const projectSpineBaseBridge: ProjectSpineBridge = {
-  checkSpelling: (word) => {
-    if (typeof word !== 'string' || word.length > 80 || !/^[\p{L}\p{M}'’–-]+$/u.test(word)) return { available: false, misspelled: false, suggestions: [] };
-    const available = webFrame.isWordMisspelled('foorrrest') || webFrame.isWordMisspelled('qzxvwlj');
-    return { available, misspelled: available && webFrame.isWordMisspelled(word), suggestions: available ? webFrame.getWordSuggestions(word).slice(0, 8) : [] };
+  checkSpelling: async (word) => {
+    if (typeof word !== 'string' || !/^[\p{L}\p{M}'’–-]{1,80}$/u.test(word) || process.argv.includes('--blackskies-offline-spelling=unavailable')) return { available: false, misspelled: false, suggestions: [] };
+    // Preserve the existing macOS system checker; the Windows/Linux bundled
+    // owner must not replace it with a provider that was never initialized.
+    if (process.platform === 'darwin') {
+      const available = webFrame.isWordMisspelled('foorrrest') || webFrame.isWordMisspelled('qzxvwlj');
+      return { available, misspelled: available && webFrame.isWordMisspelled(word), suggestions: available ? webFrame.getWordSuggestions(word).slice(0, 8) : [] };
+    }
+    try { const result = await ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.checkSpelling, { words: [word], suggestions: true }); return result[0] ?? { available: false, misspelled: false, suggestions: [] }; }
+    catch { return { available: false, misspelled: false, suggestions: [] }; }
   },
   windowRole: projectSpineWindowRole,
   async focusWritingWindow() {

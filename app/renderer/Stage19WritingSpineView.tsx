@@ -83,6 +83,7 @@ export interface Stage19WritingSpineViewModel {
   readonly sourceReturnConfirmation?: string | null;
   readonly activeUnit: ProjectSpineUnitSummary | null;
   readonly writingSaveSummary: string;
+  readonly writingSaveStatus?: ProjectSpineSessionSnapshot['saveState']['status'];
   readonly projectBridgeAvailable: boolean;
   readonly markdownExportAvailable: boolean;
   readonly exportingMarkdown: boolean;
@@ -170,6 +171,9 @@ export interface Stage19WritingSpineViewModel {
   readonly program7ConcernId?: string | null;
   readonly program7CandidatePurpose: string;
   readonly program7CandidateText: string;
+  readonly program7CapturePending?: boolean;
+  readonly program7CaptureNeedsReconcile?: boolean;
+  readonly program7CaptureDeleteSource?: boolean;
   readonly program7RevisionTarget?: { kind: 'selection' | 'section' | 'unavailable'; unitId?: string; title?: string; text: string; message?: string };
   readonly program7LocalAiRequestId: string | null;
   /** Supplied by the main-owned capability bridge; false removes all local-AI actions. */
@@ -378,6 +382,8 @@ export interface Stage19WritingSpineViewActions {
   readonly disposeStorySignal: (signalId: string, lifecycle: 'dismissed' | 'suppressed' | 'resolved' | 'converted') => MaybeAsync;
   readonly setProgram7CandidatePurpose: (value: string) => void;
   readonly setProgram7CandidateText: (value: string) => void;
+  readonly useCurrentProgram7Target?: () => void;
+  readonly scheduleRecoveryReveal?: (reveal: () => void) => () => void;
   readonly createManualConcern?: (body: string, ranges: readonly { unitId: string; from: number; to: number; body: string }[]) => Promise<boolean>;
   readonly considerProgram7Concern?: (item: RevisionItem) => MaybeAsync;
   readonly clearProgram7Concern?: () => void;
@@ -634,7 +640,7 @@ function ReviewWorkspaceView({ model, actions }: Stage19WritingSpineViewProps): 
       {review.resultText ? (
         <section className="stage19-command-review__result" aria-label="Advisory critique result">
           <h3>Advisory result</h3>
-          <pre>{review.resultText}</pre>
+          <pre tabIndex={0}>{review.resultText}</pre>
         </section>
       ) : (
         <section className="stage19-command-review__failure" role="status">
@@ -681,7 +687,10 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   const [activeSection, setActiveSection] = useState<Program7CreateDevelopSection>('revision-desk');
   const [proposeDeletion, setProposeDeletion] = useState(false);
   const [wholeSection, setWholeSection] = useState(false);
+  useEffect(() => { if (model.program7CaptureNeedsReconcile) setProposeDeletion(model.program7CaptureDeleteSource === true); }, [model.program7CaptureNeedsReconcile, model.program7CaptureDeleteSource]);
   const target = model.program7RevisionTarget;
+  const captureLocked = model.program7CapturePending || model.program7CaptureNeedsReconcile;
+  const captureReady = model.program7Candidates?.availability === 'ready';
   useEffect(() => { setWholeSection(false); }, [target?.kind, target?.unitId, target?.text, model.program7ConcernId]);
   const sourceReady = !target || target.kind === 'selection' || (target.kind === 'section' && wholeSection);
   const revisionDesk = (
@@ -710,12 +719,13 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           <p>Try the change in your own words. Your manuscript stays untouched until you apply an alternative.</p>
           <p>To apply only part later, first save your manuscript and select the exact words to replace in Writing Studio. Then return here and save a new alternative. An older alternative cannot be linked afterward.</p>
         </header>
-        {model.program7ConcernId ? <p>Alternative for concern <code>{model.program7ConcernId}</code>. <button type="button" onClick={actions.clearProgram7Concern}>Draft without a concern link</button></p> : null}
+        {model.program7ConcernId ? <p>Alternative for concern <code>{model.program7ConcernId}</code>. <button type="button" onClick={actions.clearProgram7Concern} disabled={Boolean(captureLocked)}>Draft without a concern link</button></p> : null}
         {target ? <section className="program7-revision-capture__target" aria-label="Replacement target">
           <h3>{target.kind === 'selection' ? `Selected words from ${target.title}` : target.kind === 'section' ? `Whole saved section: ${target.title}` : 'Choose a replacement target'}</h3>
-          {target.kind === 'unavailable' ? <p role="alert">{target.message}</p> : <pre>{target.text}</pre>}
-          {target.kind === 'section' ? <label><input type="checkbox" checked={wholeSection} onChange={event => setWholeSection(event.currentTarget.checked)} disabled={!canWrite} />Use this entire saved section for the alternative</label> : null}
+          {target.kind === 'unavailable' ? <p role="alert">{target.message}</p> : <pre tabIndex={0}>{target.text}</pre>}
+          {target.kind === 'section' ? <label><input type="checkbox" checked={wholeSection} onChange={event => setWholeSection(event.currentTarget.checked)} disabled={!canWrite || !captureReady || Boolean(captureLocked)} />Use this entire saved section for the alternative</label> : null}
         </section> : null}
+        {actions.useCurrentProgram7Target ? <button type="button" onClick={actions.useCurrentProgram7Target} disabled={!canWrite || !captureReady || Boolean(captureLocked)}>Use current writing selection</button> : null}
         <label htmlFor="program7-candidate-purpose">Purpose</label>
         <input
           id="program7-candidate-purpose"
@@ -723,9 +733,9 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           onChange={(event) => actions.setProgram7CandidatePurpose(event.target.value)}
           placeholder="What should this revision improve?"
           maxLength={1000}
-          disabled={!canWrite}
+          disabled={!canWrite || !captureReady || Boolean(captureLocked)}
         />
-        <label><input type="checkbox" checked={proposeDeletion} onChange={event => setProposeDeletion(event.target.checked)} disabled={!canWrite} />Propose deleting the exact linked passage</label>
+        <label><input type="checkbox" checked={proposeDeletion} onChange={event => setProposeDeletion(event.target.checked)} disabled={!canWrite || !captureReady || Boolean(captureLocked)} />Propose deleting the exact linked passage</label>
         <label htmlFor="program7-candidate-text">Proposed text</label>
         <textarea
           id="program7-candidate-text"
@@ -735,15 +745,15 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           maxLength={6000}
           rows={4}
           aria-describedby="program7-proposed-text-help"
-          disabled={!canWrite || proposeDeletion}
+          disabled={!canWrite || !captureReady || Boolean(captureLocked) || proposeDeletion}
         />
         <p id="program7-proposed-text-help">Write the replacement wording here. Save alternative keeps a proposal for comparison and clears this field for another draft.</p>
         <div className="program7-revision-capture__actions">
-          <button type="button" onClick={() => void actions.createProgram7ManualCandidate(proposeDeletion, wholeSection)} disabled={!canWrite || !sourceReady || !model.program7CandidatePurpose.trim() || (!proposeDeletion && !model.program7CandidateText.trim())}>Save alternative</button>
+          <button type="button" onClick={() => void actions.createProgram7ManualCandidate(proposeDeletion, wholeSection)} disabled={!canWrite || !captureReady || model.program7CapturePending || (!model.program7CaptureNeedsReconcile && (!sourceReady || !model.program7CandidatePurpose.trim() || (!proposeDeletion && !model.program7CandidateText.trim())))}>{model.program7CapturePending ? 'Saving alternative…' : model.program7CaptureNeedsReconcile ? 'Check save' : 'Save alternative'}</button>
           {model.program7LocalAiAvailable !== false && model.program7LocalAiRequestId ? (
             <button type="button" onClick={() => void actions.cancelProgram7LocalAiCandidate()}>Stop local AI</button>
           ) : model.program7LocalAiAvailable !== false ? (
-            <button type="button" onClick={() => void actions.createProgram7LocalAiCandidate()} disabled={!canWrite || !model.program7CandidatePurpose.trim()}>Ask local AI for an alternative</button>
+            <button type="button" onClick={() => void actions.createProgram7LocalAiCandidate()} disabled={!canWrite || Boolean(captureLocked) || !model.program7CandidatePurpose.trim()}>Ask local AI for an alternative</button>
           ) : null}
         </div>
         {model.program7LocalAiAvailable === false ? <p className="program7-revision-capture__manual-path" role="status">Local AI is unavailable. You can still create and review revision alternatives yourself.</p> : null}
@@ -801,7 +811,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
       onCombineSeeds={canWrite ? (seedIds, name, premise, contributions) => void actions.combineIdeaSeeds(seedIds, name, premise, contributions) : undefined}
       onArchiveBranch={canWrite ? (branch) => void actions.archiveIdeaBranch(branch) : undefined}
       onRestoreBranch={canWrite ? (branch) => void actions.restoreIdeaBranch(branch) : undefined}
-      onPreparePromotion={canWrite ? (branch, destination, selectedText, seedIds) => void actions.prepareIdeaPromotion(branch, destination, selectedText, seedIds) : undefined}
+      onPreparePromotion={canWrite ? (branch, destination, selectedText, seedIds) => actions.prepareIdeaPromotion(branch, destination, selectedText, seedIds) : undefined}
       onRoutePromotion={canWrite ? (branch, destination, selectedText, seedIds) => void actions.routeIdeaPromotion(branch, destination, selectedText, seedIds) : undefined}
     />
   ) : <p role="status">Ideas are unavailable in this window.</p>;
@@ -1045,11 +1055,12 @@ function RecoveryBlockerView({ model, actions }: Stage19WritingSpineViewProps): 
 
 function RecoveryStateView({ model, actions }: Stage19WritingSpineViewProps): JSX.Element | null {
   const recovery = model.snapshot.recovery;
+  const scheduleRecoveryReveal = actions.scheduleRecoveryReveal;
   useEffect(() => {
     if (model.logicalSurface !== 'writing' || !['decision-required', 'degraded'].includes(recovery?.status ?? '')) return;
-    const frame = window.requestAnimationFrame(revealWritingRecovery);
-    return () => window.cancelAnimationFrame(frame);
-  }, [model.logicalSurface, model.snapshot.project?.path, model.snapshot.generation, recovery?.status]);
+    if (scheduleRecoveryReveal) return scheduleRecoveryReveal(revealWritingRecovery);
+    revealWritingRecovery();
+  }, [model.logicalSurface, model.snapshot.project?.path, model.snapshot.generation, recovery?.status, scheduleRecoveryReveal]);
   if (recovery?.status === 'decision-required') {
     return (
       <section id="stage19-writing-recovery" tabIndex={-1} className="stage19-spine__card stage19-spine__recovery" aria-labelledby="stage19-recovery-title">
@@ -1061,7 +1072,7 @@ function RecoveryStateView({ model, actions }: Stage19WritingSpineViewProps): JS
           return (
             <article key={`${candidate.unitId}:${candidate.originSessionId}:${candidate.candidateVersion}`}>
               <h3>{candidate.unitTitle.trim() || 'Untitled'}</h3>
-              <pre aria-label={`Recovered prose for ${candidate.unitTitle.trim() || 'Untitled'}`}>
+              <pre tabIndex={0} aria-label={`Recovered prose for ${candidate.unitTitle.trim() || 'Untitled'}`}>
                 {candidate.prose === '' ? '(Empty manuscript prose)' : candidate.prose}
               </pre>
               <div>
@@ -2290,8 +2301,8 @@ function SelectedProseCritiqueView({ model, actions }: Stage19WritingSpineViewPr
               <p>{model.aiPreview.cost.invoiceDisclaimer}</p>
               <p>{model.aiPreview.retentionDisclosure}</p>
               <p>{model.aiPreview.cancellationDisclosure}</p>
-              <details><summary>Frozen critique instructions</summary><pre>{model.aiPreview.instructions}</pre></details>
-              <details><summary>Exact provider request JSON</summary><pre>{model.aiPreview.providerBodyJson}</pre></details>
+              <details><summary>Frozen critique instructions</summary><pre tabIndex={0}>{model.aiPreview.instructions}</pre></details>
+              <details><summary>Exact provider request JSON</summary><pre tabIndex={0}>{model.aiPreview.providerBodyJson}</pre></details>
               <label><span>Exact selected prose to transmit</span><textarea readOnly value={model.aiPreview.selectedText} rows={8} /></label>
               <label className="stage19-ai__clearance">
                 <input type="checkbox" checked={model.aiClearanceConfirmed} onChange={(event) => actions.setAiClearanceConfirmed(event.target.checked)} />
@@ -2770,7 +2781,7 @@ function WritingStudioView(props: Stage19WritingSpineViewProps): JSX.Element {
           </div>
         )}
         <div className="stage19-writing-shell__status">
-          <span className={`stage19-spine__save-state stage19-spine__save-state--${snapshot.saveState.status}`} role="status">{model.writingSaveSummary}</span>
+          <span className={`stage19-spine__save-state stage19-spine__save-state--${model.writingSaveStatus ?? snapshot.saveState.status}`} role="status">{model.writingSaveSummary}</span>
           {!model.focusMode ? <ThemeSwitchView {...props} /> : null}
           {!model.focusMode ? <SurfaceControlsView {...props} /> : null}
           <button type="button" className="stage19-writing-shell__focus" aria-pressed={model.focusMode} onClick={actions.toggleFocusMode}>

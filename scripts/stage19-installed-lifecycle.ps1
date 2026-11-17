@@ -7,7 +7,9 @@ param(
 
   [string]$WorkingRoot = (Join-Path $env:LOCALAPPDATA ("BlackSkiesQualification\19-19-" + [guid]::NewGuid().ToString("N"))),
 
-  [switch]$SkipFirewallIsolation
+  [switch]$SkipFirewallIsolation,
+
+  [switch]$StabilitySpellingProof
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,6 +40,9 @@ $firewallCreated = $false
 $shortcutPaths = @()
 $registrationPath = $null
 $smoke = $null
+$spellingProof = $null
+$firewallActivatedAtUtc = $null
+$spellingResultPath = Join-Path $working "offline-spelling-witness.json"
 $offlineFirewallRuleApplied = -not $SkipFirewallIsolation
 
 function Assert-Stage19 {
@@ -176,7 +181,21 @@ function Get-RelativePathCompat {
   return $target.Substring($base.Length).TrimStart('\', '/').Replace('\', '/')
 }
 
+if ($StabilitySpellingProof) {
+  Assert-Stage19 (-not $SkipFirewallIsolation -and $env:GITHUB_ACTIONS -eq "true" -and $env:RUNNER_OS -eq "Windows") "First-offline spelling requires the disposable Windows workflow and active firewall isolation."
+  Assert-Stage19 (-not (Test-Path -LiteralPath $installedExecutable)) "First-offline qualification cannot reuse an existing installation."
+}
+
 try {
+  if (-not $SkipFirewallIsolation) {
+    New-NetFirewallRule -DisplayName $firewallRuleName -Direction Outbound -Program $installedExecutable -Action Block -Profile Any | Out-Null
+    $firewallCreated = $true
+    $firewall = Get-NetFirewallRule -DisplayName $firewallRuleName
+    Assert-Stage19 ($firewall.Enabled -eq "True" -and $firewall.Action -eq "Block") "Outbound firewall isolation was not active."
+    $firewallActivatedAtUtc = [DateTime]::UtcNow.ToString("o")
+  }
+
+  $installerStartedAtUtc = [DateTime]::UtcNow.ToString("o")
   $installerProcess = Start-Process -FilePath $installer -ArgumentList @("/S", "/D=$installDirectory") -Wait -PassThru -WindowStyle Hidden
   Assert-Stage19 ($installerProcess.ExitCode -eq 0) "NSIS install exited with code $($installerProcess.ExitCode)."
   $installed = $true
@@ -210,12 +229,7 @@ try {
   Assert-Stage19 ($executableIconHash -eq $installerIconHash) "Installer and installed executable embedded icons differ."
   Assert-Stage19 ($executableIconHash -ne $defaultElectronIconHash) "Packaged executables still use the Electron default icon."
 
-  if (-not $SkipFirewallIsolation) {
-    New-NetFirewallRule -DisplayName $firewallRuleName -Direction Outbound -Program $installedExecutable -Action Block -Profile Any | Out-Null
-    $firewallCreated = $true
-    $firewall = Get-NetFirewallRule -DisplayName $firewallRuleName
-    Assert-Stage19 ($firewall.Enabled -eq "True" -and $firewall.Action -eq "Block") "Outbound firewall isolation was not active."
-  }
+
 
   $smokeArguments = @(
     "--executable", $installedExecutable,
@@ -231,6 +245,20 @@ try {
   Assert-Stage19 ($smoke.postOptionalWindowCount -eq 2 -and $smoke.postOptionalSandboxedWindowCount -eq 2) "Installed smoke did not prove the optional two-window Command transition."
   Assert-Stage19 ($smoke.forbiddenRuntimeProcessCount -eq 0) "Installed smoke found a forbidden runtime process."
   Assert-Stage19 ($smoke.exactMarkdownMatched -eq $true) "Installed smoke did not match exact Markdown bytes."
+
+  if ($StabilitySpellingProof) {
+    $env:BLACKSKIES_STABILITY_FIREWALL_RULE = $firewallRuleName
+    $env:BLACKSKIES_STABILITY_FIREWALL_ACTIVATED_AT = $firewallActivatedAtUtc
+    & node (Join-Path (Split-Path -Parent $PSScriptRoot) "app\scripts\stage19-installed-smoke.mjs") `
+      --executable $installedExecutable `
+      --root (Join-Path $smokeDirectory "first-offline-spelling") `
+      --result $spellingResultPath `
+      --stability-spelling-only
+    Assert-Stage19 ($LASTEXITCODE -eq 0) "First-offline packaged spelling qualification failed."
+    $spellingProof = Get-Content -LiteralPath $spellingResultPath -Raw | ConvertFrom-Json
+    Assert-Stage19 ($spellingProof.schema -eq "black-skies.stability-offline-spelling.v1" -and $spellingProof.missingSourceRefused -eq $true -and $spellingProof.acceptedWordSurvivedExit -eq $true) "First-offline spelling witness is incomplete."
+  }
+
 
 } finally {
   if ($firewallCreated) {
@@ -295,6 +323,10 @@ $installedLifecycle = [ordered]@{
   zeroSurvivorProcessCount = $smoke.zeroSurvivorProcessCount
   performance = $performanceReceipt
   offlineFirewallRuleApplied = $offlineFirewallRuleApplied
+  firewallActivatedBeforeInstall = $offlineFirewallRuleApplied -and $null -ne $firewallActivatedAtUtc -and ([DateTime]$firewallActivatedAtUtc -le [DateTime]$installerStartedAtUtc)
+  firewallActivatedAtUtc = $firewallActivatedAtUtc
+  installerStartedAtUtc = $installerStartedAtUtc
+  firstOfflineSpelling = $spellingProof
   qualificationMode = if ($offlineFirewallRuleApplied) { "offline-firewall-isolated" } else { "application-only-no-firewall" }
   exactMarkdownMatched = $smoke.exactMarkdownMatched
   exportedUnitCount = $smoke.exportedUnitCount
@@ -311,6 +343,10 @@ $lifecycleEvidence = [ordered]@{
   schema = "black-skies.stage19-22.lifecycle-evidence.v1"
   qualifiedCommit = $receiptDocument.qualifiedCommit
   installedOffline = $offlineFirewallRuleApplied
+  firewallActivatedBeforeInstall = $offlineFirewallRuleApplied -and $null -ne $firewallActivatedAtUtc -and ([DateTime]$firewallActivatedAtUtc -le [DateTime]$installerStartedAtUtc)
+  firewallActivatedAtUtc = $firewallActivatedAtUtc
+  installerStartedAtUtc = $installerStartedAtUtc
+  firstOfflineSpellingWitnessSha256 = if ($spellingProof) { (Get-FileHash -LiteralPath $spellingResultPath -Algorithm SHA256).Hash.ToLowerInvariant() } else { $null }
   qualificationMode = if ($offlineFirewallRuleApplied) { "offline-firewall-isolated" } else { "application-only-no-firewall" }
   representativeWorkloadPassed = $smoke.exactMarkdownMatched -eq $true
   forbiddenRuntimeProcessCount = $smoke.forbiddenRuntimeProcessCount

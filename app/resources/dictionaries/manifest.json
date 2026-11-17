@@ -1,0 +1,24 @@
+{
+  "schema": "BlackSkiesOfflineDictionary v1",
+  "language": "en-US",
+  "electron": "45.3.3",
+  "dictionary": "en-US-10-2.bdic",
+  "sha256": "b0d80e6b6c5491879365e176ecbd98074602a663429bcfcfb0a5a8375c051f13",
+  "licenseFile": "LICENSE",
+  "licenseSha256": "d63c6240d6f6330a025aade63d317d7ff04f95fc3325fe6aea3848ca452f64ea",
+  "source": "https://github.com/electron/electron/releases/download/v45.3.3/hunspell_dictionaries.zip",
+  "archiveSha256": "a0e5ec0a460e0a23b22186748ae9c48df2cfd259222e470cc79210ee8fc6a8ce",
+  "localChecker": {
+    "engine": "nspell",
+    "version": "2.1.5",
+    "dictionary": "dictionary-en",
+    "dictionaryVersion": "4.0.0",
+    "source": "https://registry.npmjs.org/dictionary-en/-/dictionary-en-4.0.0.tgz",
+    "integrity": "sha512-3NHnE1uq33ZE/CIwaZ6gqxa4BnglHnxeAcTM0GJ7cmtRGcvX9InMK/IqLtYcUMFCUpUNgybH+DzkqdgAo3F1zg==",
+    "files": {
+      "en-US.aff": "8ae1f19d4840d957728ad90555d5a8dff6cc5c046279c95ff0c00fc0a0136c7b",
+      "en-US.dic": "f0b1a234bd178bdd01875b2a392a9647f888b8fe879f79c52aae62c2759b3647",
+      "HUNSPELL-LICENSE": "2a7e8d8ae9e8facc84818546ae2a8d83aec5e9c80a675ff789acd1c338b53b3d"
+    }
+  }
+}

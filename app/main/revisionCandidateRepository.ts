@@ -3,6 +3,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import {
+  REVISION_CAPTURE_LEDGER_SCHEMA_VERSION,
+  type RevisionManualCapturePayloadV2,
+  type RevisionManualCaptureReceiptV2,
   REVISION_CANDIDATE_HISTORY_LIMIT,
   REVISION_CANDIDATE_MAX_PURPOSE_LENGTH,
   REVISION_CANDIDATE_MAX_SOURCE_LENGTH,
@@ -337,17 +340,59 @@ function validCandidate(value: unknown, projectId: string): value is RevisionCan
   );
 }
 
+function capturePayload(projectId: string, projectPath: string, input: Parameters<RevisionCandidateRepository['createManual']>[2]): RevisionManualCapturePayloadV2 {
+  return {
+    projectId, projectPath: path.resolve(projectPath),
+    sourceSnapshot: { unitId: input.sourceSnapshot.unitId, bodySha256: input.sourceSnapshot.bodySha256, text: input.sourceSnapshot.text },
+    sourceAnchor: input.sourceAnchor ? { unitId: input.sourceAnchor.unitId, selectionStart: input.sourceAnchor.selectionStart, selectionEnd: input.sourceAnchor.selectionEnd, selectionFingerprint: input.sourceAnchor.selectionFingerprint } : null,
+    purpose: input.purpose, protection: { excluded: input.protection.excluded, class: input.protection.class, ...(input.protection.reason === undefined ? {} : { reason: input.protection.reason }) },
+    warnings: [...(input.warnings ?? [])], candidateText: input.candidateText,
+    concernId: input.concernId ?? null, deleteSource: input.deleteSource === true,
+  };
+}
+
+function validCapture(value: unknown, projectId: string, candidates: readonly RevisionCandidateV1[], revision: number): value is RevisionManualCaptureReceiptV2 {
+  if (!exactKeys(value, ['operationId', 'payloadSha256', 'payload', 'status', 'candidateId', 'preparedAt', 'completedAt', 'committedRevision', 'rejection'])) return false;
+  const receipt = value as RevisionManualCaptureReceiptV2;
+  const payload = receipt.payload;
+  if (!nonEmpty(receipt.operationId) || !nonEmpty(receipt.candidateId) || !timestamp(receipt.preparedAt) ||
+    !exactKeys(payload, ['projectId', 'projectPath', 'sourceSnapshot', 'sourceAnchor', 'purpose', 'protection', 'warnings', 'candidateText', 'concernId', 'deleteSource']) ||
+    payload.projectId !== projectId || !nonEmpty(payload.projectPath, 32767) ||
+    !validSnapshot(payload.sourceSnapshot) || !validAnchor(payload.sourceAnchor) ||
+    (payload.sourceAnchor !== null && payload.sourceAnchor.unitId !== payload.sourceSnapshot.unitId) ||
+    !bounded(payload.purpose, REVISION_CANDIDATE_MAX_PURPOSE_LENGTH) ||
+    !validProtection(payload.protection) || payload.protection.excluded || payload.protection.class !== 'ordinary' ||
+    !Array.isArray(payload.warnings) || payload.warnings.length > 12 || !payload.warnings.every(warning => bounded(warning, REVISION_CANDIDATE_MAX_WARNING_LENGTH)) ||
+    typeof payload.deleteSource !== 'boolean' || !bounded(payload.candidateText, REVISION_CANDIDATE_MAX_TEXT_LENGTH, payload.deleteSource) ||
+    (payload.deleteSource && (payload.candidateText !== '' || !payload.sourceAnchor || payload.sourceAnchor.selectionEnd <= payload.sourceAnchor.selectionStart)) ||
+    (payload.concernId !== null && !nonEmpty(payload.concernId)) ||
+    receipt.payloadSha256 !== digest(JSON.stringify(capturePayload(projectId, payload.projectPath, { ...payload, concernId: payload.concernId ?? undefined, operationId: receipt.operationId })))) return false;
+  if (receipt.status === 'prepared') return receipt.completedAt === null && receipt.committedRevision === null && receipt.rejection === null && !candidates.some(candidate => candidate.id === receipt.candidateId);
+  if (!timestamp(receipt.completedAt) || Date.parse(receipt.completedAt) < Date.parse(receipt.preparedAt)) return false;
+  if (receipt.status === 'rejected') return receipt.committedRevision === null && exactKeys(receipt.rejection, ['code', 'message']) &&
+    ['STALE', 'INVALID', 'PROTECTED_SOURCE', 'UNAVAILABLE'].includes(receipt.rejection!.code) && nonEmpty(receipt.rejection!.message, 2000) && !candidates.some(candidate => candidate.id === receipt.candidateId);
+  const candidate = candidates.find(candidate => candidate.id === receipt.candidateId);
+  return receipt.status === 'committed' && receipt.rejection === null && Number.isInteger(receipt.committedRevision) && receipt.committedRevision! > 0 && receipt.committedRevision! <= revision && Boolean(candidate &&
+    candidate.origin === 'manual' && candidate.unitId === payload.sourceSnapshot.unitId &&
+    candidate.sourceBodySha256 === payload.sourceSnapshot.bodySha256 && candidate.sourceSnapshot.text === payload.sourceSnapshot.text &&
+    ((candidate.sourceAnchor === null && payload.sourceAnchor === null) || Boolean(candidate.sourceAnchor && payload.sourceAnchor && candidate.sourceAnchor.unitId === payload.sourceAnchor.unitId && candidate.sourceAnchor.selectionStart === payload.sourceAnchor.selectionStart && candidate.sourceAnchor.selectionEnd === payload.sourceAnchor.selectionEnd && candidate.sourceAnchor.selectionFingerprint === payload.sourceAnchor.selectionFingerprint)) &&
+    candidate.purpose === payload.purpose && candidate.candidateText === payload.candidateText &&
+    (candidate.concernId ?? null) === payload.concernId && (candidate.deleteSource === true) === payload.deleteSource);
+}
+
 function validDocument(value: unknown, projectId: string): value is RevisionCandidatesDocumentV1 {
-  if (!exactKeys(value, ['schemaVersion', 'projectId', 'revision', 'candidates'])) return false;
-  const candidate = value as Partial<RevisionCandidatesDocumentV1>;
+  if (!record(value)) return false;
+  const isV2 = value.schemaVersion === REVISION_CAPTURE_LEDGER_SCHEMA_VERSION;
+  if (!exactKeys(value, ['schemaVersion', 'projectId', 'revision', 'candidates', ...(isV2 ? ['captures'] : [])])) return false;
+  const candidate = value as unknown as RevisionCandidatesDocumentV1;
   return (
-    candidate.schemaVersion === REVISION_CANDIDATE_SCHEMA_VERSION &&
-    candidate.projectId === projectId &&
-    Number.isInteger(candidate.revision) &&
-    (candidate.revision as number) >= 0 &&
-    Array.isArray(candidate.candidates) &&
-    candidate.candidates.every((item) => validCandidate(item, projectId)) &&
-    new Set(candidate.candidates.map((item) => item.id)).size === candidate.candidates.length
+    (candidate.schemaVersion === REVISION_CANDIDATE_SCHEMA_VERSION || isV2) &&
+    candidate.projectId === projectId && Number.isInteger(candidate.revision) && candidate.revision >= 0 &&
+    Array.isArray(candidate.candidates) && candidate.candidates.every(item => validCandidate(item, projectId)) &&
+    new Set(candidate.candidates.map(item => item.id)).size === candidate.candidates.length &&
+    (!isV2 || (Array.isArray(candidate.captures) && candidate.captures.every(receipt => validCapture(receipt, projectId, candidate.candidates, candidate.revision)) &&
+      new Set(candidate.captures.map(receipt => receipt.operationId)).size === candidate.captures.length &&
+      new Set(candidate.captures.map(receipt => receipt.candidateId)).size === candidate.captures.length))
   );
 }
 
@@ -506,10 +551,13 @@ export class RevisionCandidateRepository {
     expectedRevision: number,
     input: Omit<
       CreateManualRevisionCandidateRequest,
-      'projectId' | 'projectPath' | 'operationId' | 'generation' | 'expectedRevision'
+      'projectId' | 'projectPath' | 'generation' | 'expectedRevision'
     >,
+    validateSource: () => Promise<void> = async () => undefined,
   ): Promise<RevisionCandidatesSnapshotV1> {
+    input = structuredClone(input);
     if (
+      !nonEmpty(input.operationId) ||
       (input.concernId !== undefined && !nonEmpty(input.concernId, 240)) ||
       (input.deleteSource !== undefined && typeof input.deleteSource !== 'boolean') ||
       (input.deleteSource && (input.candidateText !== '' || !input.sourceAnchor || input.sourceAnchor.selectionEnd <= input.sourceAnchor.selectionStart)) ||
@@ -533,10 +581,10 @@ export class RevisionCandidateRepository {
         'INVALID',
         'The manual revision candidate is invalid.',
       );
-    return this.mutate(projectId, expectedRevision, (document) => {
+    return this.captureManual(projectId, expectedRevision, input, validateSource, (document, candidateId) => {
       const occurredAt = this.now().toISOString();
       const candidate: RevisionCandidateV1 = {
-        id: `candidate_${this.createId()}`,
+        id: candidateId,
         projectId,
         unitId: input.sourceSnapshot.unitId,
         ...(input.concernId ? { concernId: input.concernId } : {}),
@@ -544,7 +592,7 @@ export class RevisionCandidateRepository {
         sourceSnapshot: input.sourceSnapshot,
         sourceAnchor: input.sourceAnchor ?? null,
         sourceBodySha256: input.sourceSnapshot.bodySha256,
-        purpose: input.purpose.trim(),
+        purpose: input.purpose,
         origin: 'manual',
         provenance: { origin: 'manual', source: 'author', model: null, receipt: null },
         protection: input.protection,
@@ -868,6 +916,50 @@ export class RevisionCandidateRepository {
     return this.createFromLocalAi(projectId, expectedRevision, request, response, sourceAnchor);
   }
 
+  private async captureManual(
+    projectId: string, expectedRevision: number,
+    input: Parameters<RevisionCandidateRepository['createManual']>[2],
+    validateSource: () => Promise<void>,
+    change: (document: RevisionCandidatesDocumentV1, candidateId: string) => readonly RevisionCandidateV1[],
+  ): Promise<RevisionCandidatesSnapshotV1> {
+    // Clone before the first await: callers cannot mutate an in-flight payload.
+    const payload = capturePayload(projectId, this.projectPath, input);
+    const payloadSha256 = digest(JSON.stringify(payload));
+    return serialize(this.filePath, async () => {
+      const current = await this.read(projectId);
+      if (current.availability !== 'ready') throw new RevisionCandidateRepositoryError('UNAVAILABLE', current.message ?? 'Revision candidates are unavailable.');
+      const captures = current.document.captures ?? [];
+      let receipt = captures.find(receipt => receipt.operationId === input.operationId);
+      if (receipt && receipt.payloadSha256 !== payloadSha256) throw new RevisionCandidateRepositoryError('INVALID', 'This save identity already belongs to different alternative text. The original outcome is retained.');
+      // An ambiguous successful reply must replay before revision/source checks.
+      if (receipt?.status === 'committed') return current;
+      if (receipt?.status === 'rejected') throw new RevisionCandidateRepositoryError(receipt.rejection!.code, receipt.rejection!.message);
+      if (!receipt && captures.some(receipt => receipt.status === 'prepared')) throw new RevisionCandidateRepositoryError('RESERVED', 'Finish reconciling the earlier alternative before saving another.');
+      if (!receipt && (!Number.isInteger(expectedRevision) || current.document.revision !== expectedRevision)) throw new RevisionCandidateRepositoryError('STALE', 'Revision candidates changed. Reload before saving again.');
+      if (!receipt) {
+        receipt = { operationId: input.operationId, payloadSha256, payload, status: 'prepared',
+          candidateId: `candidate_${this.createId()}`, preparedAt: this.now().toISOString(), completedAt: null, committedRevision: null, rejection: null };
+        // The candidate revision advances once, on commit. Prepared/rejected
+        // receipts retain it; all writes still share this repository queue.
+        await this.write({ ...current.document, schemaVersion: REVISION_CAPTURE_LEDGER_SCHEMA_VERSION, captures: [...captures, receipt] });
+      }
+      const prepared = { ...current.document, schemaVersion: REVISION_CAPTURE_LEDGER_SCHEMA_VERSION, captures: receipt === captures.find(item => item.operationId === input.operationId) ? captures : [...captures, receipt] } as RevisionCandidatesDocumentV1;
+      try { await validateSource(); }
+      catch (error) {
+        if (error instanceof RevisionCandidateRepositoryError && ['STALE', 'INVALID', 'PROTECTED_SOURCE', 'UNAVAILABLE'].includes(error.code)) {
+          const rejected: RevisionManualCaptureReceiptV2 = { ...receipt, status: 'rejected', completedAt: this.now().toISOString(), rejection: { code: error.code as 'STALE' | 'INVALID' | 'PROTECTED_SOURCE' | 'UNAVAILABLE', message: error.message } };
+          await this.write({ ...prepared, captures: prepared.captures!.map(item => item.operationId === receipt!.operationId ? rejected : item) });
+        }
+        throw error;
+      }
+      const committed: RevisionManualCaptureReceiptV2 = { ...receipt, status: 'committed', completedAt: this.now().toISOString(), committedRevision: prepared.revision + 1 };
+      const next = { ...prepared, revision: prepared.revision + 1, candidates: change(prepared, receipt.candidateId), captures: prepared.captures!.map(item => item.operationId === receipt!.operationId ? committed : item) };
+      if (!validDocument(next, projectId)) throw new RevisionCandidateRepositoryError('INVALID', 'The captured alternative does not match its exact saved input.');
+      await this.write(next);
+      return { availability: 'ready', document: next, message: null };
+    });
+  }
+
   private async mutate(
     projectId: string,
     expectedRevision: number,
@@ -901,6 +993,7 @@ export class RevisionCandidateRepository {
   }
 
   private async write(document: RevisionCandidatesDocumentV1): Promise<void> {
+    if (!validDocument(document, document.projectId)) throw new RevisionCandidateRepositoryError('INVALID', 'The revision ledger change is invalid.');
     const directory = path.dirname(this.filePath);
     const tempPath = path.join(
       directory,
@@ -909,12 +1002,29 @@ export class RevisionCandidateRepository {
     let handle: Awaited<ReturnType<typeof fs.open>> | null = null;
     try {
       await fs.mkdir(directory, { recursive: true });
+      if (document.schemaVersion === REVISION_CAPTURE_LEDGER_SCHEMA_VERSION) {
+        let previous: string | null = null;
+        try { previous = await fs.readFile(this.filePath, 'utf8'); }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+        if (previous && JSON.parse(previous).schemaVersion === REVISION_CANDIDATE_SCHEMA_VERSION) {
+          const backupPath = path.join(directory, 'revision-candidates.v1.backup.json');
+          let backup: Awaited<ReturnType<typeof fs.open>> | null = null;
+          try {
+            backup = await fs.open(backupPath, 'wx'); await backup.writeFile(previous, 'utf8'); await backup.sync();
+          } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error; }
+          finally { await backup?.close(); }
+          if (await fs.readFile(backupPath, 'utf8') !== previous) throw new Error('The preserved V1 ledger does not match the source.');
+        }
+      }
+
       handle = await fs.open(tempPath, 'wx');
       await handle.writeFile(`${JSON.stringify(document, null, 2)}\n`, 'utf8');
       await handle.sync();
       await handle.close();
       handle = null;
       await fs.rename(tempPath, this.filePath);
+      const reread = await fs.readFile(this.filePath, 'utf8');
+      if (reread !== JSON.stringify(document, null, 2) + String.fromCharCode(10) || !validDocument(JSON.parse(reread), document.projectId)) throw new Error('Durable revision readback did not match.');
     } catch {
       await handle?.close().catch(() => undefined);
       await fs.rm(tempPath, { force: true }).catch(() => undefined);

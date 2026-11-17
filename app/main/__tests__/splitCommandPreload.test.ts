@@ -20,7 +20,12 @@ const ipcListeners = vi.hoisted(() => new Map<string, Array<(...args: unknown[])
 const ipcRendererInvokeMock = vi.hoisted(() => vi.fn());
 const runtimeConfigState = vi.hoisted(() => ({ experimentalSplitCommandWorkspace: false }));
 
+const spellingProviderMock = vi.hoisted(() => vi.fn());
+
+const nativeSpellingMock = vi.hoisted(() => ({ isWordMisspelled: vi.fn(), getWordSuggestions: vi.fn() }));
+
 vi.mock('electron', () => ({
+  webFrame: { setSpellCheckProvider: spellingProviderMock, isWordMisspelled: nativeSpellingMock.isWordMisspelled, getWordSuggestions: nativeSpellingMock.getWordSuggestions },
   contextBridge: contextBridgeMock,
   ipcRenderer: {
     invoke: ipcRendererInvokeMock,
@@ -186,6 +191,36 @@ describe('splitCommand preload bridge', () => {
     restoreEnvironmentVariable('PLAYWRIGHT', originalPlaywright);
     restoreEnvironmentVariable('BLACKSKIES_ENABLE_HARNESS_HOOKS', originalHarnessHooks);
     restoreEnvironmentVariable('BLACKSKIES_DISABLE_LOCAL_AI', originalDisableLocalAi);
+  });
+
+  it('preserves the native macOS checker without installing the Windows provider', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(process, 'platform')!;
+    spellingProviderMock.mockReset();
+    nativeSpellingMock.isWordMisspelled.mockImplementation(word => word !== 'forest');
+    nativeSpellingMock.getWordSuggestions.mockReturnValue(['forest']);
+    try {
+      Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
+      await import('../preload');
+      expect(spellingProviderMock).not.toHaveBeenCalled();
+      const bridge = getProjectSpineBridge()!;
+      expect(await bridge.checkSpelling!('foorrrest')).toEqual({ available: true, misspelled: true, suggestions: ['forest'] });
+      expect(await bridge.checkSpelling!('forest')).toMatchObject({ available: true, misspelled: false });
+    } finally { Object.defineProperty(process, 'platform', descriptor); }
+  });
+
+  it('keeps checking ordinary words beside unsupported long tokens in bounded provider batches', async () => {
+    spellingProviderMock.mockReset();
+    await import('../preload');
+    const provider = spellingProviderMock.mock.calls.at(-1)![1] as { spellCheck(words: string[], callback: (misspelled: string[]) => void): void };
+    ipcRendererInvokeMock.mockImplementation(async (_channel, request) => request.words.some((word: string) => word.length > 80)
+      ? [] : request.words.map((word: string) => ({ available: true, misspelled: word === 'foorrrest' })));
+    const words = ['x'.repeat(81), '123', 'foorrrest', ...Array<string>(260).fill('forest')];
+    const callback = vi.fn();
+    await new Promise<void>(resolve => provider.spellCheck(words, result => { callback(result); resolve(); }));
+    expect(callback).toHaveBeenCalledExactlyOnceWith(['foorrrest']);
+    const requests = ipcRendererInvokeMock.mock.calls.filter(([channel]) => channel === PROJECT_SPINE_CHANNELS.checkSpelling).map(([, request]) => request);
+    expect(requests).toHaveLength(3);
+    expect(requests.every(request => request.words.length <= 128 && request.words.every((word: string) => /^[\p{L}\p{M}'’–-]{1,80}$/u.test(word)))).toBe(true);
   });
 
   it('preserves the stable Writing Studio preload globals without split command exposure', async () => {

@@ -64,7 +64,7 @@ test('Program 7 Create / Develop keeps Foundation and Ideas optional, bounded, a
     }
     const branch = writing.getByTestId(/^idea-branch-/).last();
     await expect(branch).toContainText('The letter path');
-    await expect(branch.getByRole('heading', { name: 'Explore this premise', exact: true })).toBeVisible();
+    await expect(branch.getByRole('heading', { name: 'Think through this idea', exact: true })).toBeVisible();
     const foundationPath = path.join(projectPath, 'story-foundation.json');
     const beforePreview = await readFile(foundationPath, 'utf8');
     await branch.getByRole('button', { name: 'Preview destination', exact: true }).click();

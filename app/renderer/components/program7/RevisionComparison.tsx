@@ -29,7 +29,7 @@ function ReplacementChanges({ before, after }: { before: string; after: string }
   const added = newPoints.slice(prefix, newPoints.length - suffix).join('');
   return <section aria-label="Proposed passage changes"><h3>Proposed passage changes</h3>
     <p>Removed text is struck through. Added text is underlined. These are proposed changes until you apply them.</p>
-    <pre>{oldPoints.slice(0, prefix).join('')}{removed ? <del aria-label="Removed text">{removed}</del> : null}{added ? <ins aria-label="Added text">{added}</ins> : null}{suffix ? oldPoints.slice(-suffix).join('') : ''}</pre>
+    <pre tabIndex={0}>{oldPoints.slice(0, prefix).join('')}{removed ? <del aria-label="Removed text">{removed}</del> : null}{added ? <ins aria-label="Added text">{added}</ins> : null}{suffix ? oldPoints.slice(-suffix).join('') : ''}</pre>
     {!removed && !added ? <p>No wording changes in this passage.</p> : null}
   </section>;
 }
@@ -156,20 +156,20 @@ export default function RevisionComparison({
         <article aria-labelledby={`revision-current-${candidate.id}`}>
           <h2 id={`revision-current-${candidate.id}`}>{sourceIsHistorical ? 'Saved source passage' : 'Your current manuscript'}</h2>
           <p>{sourceIsHistorical ? 'This is the saved passage used to create this alternative.' : 'This saved passage remains unchanged while you review the alternative.'}</p>
-          <pre data-testid="revision-current-text">{redacted ? 'Content hidden by protection policy.' : candidate.sourceSnapshot.text}</pre>
+          <pre tabIndex={0} data-testid="revision-current-text">{redacted ? 'Content hidden by protection policy.' : candidate.sourceSnapshot.text}</pre>
         </article>
         <article aria-labelledby={`revision-candidate-${candidate.id}`}>
           <h2 id={`revision-candidate-${candidate.id}`}>Revision alternative</h2>
           <p>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted'
             ? 'This is the alternative you applied.'
             : candidate.editedCandidateText ? 'Your edited alternative is ready to review.' : 'This alternative is ready to review.'}</p>
-          <pre data-testid="revision-candidate-text">{redacted ? 'Content hidden by protection policy.' : candidate.deleteSource ? 'Delete the exact linked passage. No replacement words will be inserted.' : visibleCandidateText(candidate)}</pre>
+          <pre tabIndex={0} data-testid="revision-candidate-text">{redacted ? 'Content hidden by protection policy.' : candidate.deleteSource ? 'Delete the exact linked passage. No replacement words will be inserted.' : visibleCandidateText(candidate)}</pre>
         </article>
       </div>
       {!redacted ? (
         <section className="program7-revision-comparison__replacement" aria-labelledby={`revision-replacement-${candidate.id}`}>
           <h2 id={`revision-replacement-${candidate.id}`}>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted' ? 'Text that was replaced' : sourceIsHistorical ? 'Text linked for replacement' : 'Text that will be replaced'}</h2>
-          <pre data-testid="revision-replacement-text">{replacementText}</pre>
+          <pre tabIndex={0} data-testid="revision-replacement-text">{replacementText}</pre>
           <ReplacementChanges before={replacementText} after={candidateText} />
           {editable && !stale ? <p>The manuscript text shown here is the replacement target. Selecting part of the alternative below changes what you insert, not which manuscript words are replaced.</p> : null}
           {editable && !stale && replacesWholeSection ? (

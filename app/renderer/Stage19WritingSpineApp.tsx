@@ -75,6 +75,7 @@ import type {
   Program7PromotionOutcomeV1,
 } from '../shared/ipc/program7Promotion';
 import type {
+  CreateManualRevisionCandidateRequest,
   RevisionCandidateLifecycle,
   RevisionCandidateV1,
   RevisionCandidatesBridge,
@@ -764,6 +765,13 @@ export default function Stage19WritingSpineApp({
   useEffect(() => { setProgram7ConcernId(null); }, [snapshot.project?.projectId, snapshot.generation]);
   const [program7CandidatePurpose, setProgram7CandidatePurpose] = useState('');
   const [program7CandidateText, setProgram7CandidateText] = useState('');
+  const [program7FrozenTarget, setProgram7FrozenTarget] = useState<ManualRevisionTarget | null>(null);
+  const manualCaptureRequestRef = useRef<CreateManualRevisionCandidateRequest | null>(null);
+  const manualCaptureBusyRef = useRef(false);
+  const manualCaptureEpochRef = useRef(0);
+  const [program7CapturePending, setProgram7CapturePending] = useState(false);
+  const [program7CaptureNeedsReconcile, setProgram7CaptureNeedsReconcile] = useState(false);
+
   const [program7LocalAiRequestId, setProgram7LocalAiRequestId] = useState<string | null>(null);
   const [program7Notice, setProgram7Notice] = useState<string | null>(null);
   const [program7PromotionOutcomes, setProgram7PromotionOutcomes] = useState<readonly Program7PromotionOutcomeV1[]>([]);
@@ -1251,6 +1259,12 @@ export default function Stage19WritingSpineApp({
 
   const program7ProjectIdentity = `${snapshot.project?.projectId ?? ''}\n${snapshot.project?.path ?? ''}\n${snapshot.generation}`;
   useLayoutEffect(() => {
+    manualCaptureEpochRef.current += 1;
+    manualCaptureRequestRef.current = null;
+    manualCaptureBusyRef.current = false;
+    setProgram7FrozenTarget(null);
+    setProgram7CapturePending(false);
+    setProgram7CaptureNeedsReconcile(false);
     if (!snapshot.project) {
       setProgram7RevisionItems({ activeItems: [], historyItems: [], revision: 0, availability: 'ready', notice: null });
       setProgram7Candidates(null);
@@ -1314,7 +1328,27 @@ export default function Stage19WritingSpineApp({
       }
       try {
         const result = await revisionCandidatesBridge.list({ ...binding, operationId: operationId('program7-candidates-load') });
-        if (!cancelled) setProgram7Candidates(result.ok ? result.data : null);
+        if (!cancelled) {
+          setProgram7Candidates(result.ok ? result.data : null);
+          const prepared = result.ok ? result.data.document.captures?.find(receipt => receipt.status === 'prepared') : undefined;
+          if (prepared && result.ok) {
+            const payload = prepared.payload;
+            const unit = snapshotRef.current.project?.units.find(unit => unit.id === payload.sourceSnapshot.unitId);
+            manualCaptureRequestRef.current = { ...binding, operationId: prepared.operationId,
+              expectedRevision: result.data.document.revision, unitId: payload.sourceSnapshot.unitId,
+              sourceSnapshot: payload.sourceSnapshot, sourceAnchor: payload.sourceAnchor,
+              purpose: payload.purpose, candidateText: payload.candidateText, protection: payload.protection,
+              warnings: payload.warnings, ...(payload.concernId ? { concernId: payload.concernId } : {}),
+              ...(payload.deleteSource ? { deleteSource: true } : {}) };
+            setProgram7FrozenTarget({ kind: payload.sourceAnchor ? 'selection' : 'section',
+              unitId: payload.sourceSnapshot.unitId, title: unit?.title ?? 'Saved passage', body: payload.sourceSnapshot.text,
+              from: payload.sourceAnchor?.selectionStart ?? 0, to: payload.sourceAnchor?.selectionEnd ?? payload.sourceSnapshot.text.length,
+              text: payload.sourceAnchor ? payload.sourceSnapshot.text.slice(payload.sourceAnchor.selectionStart, payload.sourceAnchor.selectionEnd) : payload.sourceSnapshot.text });
+            setProgram7CandidatePurpose(payload.purpose); setProgram7CandidateText(payload.candidateText);
+            setProgram7ConcernId(payload.concernId); setProgram7CaptureNeedsReconcile(true);
+            setProgram7Notice('An unfinished alternative was recovered with its exact passage and wording. Use Check save to finish or confirm that save.');
+          }
+        }
         if (!cancelled && !result.ok) setProgram7Notice(result.error.message);
       } catch {
         if (!cancelled) setProgram7Notice('Revision alternatives could not be loaded.');
@@ -2699,14 +2733,14 @@ export default function Stage19WritingSpineApp({
   useEffect(() => {
     if (windowRole !== 'writing') return;
     const handler = (event: BeforeUnloadEvent) => {
-      if (hasLocalUnsaved || snapshotRef.current.saveState.status === 'save-failed') {
+      if (hasLocalUnsaved || (writingPage.enabled && (writingPage.busy || writingPage.unsaved)) || manualCaptureBusyRef.current || manualCaptureRequestRef.current || snapshotRef.current.saveState.status === 'save-failed') {
         event.preventDefault();
         event.returnValue = '';
       }
     };
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
-  }, [hasLocalUnsaved, windowRole]);
+  }, [hasLocalUnsaved, windowRole, writingPage.enabled, writingPage.busy, writingPage.unsaved]);
 
   useEffect(() => {
     if (windowRole === 'writing' && closeConfirmation.activeRequest) {
@@ -3505,76 +3539,122 @@ export default function Stage19WritingSpineApp({
     return { current, project, unit, body, bodySha256: await fingerprintVisibleText(body) };
   }, []);
 
-  const getProgram7RevisionTarget = () => {
-    if (windowRole !== 'writing') return { kind: 'unavailable' as const, text: '', message: 'Select a passage in Writing Studio.' };
+  const resolveCurrentProgram7Target = () => {
     const concern = program7RevisionItems.activeItems.concat(program7RevisionItems.historyItems).find(item => item.id === program7ConcernId);
     if (program7ConcernId && !concern) return { kind: 'unavailable' as const, text: '', message: 'The linked concern is unavailable. Your proposed alternative is retained.' };
     return resolveManualRevisionTarget(snapshotRef.current, buffersRef.current, writingViewContextRef.current, concern);
   };
+  const getProgram7RevisionTarget = () => program7FrozenTarget ?? resolveCurrentProgram7Target();
+  useLayoutEffect(() => {
+    if (logicalSurface === 'writing' && !program7CandidatePurpose && !program7CandidateText && !manualCaptureRequestRef.current) {
+      if (program7FrozenTarget) setProgram7FrozenTarget(null);
+      return;
+    }
+    if (logicalSurface === 'command' && commandWorkspace === 'create-develop' && !program7FrozenTarget && !manualCaptureRequestRef.current) {
+      const target = resolveCurrentProgram7Target();
+      if (target.kind !== 'unavailable') setProgram7FrozenTarget(target);
+    }
+  // Freeze source when the draft opens. Later source changes must be refused,
+  // never silently substituted; an explicit new selection starts another target.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logicalSurface, commandWorkspace, program7ProjectIdentity, program7ConcernId, program7FrozenTarget, program7CandidatePurpose, program7CandidateText]);
+
+  const useCurrentProgram7Target = () => {
+    if (manualCaptureBusyRef.current || manualCaptureRequestRef.current) return;
+    const target = resolveCurrentProgram7Target();
+    setProgram7FrozenTarget(target.kind === 'unavailable' ? null : target);
+    setProgram7Notice(target.kind === 'unavailable' ? target.message : 'Replacement target updated to the current writing selection. Your proposed wording is retained.');
+  };
 
   const createProgram7ManualCandidate = useCallback(async (deleteSource = false, wholeSection = false) => {
+    if (manualCaptureBusyRef.current) return;
     if (windowRole !== 'writing' || typeof revisionCandidatesBridge?.createManual !== 'function') {
-      setProgram7Notice('Manual revision alternatives can only be created from Writing Studio.');
-      return;
+      setProgram7Notice('Manual revision alternatives can only be created from Writing Studio.'); return;
     }
-    const concern = program7RevisionItems.activeItems.concat(program7RevisionItems.historyItems).find(item => item.id === program7ConcernId);
-    if (program7ConcernId && !concern) { setProgram7Notice('The linked concern is unavailable. Your proposed alternative is retained.'); return; }
-    const target = resolveManualRevisionTarget(snapshotRef.current, buffersRef.current, writingViewContextRef.current, concern);
-    if (target.kind === 'unavailable') { setProgram7Notice(target.message); return; }
-    if (target.kind === 'section' && !wholeSection) { setProgram7Notice('Select the words to replace, or explicitly choose the whole saved section before saving an alternative.'); return; }
-    const targetProject = snapshotRef.current.project?.projectId, targetGeneration = snapshotRef.current.generation;
-    // Preserve the main process's active-source authority: select the validated
-    // preview source through its existing owner before creating the proposal.
-    if (snapshotRef.current.activeUnitId !== target.unitId && !(await handleSelectUnit(target.unitId))) return;
-    if (snapshotRef.current.project?.projectId !== targetProject || snapshotRef.current.generation !== targetGeneration) return;
-    const source = await currentProgram7UnitSource(target.unitId);
-    const purpose = program7CandidatePurpose.trim();
-    const candidateText = deleteSource ? '' : program7CandidateText.trim();
-    if (!source || !purpose || (!candidateText && !deleteSource)) {
-      setProgram7Notice('Save the project and enter both a purpose and alternative text before creating a revision alternative.');
-      return;
+    if (program7Candidates?.availability !== 'ready') {
+      setProgram7Notice('Wait for saved alternatives to load before saving this draft.'); return;
     }
-    if (source.current.dirtyUnitIds.includes(source.unit.id)) {
-      setProgram7Notice('Save the current manuscript section before creating a source-linked revision alternative.');
-      return;
-    }
-    if (target.body !== source.body || (concern?.anchor && concern.sourceBodyFingerprint !== source.bodySha256)) {
-      setProgram7Notice('The selected passage changed. Select it again before saving an alternative. No whole section was substituted.'); return;
-    }
-    const selection = target.kind === 'selection' ? {
-      unitId: target.unitId, selectionStart: target.from, selectionEnd: target.to,
-      selectionFingerprint: await fingerprintVisibleText(target.text),
-    } : null;
-    if (deleteSource && !selection) { setProgram7Notice('A deletion alternative needs an exact selected or concern-linked passage. Your draft is retained.'); return; }
-    const binding = bindingFor(source.current, 'program7-manual-candidate');
-    if (!binding) return;
-    try {
-      const result = await revisionCandidatesBridge.createManual({
-        ...binding,
-        unitId: source.unit.id,
-        ...(concern ? { concernId: concern.id } : {}),
-        ...(deleteSource ? { deleteSource: true } : {}),
-        expectedRevision: program7Candidates?.document.revision ?? 0,
-        sourceSnapshot: { unitId: source.unit.id, bodySha256: source.bodySha256, text: source.body },
-        sourceAnchor: selection,
-        purpose,
-        protection: { excluded: false, class: 'ordinary' },
-        candidateText,
-      });
-      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
-      if (!result.ok) {
-        setProgram7Notice(result.error.message);
-        return;
-      }
-      setProgram7Candidates(result.data);
-      setProgram7CandidateText('');
-      setProgram7CandidatePurpose('');
+    const epoch = manualCaptureEpochRef.current;
+    const entryBinding = bindingFor(snapshotRef.current, 'program7-manual-candidate');
+    if (!entryBinding) return;
+    manualCaptureBusyRef.current = true;
+    setProgram7CapturePending(true);
+    let request = manualCaptureRequestRef.current;
+    const stillCurrent = () => manualCaptureEpochRef.current === epoch &&
+      bindingMatchesSnapshot(request ?? entryBinding, snapshotRef.current);
+    const finishCommitted = (data: RevisionCandidatesSnapshotV1): boolean => {
+      const receipt = data.document.captures?.find(item => item.operationId === request?.operationId);
+      const candidate = data.document.candidates.find(item => item.id === receipt?.candidateId);
+      if (!request || receipt?.status !== 'committed' || !candidate ||
+        receipt.payload.candidateText !== request.candidateText || receipt.payload.purpose !== request.purpose ||
+        receipt.payload.sourceSnapshot.unitId !== request.sourceSnapshot.unitId ||
+        receipt.payload.sourceSnapshot.bodySha256 !== request.sourceSnapshot.bodySha256) return false;
+      if (!stillCurrent()) return true;
+      setProgram7Candidates(data);
+      manualCaptureRequestRef.current = null;
+      setProgram7CaptureNeedsReconcile(false);
+      setProgram7CandidateText(''); setProgram7CandidatePurpose(''); setProgram7FrozenTarget(null);
       setProgram7Notice('Manual revision alternative saved. Your manuscript has not changed.');
-    } catch {
-      if (!bindingMatchesSnapshot(binding, snapshotRef.current)) return;
-      setProgram7Notice('The manual revision alternative could not be saved. Your manuscript has not changed.');
+      return true;
+    };
+    const reconcile = async (notice: string, definitiveFailure = false) => {
+      if (!request || !stillCurrent()) return;
+      setProgram7CaptureNeedsReconcile(true);
+      try {
+        const listed = await revisionCandidatesBridge.list({ projectId: request.projectId, projectPath: request.projectPath, generation: request.generation, operationId: operationId('program7-capture-reconcile') });
+        if (!stillCurrent()) return;
+        if (listed.ok) {
+          setProgram7Candidates(listed.data);
+          if (finishCommitted(listed.data)) return;
+          const outcome = listed.data.document.captures?.find(item => item.operationId === request!.operationId);
+          if (outcome?.status === 'rejected' || (!outcome && definitiveFailure && listed.data.availability === 'ready')) {
+            manualCaptureRequestRef.current = null; setProgram7CaptureNeedsReconcile(false);
+            setProgram7Notice(outcome?.rejection?.message ?? notice); return;
+          }
+        }
+      } catch { /* Preserve the same operation and inputs until its owner can answer. */ }
+      if (stillCurrent()) setProgram7Notice('The save result is not yet confirmed. Your wording and exact passage are retained. Use Check save; it checks the same save and cannot create a duplicate.');
+    };
+    try {
+      if (!request) {
+        const target = program7FrozenTarget ?? resolveCurrentProgram7Target();
+        if (target.kind === 'unavailable') { setProgram7Notice(target.message); return; }
+        if (target.kind === 'section' && !wholeSection) { setProgram7Notice('Select the words to replace, or explicitly choose the whole saved section before saving an alternative.'); return; }
+        const binding = entryBinding;
+        const purpose = program7CandidatePurpose;
+        const candidateText = deleteSource ? '' : program7CandidateText;
+        if (!binding || !purpose.trim() || (!candidateText.trim() && !deleteSource)) { setProgram7Notice('Enter a purpose and proposed wording before saving this alternative.'); return; }
+        // All author inputs are fixed before either asynchronous fingerprint.
+        const frozen = { ...binding, target: structuredClone(target), purpose, candidateText, concernId: program7ConcernId, deleteSource };
+        setProgram7FrozenTarget(frozen.target);
+        const sourceHash = await fingerprintVisibleText(frozen.target.body);
+        const selection = frozen.target.kind === 'selection' ? { unitId: frozen.target.unitId,
+          selectionStart: frozen.target.from, selectionEnd: frozen.target.to,
+          selectionFingerprint: await fingerprintVisibleText(frozen.target.text) } : null;
+        if (!stillCurrent()) return;
+        if (deleteSource && !selection) { setProgram7Notice('A deletion alternative needs an exact selected passage. Your draft is retained.'); return; }
+        request = { ...binding, unitId: frozen.target.unitId, expectedRevision: program7Candidates.document.revision,
+          sourceSnapshot: { unitId: frozen.target.unitId, bodySha256: sourceHash, text: frozen.target.body }, sourceAnchor: selection,
+          purpose: frozen.purpose, candidateText: frozen.candidateText, protection: { excluded: false, class: 'ordinary' },
+          ...(frozen.concernId ? { concernId: frozen.concernId } : {}), ...(frozen.deleteSource ? { deleteSource: true } : {}) };
+        manualCaptureRequestRef.current = request;
+      }
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      const result = await Promise.race([
+        revisionCandidatesBridge.createManual(request),
+        new Promise<never>((_resolve, reject) => { deadline = setTimeout(() => reject(new Error('Save confirmation timed out')), 15_000); }),
+      ]).finally(() => clearTimeout(deadline));
+      if (!stillCurrent()) return;
+      if (result.ok && finishCommitted(result.data)) return;
+      await reconcile(result.ok ? 'The save did not return a committed receipt. Your draft is retained.' : result.error.message, !result.ok && !['CANDIDATE_WRITE_FAILED', 'CAPTURE_IN_PROGRESS'].includes(result.error.code));
+    } catch { await reconcile('The alternative could not be saved. Your draft is retained.'); }
+    finally {
+      if (manualCaptureEpochRef.current === epoch) { manualCaptureBusyRef.current = false; setProgram7CapturePending(false); }
     }
-  }, [currentProgram7UnitSource, handleSelectUnit, program7ConcernId, program7RevisionItems, program7CandidatePurpose, program7CandidateText, program7Candidates?.document.revision, revisionCandidatesBridge, windowRole]);
+  // This callback freezes all inputs synchronously; the refs retain one request
+  // across an ambiguous reply and guard late completion after project changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [program7ConcernId, program7RevisionItems, program7CandidatePurpose, program7CandidateText, program7Candidates, program7FrozenTarget, revisionCandidatesBridge, windowRole]);
 
   const createProgram7LocalAiCandidate = useCallback(async () => {
     const createLocalAi = revisionCandidatesBridge?.createLocalAi;
@@ -3922,7 +4002,7 @@ export default function Stage19WritingSpineApp({
     }
     const binding = bindingFor(snapshotRef.current, 'program7-revision-item-lifecycle');
     if (!binding || revisionMutationRef.current) return;
-    revisionMutationRef.current = binding.operationId; setProgram7RevisionPending(true);
+    revisionMutationRef.current = binding.operationId; setProgram7RevisionPending(true); setProgram7Notice(null);
     try {
       const evidenceBodies = new Map(revisionItemSources(item).map(source => [source.unitId, buffersRef.current[source.unitId]]));
       // Keep rebased Pin and Note anchors durable with the source saved for this
@@ -3993,6 +4073,7 @@ export default function Stage19WritingSpineApp({
   }, [feedbackNotesBridge, program7RevisionItems.revision, refreshProgram7RevisionItems, windowRole]);
 
   const considerProgram7Concern = useCallback(async (item: RevisionItem) => {
+    if (manualCaptureBusyRef.current || manualCaptureRequestRef.current) { setProgram7Notice('Finish confirming the pending alternative before starting another.'); return; }
     const current = snapshotRef.current;
     if (!current.project || item.projectId !== current.project.projectId) return;
     for (const evidence of revisionItemSources(item)) {
@@ -4004,6 +4085,8 @@ export default function Stage19WritingSpineApp({
     }
     if (!(await handleSelectUnit(item.unitId))) return;
     if (snapshotRef.current.project?.projectId !== item.projectId || snapshotRef.current.generation !== current.generation) return;
+    if (manualCaptureBusyRef.current || manualCaptureRequestRef.current) { setProgram7Notice('Finish confirming the pending alternative before starting another.'); return; }
+    setProgram7FrozenTarget(resolveManualRevisionTarget(snapshotRef.current, buffersRef.current, writingViewContextRef.current, item));
     setProgram7ConcernId(item.id); setProgram7CandidatePurpose(item.body);
     setCommandWorkspace('create-develop');
     if (surfaceBridge) await activateSurface('command', 'current-window');
@@ -4375,7 +4458,8 @@ export default function Stage19WritingSpineApp({
     notice,
     sourceReturnConfirmation,
     activeUnit,
-    writingSaveSummary,
+    writingSaveSummary: snapshot.saveState.status === 'save-failed' ? writingSaveSummary : writingPage.enabled && writingPage.busy ? 'Saving…' : writingPage.enabled && writingPage.unsaved && snapshot.dirtyUnitIds.length === 0 ? 'Unsaved changes' : writingSaveSummary,
+    writingSaveStatus: snapshot.saveState.status === 'save-failed' ? 'save-failed' : writingPage.enabled && writingPage.busy ? 'saving' : writingPage.enabled && writingPage.unsaved ? 'dirty' : snapshot.saveState.status,
     projectBridgeAvailable: Boolean(bridge),
     markdownExportAvailable: Boolean(bridge?.exportMarkdown),
     exportingMarkdown,
@@ -4463,6 +4547,9 @@ export default function Stage19WritingSpineApp({
     program7ConcernId,
     program7CandidatePurpose,
     program7CandidateText,
+    program7CapturePending,
+    program7CaptureNeedsReconcile,
+    program7CaptureDeleteSource: manualCaptureRequestRef.current?.deleteSource === true,
     program7RevisionTarget: getProgram7RevisionTarget(),
     program7LocalAiRequestId,
     program7Notice,
@@ -4622,8 +4709,10 @@ export default function Stage19WritingSpineApp({
     dismissWritingNotice: () => { setNotice(null); setSourceReturnConfirmation(null); },
     dismissProgram7Notice: () => setProgram7Notice(null),
     dismissStoryIntelligenceNotice: () => setStoryIntelligenceNotice(null),
-    setProgram7CandidatePurpose,
-    setProgram7CandidateText,
+    setProgram7CandidatePurpose: value => { if (!manualCaptureBusyRef.current && !manualCaptureRequestRef.current) setProgram7CandidatePurpose(value); },
+    setProgram7CandidateText: value => { if (!manualCaptureBusyRef.current && !manualCaptureRequestRef.current) setProgram7CandidateText(value); },
+    useCurrentProgram7Target,
+    scheduleRecoveryReveal: reveal => { const frame = window.requestAnimationFrame(reveal); return () => window.cancelAnimationFrame(frame); },
     createProgram7ManualCandidate,
     createProgram7LocalAiCandidate,
     cancelProgram7LocalAiCandidate,
@@ -4637,7 +4726,7 @@ export default function Stage19WritingSpineApp({
     returnProgram7CandidateToSource,
     createManualConcern,
     considerProgram7Concern,
-    clearProgram7Concern: () => setProgram7ConcernId(null),
+    clearProgram7Concern: () => { if (!manualCaptureBusyRef.current && !manualCaptureRequestRef.current) { setProgram7ConcernId(null); setProgram7FrozenTarget(null); } },
     returnProgram7RevisionItemToSource,
     setProgram7RevisionItemLifecycle,
     recheckProgram7RevisionItem,

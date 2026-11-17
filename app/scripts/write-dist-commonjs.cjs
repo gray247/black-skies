@@ -6,6 +6,7 @@ const {
   existsSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   rmSync,
 } = require('node:fs');
 const { join } = require('node:path');
@@ -75,6 +76,17 @@ writeFileSync(
   ),
   'utf8',
 );
+
+const spellingSource = realpathSync(join(__dirname, '..', 'node_modules', 'nspell'));
+const spellingTarget = join(distRoot, 'vendor', 'nspell');
+const isBufferSource = require.resolve('is-buffer', { paths: [spellingSource] });
+rmSync(spellingTarget, { recursive: true, force: true });
+copyTree(spellingSource, spellingTarget);
+copyTree(join(isBufferSource, '..'), join(spellingTarget, 'node_modules', 'is-buffer'));
+const spellingOwner = join(distRoot, 'main', 'projectSpineIpc.js');
+const spellingCode = readFileSync(spellingOwner, 'utf8');
+if (!spellingCode.includes('require("nspell")')) throw new Error('The compiled spelling owner is missing.');
+writeFileSync(spellingOwner, spellingCode.replace('require("nspell")', 'require("../vendor/nspell/lib/index.js")'), 'utf8');
 
 if (existsSync(distRoot)) {
   rmSync(legacyRoot, { recursive: true, force: true });

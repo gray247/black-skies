@@ -30,3 +30,6 @@
 *.exe binary
 *.dll binary
 
+
+# Preserve the pinned upstream dictionary license byte-for-byte.
+app/resources/dictionaries/LICENSE -text -whitespace

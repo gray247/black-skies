@@ -2,6 +2,7 @@ import { _electron as electron, test as base, expect as baseExpect } from '@play
 import type { TestInfo } from '@playwright/test';
 import type { ConsoleMessage, ElectronApplication, Page } from 'playwright';
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -57,13 +58,44 @@ const launchOptionsByApp = new WeakMap<ElectronApplication, NonNullable<Paramete
 const restartedAppsByRoot = new WeakMap<ElectronApplication, ElectronApplication[]>();
 const rootAppByRestart = new WeakMap<ElectronApplication, ElectronApplication>();
 
-export async function restartElectronApp(application: ElectronApplication): Promise<ElectronApplication> {
+async function prepareDiagnosticDevTools(application: ElectronApplication): Promise<void> {
+  if (process.env.BLACKSKIES_STABILITY_DEVTOOLS !== 'detached') return;
+  // Bind the real first product window before DevTools creates an auxiliary page.
+  const writing = await application.firstWindow();
+  await writing.waitForFunction(() => window.projectSpine?.windowRole === 'writing');
+  const owner = await application.browserWindow(writing);
+  await owner.evaluate(window => {
+    window.webContents.openDevTools({ mode: 'detach' });
+    window.show(); window.focus(); window.webContents.focus();
+  });
+}
+
+export async function restartElectronApp(application: ElectronApplication, options: { simulateInterruptedExit?: boolean } = {}): Promise<ElectronApplication> {
   const launchOptions = launchOptionsByApp.get(application);
   if (!launchOptions) throw new Error('Restart requires an application launched by this fixture.');
-  const result = await closeElectronApplicationSafely(application);
-  if (result.forcedKill) throw new Error('Electron did not exit normally; restart qualification is blocked.');
-  markElectronApplicationExitedCleanly(application);
+  if (options.simulateInterruptedExit) {
+    // Only fixture-owned disposable processes can reach this path. This is an
+    // explicit fault injection, never evidence of a graceful shutdown.
+    const pid = application.process().pid;
+    console.log('[electron.intentional-interruption]', { pid });
+    await application.evaluate(({ app }) => { app.exit(0); }).catch(() => undefined);
+    await waitForProcessIdsToExit(pid ? [pid] : [], 5_000, 'intentional disposable fixture interruption');
+  } else {
+    // Record state before exit, without manuscript text, so a blocked restart
+    // distinguishes pending source/link work from a shutdown harness failure.
+    const beforeClose = await Promise.all(application.windows().map(page => page.evaluate(async () => ({
+      role: window.projectSpine?.windowRole,
+      dirtyUnits: (await window.projectSpine?.getSession())?.dirtyUnitIds,
+      saveStatus: document.querySelector('.stage19-writing-shell__status .stage19-spine__save-state')?.textContent,
+      linksStatus: document.querySelector('.stage19-writing-page-tools > p')?.textContent,
+    })).catch(() => null)));
+    const result = await closeElectronApplicationSafely(application);
+    if (result.forcedKill) console.error('[electron.restart-blocked-state]', JSON.stringify(beforeClose));
+    if (result.forcedKill) throw new Error('Electron did not exit normally; restart qualification is blocked.');
+    markElectronApplicationExitedCleanly(application);
+  }
   const restarted = await electron.launch(launchOptions);
+  await prepareDiagnosticDevTools(restarted);
   const root = rootAppByRestart.get(application) ?? application;
   const applications = restartedAppsByRoot.get(root) ?? [];
   applications.push(restarted);
@@ -370,7 +402,21 @@ async function closeElectronApplicationSafely(
     }
     return !isProcessAlive();
   };
-  const closePromise = application.close().then(() => true).catch(() => true);
+  // Electron owns beforeunload through will-prevent-unload and its correlated
+  // close UI. A browser-context close can report that already-handled event
+  // after Electron has closed the dialog. Do not send a second CDP answer.
+  // Install this observer only for cleanup; normal dialog assertions are intact.
+  const cleanupDialogs: Array<{ page: Page; handler: (dialog: import('@playwright/test').Dialog) => void }> = [];
+  for (const page of application.windows()) {
+    const handler = (dialog: import('@playwright/test').Dialog) => {
+      if (dialog.type() === 'beforeunload') return;
+      void dialog.dismiss().catch(() => undefined);
+    };
+    page.on('dialog', handler); cleanupDialogs.push({ page, handler });
+  }
+  const closePromise = application.close().then(() => true).catch(() => true).finally(() => {
+    for (const { page, handler } of cleanupDialogs) page.off('dialog', handler);
+  });
   let timeoutHandle: NodeJS.Timeout | null = null;
   const timeoutPromise = new Promise<boolean>((resolve) => {
     timeoutHandle = setTimeout(() => resolve(false), timeoutMs);
@@ -426,11 +472,26 @@ export const test = base.extend<Fixtures>({
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
     const appDir = path.resolve(__dirname, '..', '..');
     const repoRoot = path.resolve(appDir, '..');
-    const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
+    const baselineArtifactPath = process.env.BLACKSKIES_STABILITY_BASELINE_ARTIFACT;
+    const baselineArtifact = baselineArtifactPath ? JSON.parse(fs.readFileSync(baselineArtifactPath, 'utf8')) as {
+      schema: string; appDirectory: string; executablePath: string; runtimeVersion: string;
+      files: Record<string, { sha256: string }>;
+    } : null;
+    if (baselineArtifact) {
+      if (baselineArtifact.schema !== 'black-skies.frozen-baseline.v1' || process.env.P75_SCALE_PACKAGED_EXECUTABLE || process.env.ELECTRON_RENDERER_URL) throw new Error('Invalid or conflicting frozen baseline launch.');
+      const root = path.dirname(baselineArtifactPath!);
+      for (const name of Object.keys(baselineArtifact.files).filter(name => name.startsWith('app/dist/') || name.startsWith('app/dist-electron/') || name === 'runtime/electron.exe')) {
+        const actual = createHash('sha256').update(fs.readFileSync(path.join(root, name))).digest('hex');
+        if (actual !== baselineArtifact.files[name]!.sha256) throw new Error(`Frozen baseline artifact changed: ${name}`);
+      }
+    }
+    const launchAppDir = baselineArtifact?.appDirectory ?? appDir;
+
+    const packagedEntry = path.resolve(launchAppDir, 'dist-electron', 'main', 'main.js');
     const devFallback = path.resolve(appDir, 'main', 'main.ts');
     const packagedEntryExists = fs.existsSync(packagedEntry);
     const devFallbackExists = fs.existsSync(devFallback);
-    const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
+    const rendererIndex = path.resolve(launchAppDir, 'dist', 'index.html');
     const rendererIndexExists = fs.existsSync(rendererIndex);
     const strictPackagedArtifacts =
       process.env.CI === 'true' || process.env.PLAYWRIGHT === '1';
@@ -496,16 +557,21 @@ export const test = base.extend<Fixtures>({
     const retainArtifacts = preserveTestArtifacts || process.env.BLACKSKIES_RETAIN_TEST_ARTIFACTS === '1';
     if (!retainArtifacts) resetPersistedHarnessState(repoRoot);
     const launchOptions = {
-      ...(scalePackagedExecutable ? { executablePath: scalePackagedExecutable } : {}),
+      ...(baselineArtifact ? { executablePath: baselineArtifact.executablePath } : scalePackagedExecutable ? { executablePath: scalePackagedExecutable } : {}),
       args: [
         ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
         `--user-data-dir=${userDataDir}`,
+        ...(process.env.BLACKSKIES_STABILITY_SPELLING_TRACE === '1' ? ['--enable-logging=stderr', '--vmodule=spellcheck*=2', `--log-net-log=${testInfo.outputPath('spelling-netlog.json')}`] : []),
         ...(!scalePackagedExecutable ? [entryPoint] : []),
       ],
       env: launchEnv,
     };
     const application = await electron.launch(launchOptions);
     launchOptionsByApp.set(application, launchOptions);
+    const stabilityRuntime = process.env.BLACKSKIES_STABILITY_EVIDENCE === '1' || baselineArtifact
+      ? await application.evaluate(({ app }) => ({ electron: process.versions.electron, chrome: process.versions.chrome, appPath: app.getAppPath() })) : null;
+    if (baselineArtifact && stabilityRuntime?.electron !== baselineArtifact.runtimeVersion) throw new Error('Frozen baseline launched the wrong Electron runtime.');
+    await prepareDiagnosticDevTools(application);
     const appProcess = application.process();
     const stdoutChunks: string[] = [];
     const stderrChunks: string[] = [];
@@ -576,6 +642,19 @@ export const test = base.extend<Fixtures>({
     try {
       await use(application);
     } finally {
+      if (process.env.BLACKSKIES_STABILITY_EVIDENCE === '1') {
+        const output = launchContext.getOutput();
+        await testInfo.attach('stability-process.json', {
+          body: Buffer.from(JSON.stringify({
+            runtime: stabilityRuntime, baselineArtifactPath: baselineArtifactPath ?? null,
+            devTools: process.env.BLACKSKIES_STABILITY_DEVTOOLS ?? 'closed',
+            process: launchContext.getProcessState(),
+            stdout: output.stdout, stderr: output.stderr,
+            userDataDir, runtimeConfigDir,
+          }, null, 2)),
+          contentType: 'application/json',
+        });
+      }
       launchContextByApp.delete(application);
       if (!hasElectronApplicationExitedCleanly(application)) {
         const teardownResult = await closeElectronApplicationSafely(application);

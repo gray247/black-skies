@@ -16,6 +16,7 @@ export const PROJECT_SPINE_CHANNELS = {
   setUnitDirty: 'project-spine:set-unit-dirty',
   setWritingPreferences: 'project-spine:set-writing-preferences',
   spellingDictionary: 'project-spine:spelling-dictionary',
+  checkSpelling: 'project-spine:check-spelling',
   captureRecoveryCheckpoint: 'project-spine:capture-recovery-checkpoint',
   acceptRecoveryCandidate: 'project-spine:accept-recovery-candidate',
   rejectRecoveryCandidate: 'project-spine:reject-recovery-candidate',
@@ -469,8 +470,8 @@ export interface SpellingDictionaryState {
 export interface ProjectSpineBridge {
   spellingDictionary?(request: SpellingDictionaryRequest): Promise<ProjectSpineResult<SpellingDictionaryState>>;
   setWritingPreferences?(request: SetWritingPreferencesRequest): Promise<ProjectSpineResult>;
-  /** Renderer-native Electron webFrame dictionary, never a cloud text service. */
-  checkSpelling?(word: string): { available: boolean; misspelled: boolean; suggestions: readonly string[] };
+  /** Bundled local dictionary through the existing main spelling owner. */
+  checkSpelling?(word: string): Promise<{ available: boolean; misspelled: boolean; suggestions: readonly string[] }>;
   readonly windowRole: ProjectSpineWindowRole;
   /** Writing Studio only. Re-activates the owning Electron window after a native dialog closes. */
   focusWritingWindow?(): Promise<ProjectSpineResult>;

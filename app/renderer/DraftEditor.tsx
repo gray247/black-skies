@@ -53,9 +53,12 @@ const writingMarkField = StateField.define<DecorationSet>({
 
 // Presentation over the existing Markdown source, never a second prose store.
 // Use the Markdown parser so literal stars, escapes and code remain untouched.
-export function getDraftEmphasis(source: string, tree = markdownLanguage.parser.parse(source)) {
+export function getDraftEmphasis(source: string, tree?: ReturnType<typeof markdownLanguage.parser.parse>) {
   const spans: { from: number; to: number; contentFrom: number; contentTo: number; style: 'bold' | 'italic' }[] = [];
-  tree.iterate({ enter: ({ node, name, from, to }) => {
+  // Without either Markdown emphasis delimiter there can be no emphasis spans.
+  // Avoid parsing every plain passive section during one synchronous render.
+  if (!source.includes('*') && !source.includes('_')) return spans;
+  (tree ?? markdownLanguage.parser.parse(source)).iterate({ enter: ({ node, name, from, to }) => {
     if (name !== 'StrongEmphasis' && name !== 'Emphasis') return;
     const opening = node.firstChild;
     const closing = node.lastChild;

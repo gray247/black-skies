@@ -1,3 +1,4 @@
+import { extractProjectSpineDraftBody } from '../../shared/projectSpineDraft';
 import { DEFAULT_WRITING_PREFERENCES, type WritingPreferencesValues } from '../../shared/ipc/projectSpine';
 import type { FeedbackSourceEvidence } from '../../shared/ipc/feedbackNotes';
 import RevisionDesk, { RevisionEvidence } from './program7/RevisionDesk';
@@ -361,6 +362,10 @@ export function WritingPageProvider({
     if (history.entries.length > 200) history.entries.shift(); history.cursor = history.entries.length;
     redrawHistory(value => value + 1);
     setArrangementNotice('Revision applied. Undo applied revision restores its prose during this session; Save keeps that choice. Its acceptance remains in History.');
+    // Apply has already saved the prose. Complete its mapped links through the
+    // existing Save owner so normal exit cannot strand them as unsaved metadata.
+    // A refused save retains that owner's pending state and actionable notice.
+    void page.save();
   }, [model.acceptedRevision, model.buffers, projectKey]);
 
   const [highlights, setHighlights] = useState<Record<HighlightKey, boolean>>(() => {
@@ -1629,16 +1634,20 @@ function WritingSpelling() {
     finally { setBusy(false); }
   };
   return <details><summary>Spelling and accepted words</summary><section aria-label="Spelling and accepted words">
-    <p>US English first. Checks use Electron locally. Availability is checked explicitly; an empty result is not proof that a word is correct.</p>
-    <button type="button" onMouseDown={event => event.preventDefault()} onClick={() => {
+    <p>US English. Spelling checks use a dictionary included with Black Skies and work offline.</p>
+    <button type="button" onMouseDown={event => event.preventDefault()} disabled={busy} onClick={async () => {
       const range = context.selection.length === 1 ? context.selection[0] : null;
       const body = range ? model.buffers[range.unitId] : undefined;
       const selected = range && body ? body.slice(range.from, range.to) : '';
       setChecked(null);
       if (!range || !body || !/^[\p{L}\p{M}'’-]{1,80}$/u.test(selected)) { setMessage('Select one word in the active manuscript editor.'); return; }
-      const result = window.projectSpine?.checkSpelling?.(selected);
-      if (!result?.available) { setMessage('Spelling unavailable: Electron has not demonstrated a loaded US-English dictionary. No correction or correctness claim was made.'); return; }
-      setMessage(result.misspelled ? 'Electron flags this word. Choose a correction deliberately, or keep your spelling.' : 'Electron accepts this word.');
+      setBusy(true);
+      let result;
+      try { result = await window.projectSpine?.checkSpelling?.(selected); }
+      catch { setMessage('Spelling is unavailable. Your writing is unchanged.'); return; }
+      finally { setBusy(false); }
+      if (!result?.available) { setMessage('Spelling is unavailable. The included US-English dictionary could not be loaded. Your writing is unchanged.'); return; }
+      setMessage(result.misspelled ? 'This word may be misspelled. Choose a correction deliberately, or keep your spelling.' : 'This word is in the dictionary.');
       setWord(selected);
       setChecked({ ...range, body, suggestions: result.suggestions });
     }}>Check selected word</button>
@@ -1666,10 +1675,31 @@ export function WritingPreferences() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [resetInvalid, setResetInvalid] = useState(false);
+  // Opening/navigation can render repeatedly with unchanged prose. Reuse the
+  // existing session metric for exact saved bodies; only edited sections need
+  // a new scan. This cache is display-only and retains one entry per section.
+  const counts = useRef(new Map<string, { text: string; raw: string | undefined; count: number }>());
+  const count = useMemo(() => {
+    const next = new Map<string, { text: string; raw: string | undefined; count: number }>();
+    let total = 0;
+    for (const [id, text] of Object.entries(context?.model.buffers ?? {})) {
+      const raw = context?.model.snapshot.project?.drafts?.[id];
+      const cached = counts.current.get(id);
+      let entry = cached;
+      if (!entry || entry.text !== text || entry.raw !== raw) {
+        const savedCount = context?.model.snapshot.project?.unitMetrics?.[id]?.wordCount;
+        const value = typeof raw === 'string' && Number.isInteger(savedCount) && savedCount! >= 0 && extractProjectSpineDraftBody(raw) === text
+          ? savedCount! : text.match(/[\p{L}\p{N}][\p{L}\p{N}\p{M}'’–-]*/gu)?.length ?? 0;
+        entry = { text, raw, count: value };
+      }
+      next.set(id, entry); total += entry.count;
+    }
+    counts.current = next;
+    return total;
+  }, [context?.model.buffers, context?.model.snapshot.project?.drafts, context?.model.snapshot.project?.unitMetrics]);
   if (!context?.model.snapshot.project) return null;
   const { model } = context;
   const project = model.snapshot.project!;
-  const count = Object.values(model.buffers).reduce((sum, text) => sum + (text.match(/[\p{L}\p{N}][\p{L}\p{N}\p{M}'’–-]*/gu)?.length ?? 0), 0);
   const goal = saved?.values.wordGoal;
   const number = (key: 'fontSize' | 'lineHeight' | 'paragraphSpacing' | 'firstLineIndent' | 'wordGoal', label: string, min: number, max: number, step: number, nullable = false) => (
     <label>{label}<input aria-label={label} type="number" min={min} max={max} step={step} value={values[key] ?? ''}
@@ -2435,12 +2465,11 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
                     <p>{concern.body}</p>
                     <p>Raised by: {authority}</p>
                     {changed ? <p role="status">Source changed. Editing does not automatically address this concern.</p> : null}
-                    <button type="button" disabled={model.windowRole === 'command' || model.program7RevisionPending} onClick={() => {
-                      setOpenConcern(null);
+                    {model.program7RevisionPending ? <p role="status">Saving concern decision…</p> : model.program7Notice ? <p role="status">{model.program7Notice}</p> : null}
+                    <button type="button" disabled={model.windowRole === 'command' || model.program7RevisionPending || page.busy || !page.ready} onClick={() => {
                       void context.actions.setProgram7RevisionItemLifecycle(concern, 'resolved');
                     }}>Mark addressed</button>
-                    <button type="button" disabled={model.program7RevisionPending} onClick={() => {
-                      setOpenConcern(null);
+                    <button type="button" disabled={model.windowRole === 'command' || model.program7RevisionPending || page.busy || !page.ready} onClick={() => {
                       void context.actions.setProgram7RevisionItemLifecycle(concern, 'intentional');
                     }}>Mark intentional</button>
                     <button type="button" onClick={() => {

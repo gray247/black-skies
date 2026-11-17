@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { expect, test } from './_electron.fixture';
 import {
   getStage19Windows,
-  openWritingStudioRail,
+  openSavedWritingSections,
   removeTemporaryDirectory,
 } from './stage19-electron-support';
 
@@ -41,7 +41,7 @@ test('a 100-unit manuscript remains responsive within bounded regression ceiling
       return performance.now() - startedAt;
     }, parent);
 
-    await openWritingStudioRail(writing, 'Story');
+    await openSavedWritingSections(writing);
     const binderButtons = writing
       .getByRole('complementary', { name: 'Story rail' })
       .locator('.stage19-story-rail__unit-title');

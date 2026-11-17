@@ -5,6 +5,8 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  realpathSync,
+  renameSync,
   statSync,
   writeFileSync
 } from "node:fs";
@@ -13,6 +15,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { _electron as electron } from "playwright";
+import { verifyOfflineDictionaryResources } from "./stage19-package-verify.mjs";
 
 const expectedMarkdown = [
   "# Installed Ω Orbit",
@@ -119,6 +122,7 @@ function sanitizedLaunchEnvironment() {
     }
   }
   environment.STAGE19_INTERNAL_STARTUP_PROBE = "1";
+  environment.BLACKSKIES_DISABLE_LOCAL_AI = "1";
   return environment;
 }
 
@@ -327,10 +331,11 @@ export async function installedMainProcessId(application) {
   return pid;
 }
 
-async function launchInstalled(executablePath, userDataPath, { openOptionalSecondary = true } = {}) {
+async function launchInstalled(executablePath, userDataPath, { openOptionalSecondary = true, locale } = {}) {
   const application = await electron.launch({
     executablePath,
-    args: [`--user-data-dir=${userDataPath}`],
+    args: [`--user-data-dir=${userDataPath}`, ...(locale ? [`--lang=${locale}`] : [])],
+    cwd: path.dirname(userDataPath),
     env: sanitizedLaunchEnvironment()
   });
   try {
@@ -430,6 +435,9 @@ async function runtimeTruth(
     "acceptRevisionCandidate",
     "captureRecoveryCheckpoint",
     "chooseDirectory",
+    "checkSpelling",
+    "spellingDictionary",
+    "setWritingPreferences",
     "createProject",
     "createUnit",
     "deleteUnit",
@@ -510,7 +518,7 @@ async function runtimeTruth(
     "localRecheck",
     "setLifecycle"
   ].sort();
-  const livingOutline = ["createItem", "deleteItem", "get", "linkItem", "moveItem", "updateItem"].sort();
+  const livingOutline = ["createItem", "deleteItem", "get", "linkItem", "moveItem", "updateItem", "replaceWritingState", "prepareGap", "finishGap", "restoreItem"].sort();
   assert(
     JSON.stringify(writingGlobals.projectSpine) === JSON.stringify(expectedWritingProjectSpine),
     `Writing Project Spine allowlist differed: ${JSON.stringify(writingGlobals.projectSpine)}`
@@ -777,6 +785,182 @@ async function measureColdLaunch(
   }
 }
 
+function insideDirectory(parent, child) {
+  const relative = path.relative(path.resolve(parent), path.resolve(child));
+  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+}
+
+export function assertOfflineSpellingContext({ platform, environment, executablePath, root, checkout }) {
+  assert(platform === "win32" && environment.GITHUB_ACTIONS === "true" && environment.RUNNER_OS === "Windows", "First-offline spelling qualification runs only on the disposable Windows workflow.");
+  assert(environment.RUNNER_TEMP && insideDirectory(environment.RUNNER_TEMP, executablePath) && insideDirectory(environment.RUNNER_TEMP, root), "The spelling installation and data must stay inside the disposable runner's temporary directory.");
+  assert(path.resolve(checkout).toLowerCase() !== path.resolve(root).toLowerCase() && !insideDirectory(checkout, root) && !insideDirectory(checkout, executablePath), "Spelling qualification cannot use an installation or data inside the checkout.");
+  assert(/^BlackSkies-19\.19-[a-f0-9]{32}$/u.test(environment.BLACKSKIES_STABILITY_FIREWALL_RULE ?? ""), "A verified temporary firewall rule is required.");
+  assert(Number.isFinite(Date.parse(environment.BLACKSKIES_STABILITY_FIREWALL_ACTIVATED_AT ?? "")), "The pre-install firewall activation time is missing.");
+}
+
+function verifySpellingFirewall(executablePath) {
+  const name = process.env.BLACKSKIES_STABILITY_FIREWALL_RULE;
+  const command = `$rule = Get-NetFirewallRule -DisplayName '${name}' -ErrorAction Stop; [pscustomobject]@{ enabled = [string]$rule.Enabled; action = [string]$rule.Action; program = (Get-NetFirewallApplicationFilter -AssociatedNetFirewallRule $rule).Program } | ConvertTo-Json -Compress`;
+  const rule = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8" }));
+  assert(rule.enabled === "True" && rule.action === "Block" && path.resolve(rule.program).toLowerCase() === path.resolve(executablePath).toLowerCase(), "The installed application is not blocked by the declared outbound firewall rule.");
+  return { ...rule, activatedAtUtc: process.env.BLACKSKIES_STABILITY_FIREWALL_ACTIVATED_AT, independentlyCheckedBeforeLaunchAtUtc: new Date().toISOString() };
+}
+
+async function spellingProject(writing, parent, locale) {
+  return writing.evaluate(async ({ parent, locale }) => {
+    const bridge = window.projectSpine;
+    const created = await bridge.createProject({ parentPath: parent, title: `First offline spelling ${locale}`, operationId: `spelling-project-${locale}` });
+    if (!created.ok) throw new Error(created.error.message);
+    const binding = { projectId: created.snapshot.project.projectId, projectPath: created.snapshot.project.path, generation: created.snapshot.generation };
+    const unit = await bridge.createUnit({ ...binding, title: "Offline spelling words", operationId: `spelling-unit-${locale}` });
+    if (!unit.ok) throw new Error(unit.error.message);
+    const selected = await bridge.selectUnit({ ...binding, unitId: unit.data.unitId, operationId: `spelling-select-${locale}` });
+    if (!selected.ok) throw new Error(selected.error.message);
+    return { ...binding, unitId: unit.data.unitId };
+  }, { parent, locale });
+}
+
+async function closeSpellingLaunch(launched, executablePath) {
+  if (!launched) return;
+  await closeClean(launched.application, ownedProcessIdsForExecutable(launched.mainPid, executablePath));
+}
+
+async function spellingUiExercise(writing, unavailable) {
+  const editor = writing.getByRole("textbox", { name: "Manuscript editor: Offline spelling words", exact: true });
+  await editor.fill("foorrrest forest.");
+  await editor.press("Control+Home");
+  for (let index = 0; index < "foorrrest".length; index += 1) await editor.press("Shift+ArrowRight");
+  await writing.getByText("Spelling and accepted words", { exact: true }).click();
+  await writing.getByRole("button", { name: "Check selected word", exact: true }).click();
+  if (unavailable) {
+    await writing.getByText("Spelling is unavailable. The included US-English dictionary could not be loaded. Your writing is unchanged.", { exact: true }).waitFor();
+  } else {
+    await writing.getByRole("button", { name: "Use forest", exact: true }).click();
+    assert((await editor.innerText()).trim() === "forest forest.", "The intended spelling correction was not applied.");
+    await writing.getByRole("button", { name: "Undo", exact: true }).click();
+    assert((await editor.innerText()).trim() === "foorrrest forest.", "Spelling correction Undo changed the wrong text.");
+    await writing.getByRole("button", { name: "Redo", exact: true }).click();
+    assert((await editor.innerText()).trim() === "forest forest.", "Spelling correction Redo did not restore the correction.");
+  }
+  await writing.getByRole("button", { name: "Save writing", exact: true }).click();
+  await writing.waitForFunction(() => document.querySelector(".stage19-writing-shell__status .stage19-spine__save-state")?.textContent === "Saved");
+  const snapshot = await writing.evaluate(() => window.projectSpine.getSession());
+  const expected = unavailable ? "foorrrest forest." : "forest forest.";
+  assert((await editor.innerText()).trim() === expected && snapshot.dirtyUnitIds.length === 0, "The offline spelling exercise did not finish with saved writing.");
+  return snapshot;
+}
+
+export async function qualifyFirstOfflineSpelling(executablePath, root) {
+  const checkout = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+  assertOfflineSpellingContext({ platform: process.platform, environment: process.env, executablePath, root, checkout });
+  const runnerRoot = realpathSync(process.env.RUNNER_TEMP);
+  assert(insideDirectory(runnerRoot, realpathSync(executablePath)), "The installed executable resolves outside the disposable runner.");
+  mkdirSync(root, { recursive: true });
+  assert(insideDirectory(runnerRoot, realpathSync(root)), "The spelling data resolves outside the disposable runner.");
+  const firewall = verifySpellingFirewall(executablePath);
+  const resourceDirectory = path.join(path.dirname(executablePath), "resources", "dictionaries");
+  assert(insideDirectory(path.dirname(realpathSync(executablePath)), realpathSync(resourceDirectory)), "The dictionary resource directory escaped the isolated installation.");
+  const resources = verifyOfflineDictionaryResources(resourceDirectory);
+  const projectParent = path.join(root, "projects");
+  mkdirSync(projectParent, { recursive: true });
+  const profileWord = `zqxprofile${createHash("sha256").update(root).digest("hex").replace(/[0-9]/gu, "").slice(0, 18)}`;
+  const profiles = [];
+  let acceptedProject;
+  for (const locale of ["en-US", "en-GB"]) {
+    const userData = path.join(root, `fresh-${locale}`, "user-data");
+    assert(!existsSync(userData), `First-offline profile already exists: ${locale}`);
+    mkdirSync(userData, { recursive: true });
+    let launched;
+    try {
+      verifySpellingFirewall(executablePath);
+      launched = await launchInstalled(executablePath, userData, { openOptionalSecondary: false, locale });
+      const truth = await launched.application.evaluate(({ app, session, BrowserWindow }) => ({ packaged: app.isPackaged, runtime: process.versions.electron,
+        locale: app.getLocale(), cwd: process.cwd(), userData: app.getPath("userData"), sessionData: app.getPath("sessionData"), languages: session.defaultSession.getSpellCheckerLanguages(),
+        sandbox: BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences().sandbox }));
+      assert(truth.packaged && truth.sandbox && truth.runtime === "45.3.3", "First-offline spelling did not use the sandboxed packaged candidate.");
+      assert(truth.locale.toLowerCase() === locale.toLowerCase() && truth.languages.join(",") === "en-US", "The requested UI locale or explicit US-English checker was not established.");
+      assert(path.resolve(truth.userData).toLowerCase() === path.resolve(userData).toLowerCase() && path.resolve(truth.sessionData).toLowerCase() === path.resolve(userData).toLowerCase(), "Spelling used an unexpected profile or session cache.");
+      assert(!insideDirectory(checkout, truth.cwd), "The packaged spelling process used the checkout as its working directory.");
+      const check = await launched.writing.evaluate(async word => ({ typo: await window.projectSpine.checkSpelling("foorrrest"), correct: await window.projectSpine.checkSpelling("forest"), separateProfileWord: await window.projectSpine.checkSpelling(word) }), profileWord);
+      assert(check.typo.available && check.typo.misspelled && check.typo.suggestions.includes("forest") && check.correct.available && !check.correct.misspelled, "Actual first-offline spelling or the intended correction failed.");
+      assert(check.separateProfileWord.available && check.separateProfileWord.misspelled, "An unrelated profile or machine dictionary changed the local checker result.");
+      const binding = await spellingProject(launched.writing, projectParent, locale);
+      const snapshot = await spellingUiExercise(launched.writing, false);
+      const raw = readFileSync(path.join(binding.projectPath, "drafts", `${binding.unitId}.md`), "utf8");
+      assert(raw === snapshot.project.drafts[binding.unitId] && raw.includes("forest forest.") && !raw.includes("foorrrest"), "Saved spelling content differed from the durable project projection.");
+      if (locale === "en-US") {
+        const accepted = await launched.writing.evaluate(async ({ binding, word }) => {
+          const result = await window.projectSpine.spellingDictionary({ ...binding, operationId: "offline-accept-word", action: "accept", word });
+          if (!result.ok) throw new Error(result.error.message);
+          return window.projectSpine.checkSpelling(word);
+        }, { binding, word: profileWord });
+        assert(accepted.available && !accepted.misspelled, "An explicitly accepted word was not accepted.");
+        await launched.writing.evaluate(async parentPath => {
+          const result = await window.projectSpine.createProject({ parentPath, title: "Other spelling project", operationId: "offline-other-project" });
+          if (!result.ok) throw new Error(result.error.message);
+        }, projectParent);
+        const acrossProjects = await launched.writing.evaluate(word => window.projectSpine.checkSpelling(word), profileWord);
+        assert(acrossProjects.available && !acrossProjects.misspelled, "Accepted words were incorrectly limited to one project.");
+        acceptedProject = { binding, userData };
+      }
+      profiles.push({ locale, ...truth, firstProfileWasEmpty: true, typoDetected: true, intendedCorrectionApplied: true, chronologicalUndoRedo: true, savedMarkdownSha256: hashBytes(raw) });
+    } finally { await closeSpellingLaunch(launched, executablePath); }
+  }
+  // Confirm success after a full exit, then confirm removal after another exit.
+  for (const phase of ["accepted-after-exit", "removed-after-exit"]) {
+    let launched;
+    try {
+      verifySpellingFirewall(executablePath);
+      launched = await launchInstalled(executablePath, acceptedProject.userData, { openOptionalSecondary: false, locale: "en-US" });
+      const checked = await launched.writing.evaluate(word => window.projectSpine.checkSpelling(word), profileWord);
+      assert(checked.available && checked.misspelled === (phase === "removed-after-exit"), `Accepted word persistence failed: ${phase}`);
+      const opened = await launched.writing.evaluate(projectPath => window.projectSpine.openProject({ path: projectPath, operationId: "offline-word-reopen" }), acceptedProject.binding.projectPath);
+      assert(opened.ok, "The spelling fixture did not reopen.");
+      const editor = launched.writing.getByRole("textbox", { name: "Manuscript editor: Offline spelling words", exact: true });
+      await editor.waitFor();
+      assert((await editor.innerText()).trim() === "forest forest.", "Corrected writing did not survive a full process exit.");
+      if (phase === "accepted-after-exit") {
+        const removed = await launched.writing.evaluate(async word => {
+          const state = await window.projectSpine.getSession();
+          return window.projectSpine.spellingDictionary({ projectId: state.project.projectId, projectPath: state.project.path, generation: state.generation, operationId: "offline-remove-word", action: "remove", word });
+        }, profileWord);
+        assert(removed.ok, "The accepted-word removal was not confirmed.");
+      }
+    } finally { await closeSpellingLaunch(launched, executablePath); }
+  }
+  // Hide only this disposable installation's pinned source. A warm OS or
+  // dictionary cache must not turn missing application resources into success.
+  const dictionary = path.join(resourceDirectory, "en-US.dic");
+  const hiddenDictionary = path.join(resourceDirectory, "en-US.dic.qualification-control");
+  assert(!existsSync(hiddenDictionary) && insideDirectory(resourceDirectory, dictionary) && insideDirectory(resourceDirectory, hiddenDictionary), "The negative-control paths are unsafe.");
+  const originalHash = hashFile(dictionary);
+  let negative;
+  renameSync(dictionary, hiddenDictionary);
+  try {
+    const userData = path.join(root, "missing-source", "user-data");
+    assert(!existsSync(userData), "The missing-source profile is not fresh.");
+    mkdirSync(userData, { recursive: true });
+    verifySpellingFirewall(executablePath);
+    negative = await launchInstalled(executablePath, userData, { openOptionalSecondary: false, locale: "en-US" });
+    const result = await negative.writing.evaluate(async () => ({ typo: await window.projectSpine.checkSpelling("foorrrest"), correct: await window.projectSpine.checkSpelling("forest") }));
+    assert(!result.typo.available && !result.correct.available && !result.typo.misspelled && !result.correct.misspelled, "Missing packaged dictionary resources were incorrectly reported as a working checker.");
+    await spellingProject(negative.writing, projectParent, "negative-control");
+    await spellingUiExercise(negative.writing, true);
+  } finally {
+    try { await closeSpellingLaunch(negative, executablePath); }
+    finally { renameSync(hiddenDictionary, dictionary); }
+  }
+  assert(hashFile(dictionary) === originalHash, "The pinned dictionary source was not restored exactly.");
+  verifyOfflineDictionaryResources(resourceDirectory);
+  return { schema: "black-skies.stability-offline-spelling.v1", qualifiedCommit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: checkout, encoding: "utf8" }).trim(),
+    executableSha256: hashFile(executablePath), asarSha256: hashFile(path.join(path.dirname(executablePath), "resources", "app.asar")), resources, firewall,
+    sourceDictionary: "dictionary-en@4.0.0", engine: "nspell@2.1.5", checkerLanguage: "en-US", profiles,
+    acceptedWordScope: "Black Skies profile across its projects; Electron may also update the OS dictionary", acceptedWordSurvivedExit: true, removedWordSurvivedExit: true,
+    correctedWritingSurvivedExit: true, missingSourceRefused: true, writingAvailableWithoutDictionary: true, sourceRestoredExactly: true,
+    completedAtUtc: new Date().toISOString() };
+}
+
+
 async function main() {
   const executablePath = requireValue("--executable");
   const smokeRoot = requireValue("--root");
@@ -786,6 +970,12 @@ async function main() {
       !process.argv.includes("--paired-reference-commit"),
     "The immutable V1 paired reference is not a valid Program 3/4 Writing-first qualification input."
   );
+  if (process.argv.includes("--stability-spelling-only")) {
+    const spelling = await qualifyFirstOfflineSpelling(executablePath, smokeRoot);
+    writeFileSync(resultPath, `${JSON.stringify(spelling, null, 2)}\n`, "utf8");
+    process.stdout.write(`${JSON.stringify(spelling, null, 2)}\n`);
+    return;
+  }
   const runRepresentative = process.argv.includes("--representative");
   const performanceOnly = process.argv.includes("--performance-only");
   assert(existsSync(executablePath), "Installed executable does not exist.");

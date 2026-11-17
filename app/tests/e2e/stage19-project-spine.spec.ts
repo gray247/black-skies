@@ -8,6 +8,7 @@ import {
   getStage19Windows,
   launchStage19BuiltApplication,
   openWritingStudioRail,
+  openSavedWritingSections,
   removeTemporaryDirectory,
   requestWritingStudioClose,
   waitForCleanElectronApplicationExit,
@@ -80,7 +81,7 @@ test('redo followed immediately by Ctrl+S saves the restored prose durably', asy
     await writing.keyboard.press('Control+S');
 
     await expect(writing.getByRole('status').filter({ hasText: /^Saved$/u })).toBeVisible();
-    await openWritingStudioRail(writing, 'Story');
+    await openSavedWritingSections(writing);
     await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Opening unit' }).getByText('Unsaved', { exact: true })).toHaveCount(0);
     const durable = await writing.evaluate(async ({ unitId }) => {
       const current = await window.projectSpine!.getSession();
@@ -297,7 +298,7 @@ test.describe('C1 unsaved close flow', () => {
       await expect(boundaryEditor).toContainText('Start writing…');
       await writing.keyboard.press('Control+Z');
       await expect(boundaryEditor).toContainText('Start writing…');
-      await openWritingStudioRail(writing, 'Story');
+      await openSavedWritingSections(writing);
       await writing.locator('.stage19-story-rail__unit-title', { hasText: 'Keep unit' }).click();
       await expect(editor).toHaveText('Keep this unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
@@ -364,7 +365,7 @@ test.describe('C1 unsaved close flow', () => {
       await editor.pressSequentially('Discard-only unsaved prose');
       await expect(editor).toHaveText('Discard-only unsaved prose');
       await expect(writing.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
-      await openWritingStudioRail(writing, 'Story');
+      await openSavedWritingSections(writing);
       await expect(writing.locator('.stage19-story-rail__unit-row', { hasText: 'Discard-only unit' }).getByText('Unsaved', { exact: true })).toBeVisible();
       await expect(command.getByRole('status').filter({ hasText: '1 unsaved unit' })).toBeVisible();
 
@@ -410,7 +411,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       ['Broken Relay', 'RELAY::broken'],
       ['Last Orbit', 'ORBIT::last'],
     ] as const;
-    await openWritingStudioRail(writing, 'Story');
+    await openSavedWritingSections(writing);
     for (const [title, prose] of expected) {
       const unitButton = writing.locator('.stage19-story-rail__unit-title', { hasText: title });
       await expect(unitButton).toBeEnabled();
@@ -441,7 +442,7 @@ test('saved project closes, relaunches, and restores durable manuscript state', 
       { title: 'Broken Relay', order: 2 },
       { title: 'Last Orbit', order: 3 },
     ]);
-    await openWritingStudioRail(reWriting, 'Story');
+    await openSavedWritingSections(reWriting);
     for (const [title, prose] of expected) {
       const unitButton = reWriting.locator('.stage19-story-rail__unit-title', { hasText: title });
       await expect(unitButton).toBeEnabled();

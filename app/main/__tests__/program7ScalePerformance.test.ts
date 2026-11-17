@@ -88,6 +88,7 @@ async function makeFixture(scale: Scale, baseline: readonly Unit[]) {
   }, null, 2)}\n`, 'utf8');
 
   const candidateSeed = await candidates.createManual(PROJECT_ID, 0, {
+    operationId: 'fixture-capture-1',
     sourceSnapshot: { unitId: first.id, bodySha256: sourceBodySha256, text: firstSource },
     sourceAnchor: {
       unitId: first.id,
@@ -103,6 +104,8 @@ async function makeFixture(scale: Scale, baseline: readonly Unit[]) {
   const candidateTemplate = candidateSeed.document.candidates[0]!;
   await writeFile(candidates.filePath, `${JSON.stringify({
     ...candidateSeed.document,
+    // Synthetic scale records have no capture receipt; transaction coverage lives in repository tests.
+    captures: [],
     revision: units.length,
     candidates: units.map((unit, index) => {
       const source = boundedSource(unit);

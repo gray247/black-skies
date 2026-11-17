@@ -140,10 +140,13 @@ describe('revision candidate IPC authority', () => {
     setLifecycle: vi.fn(),
   };
   const localInferenceService = { run: vi.fn(), cancel: vi.fn() };
+  let captureBlocked = false;
   beforeEach(() => {
+    captureBlocked = false;
     resetRevisionCandidateIpcForTests();
     electronMocks.handlers.clear();
     Object.values(repository).forEach((mock) => mock.mockReset().mockResolvedValue(ready));
+    repository.createManual.mockImplementation(async (_project, _revision, _request, validateSource) => { await validateSource(); return ready; });
     localInferenceService.run.mockReset().mockResolvedValue(aiResponse);
     localInferenceService.cancel.mockReset();
     registerRevisionCandidateIpc({
@@ -151,7 +154,17 @@ describe('revision candidate IPC authority', () => {
       getWritingSnapshot: () => snapshot,
       repositoryFactory: () => repository as never,
       localInferenceService,
+      withCaptureSession: async (_request, operation) => {
+        if (captureBlocked) throw Object.assign(new Error('Another project operation is still in progress.'), { code: 'SAVE_IN_PROGRESS' });
+        return operation();
+      },
     });
+  });
+
+  it('keeps a transient capture conflict distinct from a definitive refusal before preparation', async () => {
+    captureBlocked = true;
+    await expect(invoke(REVISION_CANDIDATE_CHANNELS.createManual, 1, manual)).resolves.toMatchObject({ ok: false, error: { code: 'CAPTURE_IN_PROGRESS' } });
+    expect(repository.createManual).not.toHaveBeenCalled();
   });
 
   it('allows read-only list in Writing and Command but keeps all mutations Writing-only', async () => {
@@ -275,7 +288,7 @@ describe('revision candidate IPC authority', () => {
       localInferenceService,
     });
     await expect(invoke(REVISION_CANDIDATE_CHANNELS.createManual, 1, { ...manual, sourceSnapshot, sourceAnchor: { unitId: 'unit-a', selectionStart: 0, selectionEnd: 6, selectionFingerprint: createHash('sha256').update('Source').digest('hex') } })).resolves.toMatchObject({ ok: true });
-    expect(repository.createManual).toHaveBeenCalledWith('project-a', 0, expect.objectContaining({ sourceSnapshot }));
+    expect(repository.createManual).toHaveBeenCalledWith('project-a', 0, expect.objectContaining({ sourceSnapshot }), expect.any(Function));
   });
 
   it('saves a manual alternative linked to a selected passage in the full saved body', async () => {
@@ -292,12 +305,12 @@ describe('revision candidate IPC authority', () => {
     expect(repository.createManual).toHaveBeenCalledWith('project-a', 0, expect.objectContaining({
       sourceSnapshot: manual.sourceSnapshot,
       sourceAnchor: anchor,
-    }));
+    }), expect.any(Function));
     await expect(invoke(REVISION_CANDIDATE_CHANNELS.createManual, 1, {
       ...manual,
       sourceAnchor: { ...anchor, selectionFingerprint: 'f'.repeat(64) },
     })).resolves.toMatchObject({ ok: false, error: { code: 'INVALID_REQUEST' } });
-    expect(repository.createManual).toHaveBeenCalledTimes(1);
+    expect(repository.createManual).toHaveBeenCalledTimes(2);
   });
 
   it('binds the full saved body and selected range before optional model work', async () => {

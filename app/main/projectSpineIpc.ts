@@ -1,3 +1,4 @@
+import nspell from 'nspell';
 import { verifiedRevisionConcern } from './feedbackNotesRepository.js';
 import { app, dialog, ipcMain } from 'electron';
 import { createHash, randomUUID } from 'node:crypto';
@@ -86,6 +87,69 @@ import {
   RevisionCandidateRepository,
   RevisionCandidateRepositoryError,
 } from './revisionCandidateRepository';
+
+export const OFFLINE_SPELLING_DICTIONARY = 'en-US-10-2.bdic';
+const OFFLINE_SPELLING_SHA256 = 'b0d80e6b6c5491879365e176ecbd98074602a663429bcfcfb0a5a8375c051f13';
+
+const LOCAL_SPELLING_FILES = {
+  'en-US.aff': '8ae1f19d4840d957728ad90555d5a8dff6cc5c046279c95ff0c00fc0a0136c7b',
+  'en-US.dic': 'f0b1a234bd178bdd01875b2a392a9647f888b8fe879f79c52aae62c2759b3647',
+  'HUNSPELL-LICENSE': '2a7e8d8ae9e8facc84818546ae2a8d83aec5e9c80a675ff789acd1c338b53b3d',
+} as const;
+let offlineChecker: ReturnType<typeof nspell> | null = null;
+const spellingUnavailable = () => ({ available: false, misspelled: false, suggestions: [] as string[] });
+
+export function checkOfflineSpelling(word: unknown, accepted: readonly string[], suggestions = true) {
+  if (!offlineChecker || typeof word !== 'string' || !/^[\p{L}\p{M}'’–-]{1,80}$/u.test(word)) return spellingUnavailable();
+  const misspelled = !accepted.includes(word) && !offlineChecker.correct(word);
+  const values = misspelled && suggestions ? offlineChecker.suggest(word) : [];
+  // Repeated-key slips can exceed Hunspell's edit-distance search. Offer the
+  // collapsed form only when the full dictionary independently accepts it.
+  const collapsed = word.replace(/(.)\1+/gu, '$1');
+  if (misspelled && suggestions && collapsed !== word && offlineChecker.correct(collapsed) && !values.includes(collapsed)) values.unshift(collapsed);
+  return { available: true, misspelled, suggestions: values.slice(0, 8) };
+}
+
+/** Provision the declared packaged source before a Session can open its cache. */
+export async function provisionOfflineSpelling(resourceDirectory: string, sessionDataDirectory: string): Promise<{ available: boolean; message: string; sha256?: string }> {
+  let temporary: string | null = null;
+  offlineChecker = null;
+  try {
+    const metadata = JSON.parse(await fs.readFile(path.join(resourceDirectory, 'manifest.json'), 'utf8'));
+    if (metadata.schema !== 'BlackSkiesOfflineDictionary v1' || metadata.language !== 'en-US' || metadata.dictionary !== OFFLINE_SPELLING_DICTIONARY || metadata.sha256 !== OFFLINE_SPELLING_SHA256 || metadata.licenseFile !== 'LICENSE') throw new Error('The bundled dictionary manifest is unsupported.');
+    const bytes = await fs.readFile(path.join(resourceDirectory, OFFLINE_SPELLING_DICTIONARY));
+    if (createHash('sha256').update(bytes).digest('hex') !== OFFLINE_SPELLING_SHA256) throw new Error('The bundled dictionary failed its integrity check.');
+    const license = await fs.readFile(path.join(resourceDirectory, 'LICENSE'));
+    if (createHash('sha256').update(license).digest('hex') !== metadata.licenseSha256) throw new Error('The bundled dictionary license is missing or damaged.');
+    if (metadata.localChecker?.engine !== 'nspell' || metadata.localChecker.version !== '2.1.5' || metadata.localChecker.dictionaryVersion !== '4.0.0') throw new Error('The bundled local spelling engine is unsupported.');
+    const localFiles: Record<string, Buffer> = {};
+    for (const [name, sha256] of Object.entries(LOCAL_SPELLING_FILES)) {
+      const data = await fs.readFile(path.join(resourceDirectory, name));
+      if (metadata.localChecker.files?.[name] !== sha256 || createHash('sha256').update(data).digest('hex') !== sha256) throw new Error('The bundled local spelling dictionary or license is damaged.');
+      localFiles[name] = data;
+    }
+    const checker = nspell(localFiles['en-US.aff'], localFiles['en-US.dic']);
+    if (!checker.correct('forest') || checker.correct('foorrrest') || checker.correct('qzxvwlj')) throw new Error('The local spelling engine failed its startup check.');
+    const directory = path.join(path.resolve(sessionDataDirectory), 'Dictionaries');
+    const destination = path.join(directory, OFFLINE_SPELLING_DICTIONARY);
+    await fs.mkdir(directory, { recursive: true });
+    let cached: Buffer | null = null;
+    try { cached = await fs.readFile(destination); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+    if (!cached || createHash('sha256').update(cached).digest('hex') !== OFFLINE_SPELLING_SHA256) {
+      temporary = path.join(directory, `.en-US.${randomUUID()}.tmp`);
+      const handle = await fs.open(temporary, 'wx');
+      try { await handle.writeFile(bytes); await handle.sync(); } finally { await handle.close(); }
+      await fs.rename(temporary, destination); temporary = null;
+    }
+    if (createHash('sha256').update(await fs.readFile(destination)).digest('hex') !== OFFLINE_SPELLING_SHA256) throw new Error('The dictionary cache could not be confirmed.');
+    offlineChecker = checker;
+    return { available: true, message: 'Bundled US-English dictionary verified.', sha256: OFFLINE_SPELLING_SHA256 };
+  } catch (error) {
+    if (temporary) await fs.rm(temporary, { force: true }).catch(() => undefined);
+    return { available: false, message: error instanceof Error ? error.message : 'The bundled dictionary is unavailable.' };
+  }
+}
 
 const RECENT_STORE_SCHEMA_VERSION = 1;
 const RECENT_STORE_FILENAME = 'black-skies-recent-projects-v1.json';
@@ -746,6 +810,14 @@ async function prepareRecentStore(): Promise<void> {
   coordinator.setRecentProjects(await readRecentStore(recentStorePath));
 }
 
+/** Share the existing session owner with revision capture; no second lock/store. */
+export async function withProjectSpineRevisionCapture<T>(
+  binding: { projectId: string; projectPath: string; generation: number; operationId: string },
+  operation: () => Promise<T>,
+): Promise<T> {
+  return coordinator.withRevisionCapture(binding, operation);
+}
+
 export function getProjectSpineSnapshot(role: ProjectSpineWindowRole): ProjectSpineSessionSnapshot {
   return coordinator.snapshot(role);
 }
@@ -1194,6 +1266,16 @@ export function registerProjectSpineIpc(options: RegisterProjectSpineIpcOptions)
     } catch (error) {
       return failure(role, error);
     }
+  });
+
+  ipcMain.handle(PROJECT_SPINE_CHANNELS.checkSpelling, async (event, request: unknown) => {
+    try {
+      requireWritingRole(event);
+      const value = request as { words?: unknown; suggestions?: unknown };
+      if (!value || !Array.isArray(value.words) || value.words.length > 128 || value.words.some(word => typeof word !== 'string' || word.length > 80) || typeof value.suggestions !== 'boolean' || (value.suggestions && value.words.length > 1)) return [];
+      const accepted = await event.sender.session.listWordsInSpellCheckerDictionary();
+      return value.words.map(word => checkOfflineSpelling(word, accepted, value.suggestions as boolean));
+    } catch { return []; }
   });
 
   ipcMain.handle(PROJECT_SPINE_CHANNELS.spellingDictionary, async (event, request: SpellingDictionaryRequest) => {

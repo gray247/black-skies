@@ -13,7 +13,7 @@ import type {
   ProjectSpineWindowRole,
 } from '../../shared/ipc/projectSpine';
 import type { AiCritiqueBridge, AiCritiqueState } from '../../shared/ipc/aiCritique';
-import type { RevisionCandidateV1, RevisionCandidateResult, RevisionCandidatesBridge } from '../../shared/ipc/revisionCandidates';
+import type { CreateManualRevisionCandidateRequest, RevisionManualCaptureReceiptV2, RevisionCandidatesSnapshotV1, RevisionCandidateV1, RevisionCandidateResult, RevisionCandidatesBridge } from '../../shared/ipc/revisionCandidates';
 import type { FeedbackNotesBridge } from '../../shared/ipc/feedbackNotes';
 import {
   CONTEXTUAL_PRODUCT_SHELL_SCHEMA_VERSION,
@@ -926,6 +926,105 @@ describe('Stage19WritingSpineApp', () => {
     expect(current.activeUnitId).toBe('unit_b');
   });
 
+
+
+  it.each(['double save', 'lost reply', 'prepared retry', 'busy before prepare', 'late project'] as const)('retains exact manual capture identity through %s', async mode => {
+    const writing = createBridge(snapshot('writing'));
+    const surfaces = createSurfaceBridge(snapshot('command'));
+    const ai = createAiBridge('Alpha body');
+    let data: RevisionCandidatesSnapshotV1 = { availability: 'ready', message: null, document: {
+      schemaVersion: 'BlackSkiesRevisionCandidates v2', projectId: 'proj_a', revision: 0, candidates: [], captures: [],
+    } };
+    const receiptFor = (request: CreateManualRevisionCandidateRequest, status: 'prepared' | 'committed'): RevisionManualCaptureReceiptV2 => ({
+      operationId: request.operationId, payloadSha256: 'a'.repeat(64), status, candidateId: 'candidate_capture',
+      preparedAt: '2026-11-16T12:00:00.000Z', completedAt: status === 'committed' ? '2026-11-16T12:00:01.000Z' : null,
+      committedRevision: status === 'committed' ? 1 : null, rejection: null,
+      payload: { projectId: request.projectId, projectPath: request.projectPath, sourceSnapshot: request.sourceSnapshot,
+        sourceAnchor: request.sourceAnchor ?? null, purpose: request.purpose, candidateText: request.candidateText,
+        protection: request.protection, warnings: request.warnings ?? [], concernId: request.concernId ?? null, deleteSource: request.deleteSource === true },
+    });
+    const committedFor = (request: CreateManualRevisionCandidateRequest): RevisionCandidatesSnapshotV1 => ({
+      availability: 'ready', message: null, document: { schemaVersion: 'BlackSkiesRevisionCandidates v2', projectId: request.projectId, revision: 1,
+        captures: [receiptFor(request, 'committed')], candidates: [{ id: 'candidate_capture', projectId: request.projectId,
+          unitId: request.sourceSnapshot.unitId, sourceSnapshot: request.sourceSnapshot, sourceAnchor: request.sourceAnchor ?? null,
+          sourceBodySha256: request.sourceSnapshot.bodySha256, purpose: request.purpose, candidateText: request.candidateText,
+          editedCandidateText: null, origin: 'manual', provenance: { origin: 'manual', source: 'author', model: null, receipt: null },
+          protection: request.protection, warnings: [], currentness: 'current', lifecycle: 'generated',
+          history: [{ id: 'capture_event', lifecycle: 'generated', actor: 'author', occurredAt: '2026-11-16T12:00:01.000Z', note: null }],
+          createdAt: '2026-11-16T12:00:01.000Z', updatedAt: '2026-11-16T12:00:01.000Z' }],
+      },
+    });
+    let resolveCapture!: (result: RevisionCandidateResult) => void;
+    let attempts = 0;
+    const createManual = vi.fn((request: CreateManualRevisionCandidateRequest): Promise<RevisionCandidateResult> => {
+      attempts += 1;
+      if (mode === 'lost reply') { data = committedFor(request); return Promise.reject(new Error('Reply lost after durable commit')); }
+      if (mode === 'prepared retry') {
+        if (attempts === 1) { data = { ...data, document: { ...data.document, captures: [receiptFor(request, 'prepared')] } }; return Promise.reject(new Error('Interrupted before commit')); }
+        data = committedFor(request); return Promise.resolve({ ok: true, data });
+      }
+      if (mode === 'busy before prepare') {
+        if (attempts === 1) return Promise.resolve({ ok: false, error: { code: 'CAPTURE_IN_PROGRESS', message: 'Another project operation is still in progress.' } } as unknown as RevisionCandidateResult);
+        data = committedFor(request); return Promise.resolve({ ok: true, data });
+      }
+      return new Promise(resolve => { resolveCapture = resolve; });
+    });
+    const list = vi.fn(async (request: { projectId: string; projectPath: string; generation: number; operationId: string }) => ({ ok: true as const, data: request.projectId === 'proj_b'
+      ? { availability: 'ready' as const, message: null, document: { schemaVersion: 'BlackSkiesRevisionCandidates v2' as const, projectId: 'proj_b', revision: 0, candidates: [], captures: [] } } : data }));
+    const revisions: RevisionCandidatesBridge = { localAiAvailable: false, list, createManual, edit: vi.fn(), setLifecycle: vi.fn() };
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={writing.bridge} surfaceBridge={surfaces.bridge} revisionCandidatesBridge={revisions} aiBridge={ai.bridge} />);
+    await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
+    const purpose = await screen.findByRole('textbox', { name: 'Purpose' });
+    await waitFor(() => expect(purpose).toBeEnabled());
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Use this entire saved section for the alternative' }));
+    fireEvent.change(purpose, { target: { value: '  Preserve rhythm.  ' } });
+    const text = screen.getByRole('textbox', { name: 'Proposed text' });
+    fireEvent.change(text, { target: { value: '\n  A different rhythm.\n' } });
+    const save = screen.getByRole('button', { name: 'Save alternative' });
+    fireEvent.click(save); if (mode === 'double save') fireEvent.click(save);
+    await waitFor(() => expect(createManual).toHaveBeenCalledTimes(1));
+    const request = createManual.mock.calls[0]![0];
+    expect(request).toMatchObject({ purpose: '  Preserve rhythm.  ', candidateText: '\n  A different rhythm.\n', unitId: 'unit_a', sourceSnapshot: { unitId: 'unit_a', text: 'Alpha body' } });
+    if (mode === 'late project') {
+      act(() => {
+        writing.emit(snapshot('writing', { projectId: 'proj_b', path: 'C:/projects/b', generation: 2, revision: 1 }));
+        surfaces.publish({ ...surfaces.current, projectId: 'proj_b', generation: 2, revision: 1,
+          primarySurface: 'command', commandSnapshot: snapshot('command', { projectId: 'proj_b', path: 'C:/projects/b', generation: 2, revision: 1 }) });
+      });
+      fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
+      await waitFor(() => expect(screen.getByRole('textbox', { name: 'Purpose' })).toBeEnabled());
+      const newPurpose = screen.getByRole('textbox', { name: 'Purpose' });
+      const newText = screen.getByRole('textbox', { name: 'Proposed text' });
+      fireEvent.change(newPurpose, { target: { value: 'New project draft' } });
+      fireEvent.change(newText, { target: { value: 'New project wording' } });
+      await act(async () => { resolveCapture({ ok: true, data: committedFor(request) }); });
+      expect(newPurpose).toHaveValue('New project draft'); expect(newText).toHaveValue('New project wording');
+      expect(screen.queryByText('Manual revision alternative saved. Your manuscript has not changed.')).not.toBeInTheDocument();
+      return;
+    }
+    if (mode === 'double save') {
+      expect(purpose).toBeDisabled(); expect(text).toBeDisabled();
+      fireEvent.change(text, { target: { value: 'Changed during Save' } });
+      expect(text).toHaveValue('\n  A different rhythm.\n');
+      await act(async () => { data = committedFor(request); resolveCapture({ ok: true, data }); });
+    }
+    if (mode === 'prepared retry' || mode === 'busy before prepare') {
+      const check = await screen.findByRole('button', { name: 'Check save' });
+      expect(text).toHaveValue('\n  A different rhythm.\n'); expect(text).toBeDisabled();
+      expect(check).toBeEnabled(); fireEvent.click(check);
+      await waitFor(() => expect(createManual).toHaveBeenCalledTimes(2));
+      expect(createManual.mock.calls[1]![0]).toEqual(request);
+    }
+    await screen.findByText('Manual revision alternative saved. Your manuscript has not changed.');
+    expect(purpose).toHaveValue(''); expect(text).toHaveValue('');
+    if (mode !== 'double save') {
+      expect(Object.keys(list.mock.calls[1]![0]).sort()).toEqual(['generation', 'operationId', 'projectId', 'projectPath']);
+      expect(data.document.candidates).toHaveLength(1);
+    }
+    expect(writing.bridge.selectUnit).not.toHaveBeenCalled();
+  });
 
   it('preserves unsaved alternative edits across canceled navigation and reports durable saves beside the editor', async () => {
     const writing = createBridge(snapshot('writing'));
@@ -4741,6 +4840,51 @@ describe('Stage19WritingSpineApp', () => {
     fireEvent.click(within(story).getByRole('button', { name: 'Close' }));
     await openWritingRail('Story');
     expect(within(screen.getByRole('region', { name: 'Story tools' })).getByRole('button', { name: 'Keep open' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('keeps the story word count exact through unsaved typing, restoration and project replacement', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([], true);
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+    const counter = await screen.findByLabelText('Story word count');
+    expect(counter).toHaveTextContent('4 words');
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    fireEvent.change(editor, { target: { value: 'Alpha body grew' } });
+    await waitFor(() => expect(counter).toHaveTextContent('5 words'));
+    fireEvent.change(editor, { target: { value: 'Alpha body' } });
+    await waitFor(() => expect(counter).toHaveTextContent('4 words'));
+    await act(async () => project.emit(snapshot('writing', { projectId: 'replacement', path: 'C:/disposable/replacement', generation: 2,
+      units: [{ id: 'unit_a', title: 'New section', order: 1, body: 'Fresh' }] })));
+    await waitFor(() => expect(screen.getByLabelText('Story word count')).toHaveTextContent('1 words'));
+  });
+
+  it('keeps Saving and prevents close until the exact unit-link commit completes', async () => {
+    const project = createBridge(snapshot('writing'));
+    const outline = createLivingOutlineBridge([], true);
+    const original = vi.mocked(outline.bridge.replaceWritingState!).getMockImplementation()!;
+    let finish!: () => void;
+    const pending = new Promise<void>(resolve => { finish = resolve; });
+    vi.mocked(outline.bridge.replaceWritingState!).mockImplementationOnce(async request => {
+      await pending;
+      return original(request);
+    });
+    render(<Stage19WritingSpineApp windowRole="writing" bridge={project.bridge} livingOutlineBridge={outline.bridge} />);
+    const editor = await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
+    (editor as HTMLTextAreaElement).setSelectionRange(0, 5); fireEvent.select(editor);
+    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+    await waitFor(() => expect(outline.bridge.replaceWritingState).toHaveBeenCalledTimes(1));
+    const status = document.querySelector('.stage19-writing-shell__status .stage19-spine__save-state')!;
+    expect(status).toHaveTextContent('Saving…');
+    expect(status).toHaveClass('stage19-spine__save-state--saving');
+    const interrupted = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(interrupted);
+    expect(interrupted.defaultPrevented).toBe(true);
+    await act(async () => { finish(); await pending; });
+    await screen.findByText('Writing units and Notes saved.');
+    await waitFor(() => expect(status).toHaveTextContent('Saved'));
+    expect(outline.current.document.writingGroups).toHaveLength(1);
+    const clean = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(clean);
+    expect(clean.defaultPrevented).toBe(false);
   });
 
   it('pins selected words into the real writing outline and preserves exact saved prose', async () => {

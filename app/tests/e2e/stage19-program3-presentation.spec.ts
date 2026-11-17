@@ -6,6 +6,7 @@ import { expect, test } from './_electron.fixture';
 import {
   getStage19Windows,
   openWritingStudioRail,
+  openSavedWritingSections,
   removeTemporaryDirectory,
 } from './stage19-electron-support';
 
@@ -14,7 +15,7 @@ test.use({ splitCommandRuntimeConfig: true });
 test('Program 3 reflows at large text, honors reduced motion, and preserves keyboard task access', async ({
   electronApp,
   page,
-}) => {
+}, testInfo) => {
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-program3-presentation-'));
   try {
     const { writing, command } = await getStage19Windows(electronApp, page);
@@ -44,7 +45,7 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
     const prose = `${'The signal crossed the empty harbor while Mara counted each unanswered bell. '.repeat(6)}End.`;
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Readable Passage' });
     await editor.fill(prose);
-    await openWritingStudioRail(writing, 'Story');
+    await openSavedWritingSections(writing);
     const manuscriptTools = writing.getByRole('complementary', { name: 'Story rail' });
     const railBox = await manuscriptTools.boundingBox();
     expect(railBox).not.toBeNull();
@@ -61,7 +62,8 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
     await expect(editor).toContainText(prose);
     await expect(writing.getByRole('button', { name: 'Exit Focus mode' })).toBeFocused();
     await writing.keyboard.press('Enter');
-    await expect(manuscriptTools).toBeVisible();
+    await expect(writing.getByRole('region', { name: 'Story tools', exact: true })).toBeVisible();
+    await writing.getByRole('region', { name: 'Story tools', exact: true }).getByRole('button', { name: 'Close', exact: true }).click();
 
     await editor.focus();
     await writing.keyboard.press('Control+A');
@@ -70,9 +72,21 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
     await writing.getByLabel('OpenAI API key (session only; no readback)')
       .fill('synthetic-session-credential-123456');
     await writing.getByRole('button', { name: 'Set session key' }).click();
-    await writing.getByRole('checkbox', {
+    const clearance = writing.getByRole('checkbox', {
       name: /Confirm that the exact visible passage is authorized for remote transmission/i,
-    }).check();
+    });
+    await clearance.scrollIntoViewIfNeeded();
+    await testInfo.attach('enlarged-review-geometry', { body: JSON.stringify(await clearance.evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      const ancestors = [];
+      for (let node: Element | null = element; node; node = node.parentElement) {
+        const style = getComputedStyle(node), bounds = node.getBoundingClientRect();
+        ancestors.push({ tag: node.tagName, className: node.className, rect: bounds.toJSON(), padding: style.padding, overflow: style.overflow, position: style.position, zIndex: style.zIndex });
+      }
+      return { rect: rect.toJSON(), hit: document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)?.outerHTML.slice(0, 400), ancestors };
+    })), contentType: 'application/json' });
+    await writing.screenshot({ path: testInfo.outputPath('enlarged-review.png') });
+    await clearance.check();
     await writing.getByRole('button', { name: 'Approve and send exact payload' }).click();
 
     await command.setViewportSize({ width: 720, height: 900 });
@@ -97,12 +111,12 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
 
     const workspace = command.getByRole('navigation', { name: 'Command Center workspaces' });
     const review = workspace.getByRole('button', { name: 'Review', exact: true });
-    const structure = workspace.getByRole('button', { name: 'Structure', exact: true });
+    const outline = workspace.getByRole('button', { name: 'Outline', exact: true });
     await review.focus();
     await command.keyboard.press('Tab');
-    await expect(structure).toBeFocused();
+    await expect(outline).toBeFocused();
     await command.keyboard.press('Enter');
-    await expect(command.getByRole('heading', { name: 'Structure', exact: true })).toBeVisible();
+    await expect(command.getByRole('heading', { name: 'Outline and passage comparison', exact: true })).toBeVisible();
     await command.keyboard.press('Shift+Tab');
     await expect(review).toBeFocused();
     await command.keyboard.press('Enter');

@@ -40,6 +40,28 @@ function binding(coordinator: ProjectSessionCoordinator, active: LoadedProject, 
 }
 
 describe('ProjectSessionCoordinator', () => {
+  it('holds capture validation and commit inside the existing session authority until completion', async () => {
+    const coordinator = new ProjectSessionCoordinator();
+    const active = project('proj_a', 'C:/projects/a');
+    coordinator.activateProject(active);
+    const request = binding(coordinator, active, 'capture-one');
+    let release!: () => void;
+    const waiting = new Promise<void>(resolve => { release = resolve; });
+    const capture = coordinator.withRevisionCapture(request, async () => { await waiting; return 'committed'; });
+    expect(coordinator.hasOperationInFlight()).toBe(true);
+    expect(() => coordinator.beginSave(request, 'unit_1')).toThrow(ProjectSessionError);
+    expect(() => coordinator.beginStructureMutation(request)).toThrow(ProjectSessionError);
+    expect(() => coordinator.reloadActiveProject(request, active)).toThrow(ProjectSessionError);
+    expect(() => coordinator.activateProject(project('proj_b', 'C:/projects/b'), true)).toThrow(ProjectSessionError);
+    await expect(coordinator.withRevisionCapture(request, async () => 'second')).rejects.toMatchObject({ code: 'SAVE_IN_PROGRESS' });
+    release();
+    await expect(capture).resolves.toBe('committed');
+    expect(coordinator.hasOperationInFlight()).toBe(false);
+    await expect(coordinator.withRevisionCapture(request, async () => { throw new Error('Write failed'); })).rejects.toThrow('Write failed');
+    expect(coordinator.hasOperationInFlight()).toBe(false);
+    expect(() => coordinator.activateProject(project('proj_b', 'C:/projects/b'), true)).not.toThrow();
+  });
+
   it('edge: punctuation alone does not inflate word counts or dialogue ratios', () => {
     const metrics = measureProjectSpineUnit('--- … ‘’ -- –');
     expect(metrics.wordCount).toBe(0);

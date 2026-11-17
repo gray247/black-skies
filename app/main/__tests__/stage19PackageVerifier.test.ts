@@ -1,3 +1,6 @@
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { describe, expect, it } from "vitest";
 
 // The verifier is deliberately executable as plain Node.js in clean packaging jobs.
@@ -5,6 +8,8 @@ import { describe, expect, it } from "vitest";
 import {
   EXPECTED_ASAR_PATHS,
   findForbiddenPackagePaths,
+  verifyOfflineDictionaryResources,
+  OFFLINE_DICTIONARY_HASHES,
   readIcoSizes
 } from "../../scripts/stage19-package-verify.mjs";
 
@@ -66,6 +71,20 @@ describe("Stage 19 package artifact verifier", () => {
         "/node_modules/prop-types/lib/ReactPropTypesSecret.js"
       ])
     ).toEqual([]);
+  });
+
+  it('verifies exactly the licensed packaged spelling files and refuses corruption or extra files', () => {
+    const root = mkdtempSync(join(tmpdir(), 'black-skies-package-dictionary-'));
+    try {
+      for (const name of [...Object.keys(OFFLINE_DICTIONARY_HASHES), 'manifest.json']) cpSync(join(process.cwd(), 'resources', 'dictionaries', name), join(root, name));
+      expect(verifyOfflineDictionaryResources(root).files).toHaveLength(5);
+      const original = readFileSync(join(root, 'en-US.dic'));
+      writeFileSync(join(root, 'en-US.dic'), 'Damaged dictionary');
+      expect(() => verifyOfflineDictionaryResources(root)).toThrow(/integrity/);
+      writeFileSync(join(root, 'en-US.dic'), original);
+      writeFileSync(join(root, 'profile-secret.json'), '{}');
+      expect(() => verifyOfflineDictionaryResources(root)).toThrow(/allowlist/);
+    } finally { rmSync(root, { recursive: true, force: true }); }
   });
 
   it("recognizes the complete Windows icon resolution set", () => {

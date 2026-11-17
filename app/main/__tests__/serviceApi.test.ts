@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('electron', () => ({
+  webFrame: { setSpellCheckProvider: vi.fn() },
   contextBridge: {
     exposeInMainWorld: vi.fn(),
   },

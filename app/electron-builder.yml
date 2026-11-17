@@ -13,6 +13,16 @@ files:
   - dist-electron/**
   - '!**/*.map'
   - package.json
+extraResources:
+  - from: resources/dictionaries
+    to: dictionaries
+    filter:
+      - en-US-10-2.bdic
+      - en-US.aff
+      - en-US.dic
+      - HUNSPELL-LICENSE
+      - manifest.json
+      - LICENSE
 win:
   icon: resources/icon.ico
   target:

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { revisionItemSources, captureProgram7SourceEvidence, buildProgram7SourceEnvelope } from '../../../shared/program7SourceBinding';
 import type { StoryPositionRefV1 } from '../../../shared/ipc/storyIntelligence';
 import type {
@@ -251,9 +251,10 @@ function ItemSection({
   readonly onOpenRecurrence?: (item: RevisionItem, recurrenceId: string) => void;
   readonly localAiAvailable: boolean;
 }): JSX.Element {
+  const headingId = useId();
   return (
-    <section className="program7-revision-desk__section" aria-labelledby={`${title.toLowerCase().replace(/\s+/gu, '-')}-heading`}>
-      <h2 id={`${title.toLowerCase().replace(/\s+/gu, '-')}-heading`}>{title}</h2>
+    <section className="program7-revision-desk__section" aria-labelledby={headingId}>
+      <h2 id={headingId}>{title}</h2>
       {items.length === 0 ? (
         <p data-testid={`revision-desk-empty-${cardProps.history ? 'history' : 'active'}`}>
           {cardProps.history ? 'No completed revision tasks yet.' : 'No active revision tasks.'}
@@ -282,10 +283,11 @@ export default function RevisionDesk({
   onRecheck,
   onOpenRecurrence,
 }: RevisionDeskProps): JSX.Element {
+  const headingId = useId();
   return (
-    <section className="program7-revision-desk" aria-labelledby="program7-revision-desk-heading">
+    <section className="program7-revision-desk" aria-labelledby={headingId}>
       <header>
-        <h1 id="program7-revision-desk-heading">Revision Desk</h1>
+        <h1 id={headingId}>Revision Desk</h1>
         <p>Concerns you choose to work on are saved here. Open the passage, revise and save it in Writing Studio, then come back to check whether the concern still applies. Nothing here changes your manuscript automatically.</p>
       </header>
       <ol className="program7-revision-desk__steps" aria-label="How to use Revision Desk">

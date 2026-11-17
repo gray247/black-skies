@@ -13,6 +13,7 @@ export const REVISION_CANDIDATE_CHANNELS = {
   setLifecycle: 'revision-candidates:set-lifecycle',
 } as const;
 export const REVISION_CANDIDATE_SCHEMA_VERSION = 'BlackSkiesRevisionCandidates v1' as const;
+export const REVISION_CAPTURE_LEDGER_SCHEMA_VERSION = 'BlackSkiesRevisionCandidates v2' as const;
 export const REVISION_CANDIDATE_MAX_SOURCE_LENGTH = 12_000;
 export const REVISION_CANDIDATE_MAX_TEXT_LENGTH = 6_000;
 export const REVISION_CANDIDATE_MAX_PURPOSE_LENGTH = 1_000;
@@ -105,8 +106,36 @@ export interface RevisionCandidateV1 {
   readonly updatedAt: string;
 }
 
+/** Exact author input retained until one durable capture outcome is known. */
+export interface RevisionManualCapturePayloadV2 {
+  readonly projectId: string;
+  readonly projectPath: string;
+  readonly sourceSnapshot: RevisionCandidateSourceSnapshotV1;
+  readonly sourceAnchor: RevisionCandidateSourceAnchorV1 | null;
+  readonly purpose: string;
+  readonly protection: RevisionCandidateProtectionV1;
+  readonly warnings: readonly string[];
+  readonly candidateText: string;
+  readonly concernId: string | null;
+  readonly deleteSource: boolean;
+}
+
+export interface RevisionManualCaptureReceiptV2 {
+  readonly operationId: string;
+  readonly payloadSha256: string;
+  readonly payload: RevisionManualCapturePayloadV2;
+  readonly status: 'prepared' | 'committed' | 'rejected';
+  readonly candidateId: string;
+  readonly preparedAt: string;
+  readonly completedAt: string | null;
+  readonly committedRevision: number | null;
+  readonly rejection: { readonly code: 'STALE' | 'INVALID' | 'PROTECTED_SOURCE' | 'UNAVAILABLE'; readonly message: string } | null;
+}
+
 export interface RevisionCandidatesDocumentV1 {
-  readonly schemaVersion: typeof REVISION_CANDIDATE_SCHEMA_VERSION;
+  readonly schemaVersion: typeof REVISION_CANDIDATE_SCHEMA_VERSION | typeof REVISION_CAPTURE_LEDGER_SCHEMA_VERSION;
+  /** Present only in V2; V1 is read without mutation until first capture. */
+  readonly captures?: readonly RevisionManualCaptureReceiptV2[];
   readonly projectId: string;
   readonly revision: number;
   readonly candidates: readonly RevisionCandidateV1[];
@@ -198,6 +227,7 @@ export type RevisionCandidateErrorCode =
   | 'INVALID_REQUEST'
   | 'CANDIDATES_UNAVAILABLE'
   | 'CANDIDATE_WRITE_FAILED'
+  | 'CAPTURE_IN_PROGRESS'
   | 'STALE_CANDIDATES'
   | 'UNKNOWN_CANDIDATE'
   | 'LOCAL_AI_UNAVAILABLE'

@@ -188,6 +188,20 @@ export async function openWritingStudioRail(
   await expect(closeControl).toBeVisible();
 }
 
+/** Open the existing saved-section controls through their public disclosure.
+ * The Outline is the default Story view; these older journeys exercise the
+ * section-management controls deliberately, with their rail held open.
+ */
+export async function openSavedWritingSections(writing: Page): Promise<void> {
+  await openWritingStudioRail(writing, 'Story');
+  const story = writing.getByRole('region', { name: 'Story tools', exact: true });
+  const lock = story.getByRole('button', { name: 'Keep open', exact: true });
+  if (await lock.isVisible()) await lock.click();
+  const disclosure = story.locator('details.stage19-outline-planning');
+  if (!(await disclosure.evaluate(element => element.hasAttribute('open')))) await disclosure.locator(':scope > summary').click();
+  await expect(writing.getByRole('complementary', { name: 'Story rail', exact: true })).toBeVisible();
+}
+
 const RECOVERY_ARTIFACT_RELATIVE_PATH = join('recovery', 'project-spine-recovery-v1.json');
 const POLL_INTERVAL_MS = 100;
 
@@ -714,4 +728,58 @@ export async function closeLaunchedApplicationBestEffort(
   }
   await removeTemporaryDirectory(launched.userDataDirectory);
   await removeTemporaryDirectory(launched.runtimeDirectory);
+}
+
+/** Read the real window thumbnail before requesting a renderer capture. DOM
+ * text alone cannot establish that the compositor actually painted glyphs.
+ * This helper reads only the disposable app window, never the whole desktop.
+ */
+export async function readWritingPaintWitness(
+  application: ElectronApplication,
+  target: import('@playwright/test').Locator,
+) {
+  const dom = await target.evaluate(element => {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+    while (node && !node.textContent?.trim()) node = walker.nextNode();
+    if (!node?.textContent) throw new Error('The paint witness has no manuscript text.');
+    const start = node.textContent.search(/\S/u);
+    const range = document.createRange(); range.setStart(node, start); range.setEnd(node, Math.min(node.textContent.length, start + 24));
+    const rect = range.getClientRects()[0];
+    if (!rect || rect.width < 2 || rect.height < 2 || rect.top < 0 || rect.bottom > innerHeight) throw new Error('The manuscript witness is outside the visible content area.');
+    const color = getComputedStyle(node.parentElement!).color.match(/[\d.]+/gu)!.slice(0, 3).map(Number);
+    return { text: range.toString(), rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height }, color, viewport: { width: innerWidth, height: innerHeight } };
+  });
+  const handle = await application.browserWindow(target.page());
+  const windowId = await handle.evaluate(window => window.id);
+  return application.evaluate(async ({ BrowserWindow, desktopCapturer }, { dom, windowId }) => {
+    const window = BrowserWindow.fromId(windowId)!;
+    const bounds = window.getBounds(), content = window.getContentBounds();
+    const zoom = window.webContents.getZoomFactor();
+    const sourceId = window.getMediaSourceId();
+    const sources = await desktopCapturer.getSources({ types: ['window'], thumbnailSize: { width: bounds.width, height: bounds.height }, fetchWindowIcons: false });
+    const source = sources.find(source => source.id === sourceId);
+    if (!source || source.thumbnail.isEmpty()) throw new Error('The independent app-window paint capture is unavailable.');
+    const ink = (image: Electron.NativeImage, rect: { x: number; y: number; width: number; height: number }) => {
+      const size = image.getSize(1), bytes = image.toBitmap({ scaleFactor: 1 });
+      if (bytes.length !== size.width * size.height * 4) throw new Error('Unexpected native bitmap geometry.');
+      const crop = { x: Math.max(0, Math.floor(rect.x)), y: Math.max(0, Math.floor(rect.y)), width: Math.min(size.width - Math.max(0, Math.floor(rect.x)), Math.ceil(rect.width)), height: Math.min(size.height - Math.max(0, Math.floor(rect.y)), Math.ceil(rect.height)) };
+      let pixels = 0;
+      for (let y = crop.y; y < crop.y + crop.height; y += 1) for (let x = crop.x; x < crop.x + crop.width; x += 1) {
+        const at = (y * size.width + x) * 4;
+        if (Math.abs(bytes[at + 2]! - dom.color[0]!) < 55 && Math.abs(bytes[at + 1]! - dom.color[1]!) < 55 && Math.abs(bytes[at]! - dom.color[2]!) < 55) pixels += 1;
+      }
+      return { pixels, crop, size, png: image.crop(crop).toPNG().toString('base64') };
+    };
+    const size = source.thumbnail.getSize(1);
+    const sx = size.width / bounds.width, sy = size.height / bounds.height;
+    const native = ink(source.thumbnail, { x: (content.x - bounds.x + dom.rect.x * zoom - 3) * sx, y: (content.y - bounds.y + dom.rect.y * zoom - 3) * sy, width: (dom.rect.width * zoom + 6) * sx, height: (dom.rect.height * zoom + 6) * sy });
+    // The OS capture is taken first so capturePage cannot repair a missing OS
+    // frame before the independent observation has been recorded.
+    const captured = await window.webContents.capturePage();
+    const capturedSize = captured.getSize(1);
+    const cx = capturedSize.width / dom.viewport.width, cy = capturedSize.height / dom.viewport.height;
+    const renderer = ink(captured, { x: dom.rect.x * cx, y: dom.rect.y * cy, width: dom.rect.width * cx, height: dom.rect.height * cy });
+    return { dom, sourceId, bounds, content, zoom, native, renderer, rendererAlive: !window.webContents.isCrashed() };
+  }, { dom, windowId });
 }

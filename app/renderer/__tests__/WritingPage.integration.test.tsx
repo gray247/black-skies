@@ -59,7 +59,9 @@ function Editor({
   );
 }
 
-function Harness({ initialBodies = { a: 'moon glass winter shirt', b: 'A second shirt. Forest.' }, gapFault, projectId = 'test', initialConcerns = [], compactOutline = false }: { compactOutline?: boolean; initialBodies?: Record<string, string>; gapFault?: 'recovery' | 'source' | 'metadata'; projectId?: string; initialConcerns?: readonly RevisionItem[] }) {
+function Harness({ revisionSave, initialBodies = { a: 'moon glass winter shirt', b: 'A second shirt. Forest.' }, gapFault, projectId = 'test', initialConcerns = [], compactOutline = false, concernDecision, concernNotice }: { revisionSave?: () => Promise<void>; concernDecision?: () => Promise<void>; concernNotice?: string; compactOutline?: boolean; initialBodies?: Record<string, string>; gapFault?: 'recovery' | 'source' | 'metadata'; projectId?: string; initialConcerns?: readonly RevisionItem[] }) {
+  const [acceptedRevision, setAcceptedRevision] = useState<Stage19WritingSpineViewModel['acceptedRevision']>();
+  const revisionApplied = useRef(false);
   const gapFaultUsed = useRef(false);
   const [bodies, setBodies] = useState<Record<string, string>>(initialBodies);
   const [outline, setOutline] = useState<LivingOutlineSnapshotV1>({
@@ -113,7 +115,9 @@ function Harness({ initialBodies = { a: 'moon glass winter shirt', b: 'A second 
         }) } } };
     }),
     replaceWritingState: vi.fn(
-      async (request: Parameters<NonNullable<LivingOutlineBridge['replaceWritingState']>>[0]) => ({
+      async (request: Parameters<NonNullable<LivingOutlineBridge['replaceWritingState']>>[0]) => {
+        if (revisionApplied.current) await revisionSave?.();
+        return ({
         ok: true as const,
         data: {
           ...latest.current.outline,
@@ -134,7 +138,8 @@ function Harness({ initialBodies = { a: 'moon glass winter shirt', b: 'A second 
             }),
           },
         },
-      }),
+      });
+      },
     ),
     createItem: vi.fn(async (request: Parameters<LivingOutlineBridge['createItem']>[0]) => ({
       ok: true as const,
@@ -192,17 +197,20 @@ function Harness({ initialBodies = { a: 'moon glass winter shirt', b: 'A second 
   };
   const model = {
     snapshot,
+    acceptedRevision,
     buffers: bodies,
     activeUnit: { id: 'a' },
     aiSelection: selection,
     writingPage: page,
     dirtyUnitIds: new Set<string>(),
     program7RevisionItems: { activeItems: initialConcerns },
+    program7Notice: concernNotice,
     recoveryBlocksEditing: false,
     openWritingRail: 'left',
     lockedWritingRails: [],
   } as unknown as Stage19WritingSpineViewModel;
   const actions = {
+    setProgram7RevisionItemLifecycle: concernDecision,
     saveUnit: () => page.save(),
     changeBuffer: changed,
     selectUnit: async () => true,
@@ -211,6 +219,15 @@ function Harness({ initialBodies = { a: 'moon glass winter shirt', b: 'A second 
   return (
     <WritingPageProvider model={model} actions={actions}>
       <div data-stage19-role="writing">
+        {revisionSave ? <button type="button" onClick={() => {
+          const before = latest.current.bodies.a!, after = 'moon glass winter coat';
+          const linksBefore = page.captureLinks();
+          revisionApplied.current = true;
+          latest.current.bodies = { ...latest.current.bodies, a: after };
+          setBodies(latest.current.bodies);
+          setAcceptedRevision({ id: 'durable-acceptance', projectId, generation: 1, unitId: 'a', before, after, linksBefore });
+        }}>Simulate durable revision application</button> : null}
+        <output aria-label="Link save state">{page.busy ? 'Saving' : page.unsaved ? 'Unsaved' : 'Saved'}</output>
         <WritingPageToolbar />
         <WritingPageOutline compact={compactOutline} />
         <div data-manuscript-scroll-owner="true">
@@ -262,6 +279,31 @@ async function renameEdgeGroup(label: string, name: string) {
 }
 
 describe('Outstanding writer edge cases after completed Batch A', () => {
+  it('saves mapped unit links after durable revision application and retains one chronological Undo', async () => {
+    let finish!: () => void;
+    const pending = new Promise<void>(resolve => { finish = resolve; });
+    render(<Harness revisionSave={() => pending} />);
+    const input = await screen.findByRole('textbox', { name: 'Draft editor' });
+    const editor = EditorView.findFromDOM(input)!;
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Pin' })).toBeEnabled());
+    act(() => editor.dispatch({ selection: { anchor: 0, head: 4 } }));
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 5)); });
+    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+    await waitFor(() => expect(storedWriting().writingGroups).toHaveLength(1));
+    const original = storedWriting().writingGroups[0];
+    fireEvent.click(screen.getByRole('button', { name: 'Simulate durable revision application' }));
+    await waitFor(() => expect(screen.getByLabelText('Link save state')).toHaveTextContent('Saving'));
+    expect(screen.getByRole('button', { name: 'Undo applied revision' })).toBeDisabled();
+    await act(async () => { finish(); await pending; });
+    await waitFor(() => expect(screen.getByLabelText('Link save state')).toHaveTextContent('Saved'));
+    expect(storedWriting().writingGroups[0].id).toBe(original.id);
+    expect(storedWriting().writingGroups[0].spans[0].sourceFingerprint).not.toBe(original.spans[0].sourceFingerprint);
+    fireEvent.click(screen.getByRole('button', { name: 'Undo applied revision' }));
+    await waitFor(() => expect(editor.state.doc.toString()).toBe('moon glass winter shirt'));
+    expect(screen.queryByRole('button', { name: 'Undo applied revision' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Redo/ })).toBeEnabled();
+  });
+
   it.each(['pointer', 'keyboard'] as const)('does not consume the next unrelated %s action after a preview selection without a click', async method => {
     await setup();
     const source = document.querySelector('[data-writing-source]')!;
@@ -500,6 +542,27 @@ async function addNotebookNote(scope: 'whole-story' | 'unattached', name: string
 const openNotebookNote = (id: string) => fireEvent.click(within(document.querySelector(`[data-notebook-note-id="${id}"]`) as HTMLElement).getByRole('button'));
 
 describe('Catalog verified concern projection', () => {
+  it('retains the concern and its explanation until a decision is actually saved', async () => {
+    const source = await buildProgram7SourceEnvelope({ projectId: 'test', generation: 1, unitId: 'a', sourceText: 'moon glass winter shirt', selectionStart: 0, selectionEnd: 4 });
+    const concern: RevisionItem = { id: 'concern-save', projectId: 'test', unitId: 'a', body: 'Keep this concern until confirmed', createdAt: '2026-11-17T00:00:00.000Z',
+      kind: 'revision_item', advisory: false, lifecycle: 'active', anchor: source.anchor, sourceBodyFingerprint: source.bodySha256, sourceClass: 'included' };
+    let finish!: () => void;
+    const pending = new Promise<void>(resolve => { finish = resolve; });
+    const decide = vi.fn(() => pending);
+    const view = render(<Harness initialConcerns={[concern]} concernDecision={decide} />);
+    await waitFor(() => expect(document.querySelector('[data-outline-concern-id="concern-save"]')).not.toBeNull());
+    fireEvent.click(document.querySelector('[data-outline-concern-id="concern-save"]')!);
+    fireEvent.click(screen.getByRole('button', { name: 'Mark addressed' }));
+    expect(decide).toHaveBeenCalledOnce();
+    expect(screen.getByText(concern.body, { exact: true })).toBeVisible();
+    await act(async () => { finish(); await pending; });
+    view.rerender(<Harness initialConcerns={[concern]} concernDecision={decide} concernNotice="The source changed. The concern remains open; save and try again." />);
+    await waitFor(() => expect(screen.getByText('The source changed. The concern remains open; save and try again.')).toBeVisible());
+    expect(screen.getByRole('button', { name: 'Mark addressed' })).toBeEnabled();
+    view.rerender(<Harness initialConcerns={[]} concernDecision={decide} />);
+    await waitFor(() => expect(screen.queryByText(concern.body, { exact: true })).toBeNull());
+  });
+
   it('shows independent shared-range concerns without trusting framed-file metrics and removes only a resolved or protected concern', async () => {
     const source = await buildProgram7SourceEnvelope({ projectId: 'test', generation: 1, unitId: 'a', sourceText: 'moon glass winter shirt', selectionStart: 0, selectionEnd: 4 });
     const concern: RevisionItem = { id: 'concern-a', projectId: 'test', unitId: 'a', body: 'First concern', createdAt: '2026-10-26T00:00:00.000Z',

@@ -63,7 +63,9 @@ export default [
           "jsx-a11y/no-noninteractive-tabindex": [
             "error",
             {
-              tags: ["main"],
+              // Scrollable source/evidence blocks need keyboard scrolling.
+              // They remain prose, so do not invent an interactive ARIA role.
+              tags: ["main", "pre"],
               roles: ["tabpanel"],
               allowExpressionValues: true,
             },

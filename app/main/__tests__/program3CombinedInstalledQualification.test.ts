@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { validateProgram3CombinedReceipt } from '../../../scripts/verify-program3-combined-performance.mjs';
 // @ts-expect-error The installed smoke witness is plain Node.js.
 import {
+  assertOfflineSpellingContext,
   createColdLaunchMeasurement,
   installedQualificationProfiles,
 } from '../../scripts/stage19-installed-smoke.mjs';
@@ -41,6 +42,25 @@ function receipt(): any {
 }
 
 describe('Program 3/4 installed qualification', () => {
+  it('requires disposable Windows isolation, an external data root and an identified pre-install firewall for spelling', () => {
+    const options = { platform: 'win32', environment: { GITHUB_ACTIONS: 'true', RUNNER_OS: 'Windows', RUNNER_TEMP: 'C:/runner-temp',
+      BLACKSKIES_STABILITY_FIREWALL_RULE: 'BlackSkies-19.19-' + 'a'.repeat(32), BLACKSKIES_STABILITY_FIREWALL_ACTIVATED_AT: '2026-11-17T04:00:00.000Z' },
+      executablePath: 'C:/runner-temp/install/Black Skies.exe', root: 'C:/runner-temp/external/spelling', checkout: 'C:/checkout' };
+    expect(() => assertOfflineSpellingContext(options)).not.toThrow();
+    expect(() => assertOfflineSpellingContext({ ...options, platform: 'linux' })).toThrow(/disposable Windows/);
+    expect(() => assertOfflineSpellingContext({ ...options, environment: { ...options.environment, GITHUB_ACTIONS: 'false' } })).toThrow(/disposable Windows/);
+    expect(() => assertOfflineSpellingContext({ ...options, root: 'C:/checkout/profiles' })).toThrow();
+    expect(() => assertOfflineSpellingContext({ ...options, executablePath: 'C:/Program Files/Black Skies.exe' })).toThrow();
+    expect(() => assertOfflineSpellingContext({ ...options, environment: { ...options.environment, BLACKSKIES_STABILITY_FIREWALL_RULE: '' } })).toThrow(/firewall/);
+  });
+
+  it('activates the outbound block before any installer launch can auto-start the app', () => {
+    const lifecycle = readFileSync(resolve(repoRoot, 'scripts/stage19-installed-lifecycle.ps1'), 'utf8');
+    expect(lifecycle.indexOf('New-NetFirewallRule')).toBeGreaterThan(0);
+    expect(lifecycle.indexOf('New-NetFirewallRule')).toBeLessThan(lifecycle.indexOf('$installerProcess = Start-Process'));
+    expect(lifecycle).toContain('--stability-spelling-only');
+  });
+
   it('keeps current and historical topology contracts distinct', () => {
     expect(installedQualificationProfiles['current-program3-program4']).toMatchObject({
       initialVisibleWindowCount: 1,

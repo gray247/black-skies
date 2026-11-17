@@ -16,10 +16,34 @@ export const EXPECTED_ASAR_PATHS = [
   "/dist/index.html",
   "/dist-electron/main/main.js",
   "/dist-electron/main/stage19Preload.js",
+  "/dist-electron/vendor/nspell/lib/index.js",
+  "/dist-electron/vendor/nspell/license",
+  "/dist-electron/vendor/nspell/node_modules/is-buffer/index.js",
+  "/dist-electron/vendor/nspell/node_modules/is-buffer/LICENSE",
   "/dist-electron/vendor/yaml/package-metadata.json",
   "/dist-electron/vendor/yaml/dist/index.js",
   "/package.json"
 ];
+
+export const OFFLINE_DICTIONARY_HASHES = {
+  "en-US-10-2.bdic": "b0d80e6b6c5491879365e176ecbd98074602a663429bcfcfb0a5a8375c051f13",
+  "LICENSE": "d63c6240d6f6330a025aade63d317d7ff04f95fc3325fe6aea3848ca452f64ea",
+  "en-US.aff": "8ae1f19d4840d957728ad90555d5a8dff6cc5c046279c95ff0c00fc0a0136c7b",
+  "en-US.dic": "f0b1a234bd178bdd01875b2a392a9647f888b8fe879f79c52aae62c2759b3647",
+  "HUNSPELL-LICENSE": "2a7e8d8ae9e8facc84818546ae2a8d83aec5e9c80a675ff789acd1c338b53b3d"
+};
+export function verifyOfflineDictionaryResources(directory) {
+  const expected = [...Object.keys(OFFLINE_DICTIONARY_HASHES), 'manifest.json'].sort();
+  invariant(JSON.stringify(readdirSync(directory).sort()) === JSON.stringify(expected), 'Offline dictionary resources differ from the exact allowlist.');
+  const metadata = JSON.parse(readFileSync(path.join(directory, 'manifest.json'), 'utf8'));
+  invariant(metadata.schema === 'BlackSkiesOfflineDictionary v1' && metadata.language === 'en-US' && metadata.electron === '45.3.3' && metadata.localChecker?.version === '2.1.5', 'Offline spelling manifest is unsupported.');
+  const files = Object.entries(OFFLINE_DICTIONARY_HASHES).map(([name, sha256]) => {
+    const identity = fileIdentity(path.join(directory, name));
+    invariant(identity.sha256 === sha256, `Offline spelling resource failed integrity: ${name}`);
+    return { name, sha256: identity.sha256, byteLength: identity.byteLength };
+  });
+  return { language: 'en-US', engine: 'nspell', engineVersion: '2.1.5', manifest: fileIdentity(path.join(directory, 'manifest.json')), files };
+}
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const appDir = path.resolve(scriptDir, "..");
@@ -170,13 +194,16 @@ export function verifyPreflight() {
   );
   invariant(builder.extraMetadata?.main === "dist-electron/main/main.js", "Packaged main entry is unexpected.");
   invariant(builder.asar === true, "ASAR packaging must remain enabled.");
-  invariant(!builder.extraResources, "extraResources is forbidden for the Stage 19 installer.");
+  invariant(JSON.stringify(builder.extraResources) === JSON.stringify([{ from: "resources/dictionaries", to: "dictionaries", filter: ["en-US-10-2.bdic", "en-US.aff", "en-US.dic", "HUNSPELL-LICENSE", "manifest.json", "LICENSE"] }]), "Only the exact licensed offline dictionary resources may be shipped.");
   invariant(!builder.asarUnpack, "ASAR unpack rules are not authorized.");
   invariant(
     JSON.stringify(builder.files) ===
       JSON.stringify(["dist/**", "dist-electron/**", "!**/*.map", "package.json"]),
     "The packaged file allowlist differs from the qualified Stage 19 allowlist."
   );
+  for (const [name, sha256] of Object.entries(OFFLINE_DICTIONARY_HASHES)) {
+    invariant(fileIdentity(path.join(appDir, 'resources', 'dictionaries', name)).sha256 === sha256, `Bundled dictionary source failed integrity: ${name}`);
+  }
   const targets = builder.win?.target ?? [];
   invariant(targets.length === 1 && targets[0]?.target === "nsis", "NSIS must be the only Windows target.");
   invariant(
@@ -248,6 +275,7 @@ function collectIntegrityRecords(record, prefix = "") {
 }
 
 export function verifyUnpacked(unpackedPath) {
+  const offlineSpelling = verifyOfflineDictionaryResources(path.join(unpackedPath, 'resources', 'dictionaries'));
   const executablePath = path.join(unpackedPath, "Black Skies.exe");
   const asarPath = path.join(unpackedPath, "resources", "app.asar");
   invariant(existsSync(executablePath), "The unpacked Black Skies executable is missing.");
@@ -307,6 +335,7 @@ export function verifyUnpacked(unpackedPath) {
 
   return {
     byteLength: directoryByteLength(unpackedPath),
+    offlineSpelling,
     executable: { ...fileIdentity(executablePath), ...executableTruth },
     asar: {
       ...fileIdentity(asarPath),

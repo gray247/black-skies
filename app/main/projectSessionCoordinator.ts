@@ -208,6 +208,7 @@ export class ProjectSessionCoordinator {
   private activeSaveToken: ProjectSaveToken | null = null;
   private activeRevisionAcceptanceToken: ProjectRevisionAcceptanceToken | null = null;
   private activeStructureToken: ProjectStructureToken | null = null;
+  private activeRevisionCaptureToken: ProjectStructureToken | null = null;
   private activeRecoveryDecisionToken: ProjectRecoveryDecisionToken | null = null;
   private recoveryState: ProjectSpineWritingRecoveryState = { status: 'none', candidates: [] };
 
@@ -308,6 +309,7 @@ export class ProjectSessionCoordinator {
       this.activeSaveToken ||
       this.activeRevisionAcceptanceToken ||
       this.activeStructureToken ||
+      this.activeRevisionCaptureToken ||
       this.activeRecoveryDecisionToken
     ) {
       throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project operation is already in progress.');
@@ -492,6 +494,7 @@ export class ProjectSessionCoordinator {
     return this.activeSaveToken !== null ||
       this.activeRevisionAcceptanceToken !== null ||
       this.activeStructureToken !== null ||
+      this.activeRevisionCaptureToken !== null ||
       this.activeRecoveryDecisionToken !== null;
   }
 
@@ -671,6 +674,7 @@ export class ProjectSessionCoordinator {
     if (
       this.activeSaveToken ||
       this.activeStructureToken ||
+      this.activeRevisionCaptureToken ||
       (this.activeRevisionAcceptanceToken &&
         this.activeRevisionAcceptanceToken.operationId !== binding.operationId)
     ) {
@@ -702,6 +706,7 @@ export class ProjectSessionCoordinator {
       this.activeSaveToken ||
       this.activeRevisionAcceptanceToken ||
       this.activeStructureToken ||
+      this.activeRevisionCaptureToken ||
       this.activeRecoveryDecisionToken
     ) {
       throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project write is already in progress.');
@@ -760,9 +765,18 @@ export class ProjectSessionCoordinator {
     this.lastError = { code: 'SAVE_FAILED', message };
   }
 
+  async withRevisionCapture<T>(binding: ProjectSpineBinding, operation: () => Promise<T>): Promise<T> {
+    this.assertRecoveryMutationAllowed(binding);
+    if (this.hasOperationInFlight()) throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project operation is already in progress. Wait before saving this alternative again.');
+    const token: ProjectStructureToken = { ...binding, projectPath: path.resolve(binding.projectPath) };
+    this.activeRevisionCaptureToken = token;
+    try { return await operation(); }
+    finally { if (this.activeRevisionCaptureToken === token) this.activeRevisionCaptureToken = null; }
+  }
+
   beginStructureMutation(binding: ProjectSpineBinding): ProjectStructureToken {
     this.assertBinding(binding);
-    if (this.activeSaveToken || this.activeRevisionAcceptanceToken || this.activeStructureToken) {
+    if (this.activeSaveToken || this.activeRevisionAcceptanceToken || this.activeStructureToken || this.activeRevisionCaptureToken || this.activeRecoveryDecisionToken) {
       throw new ProjectSessionError('SAVE_IN_PROGRESS', 'Another project write is already in progress.');
     }
     const token: ProjectStructureToken = {

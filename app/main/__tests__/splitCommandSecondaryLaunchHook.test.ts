@@ -154,7 +154,9 @@ vi.mock('electron', () => ({
     quit: vi.fn(),
     requestSingleInstanceLock: vi.fn(() => true),
     setAppUserModelId: vi.fn(),
+    getPath: vi.fn(() => 'C:/isolated-startup-test-profile'),
   },
+  session: { defaultSession: { availableSpellCheckerLanguages: ['en-US'], setSpellCheckerEnabled: vi.fn(), setSpellCheckerLanguages: vi.fn() } },
   BrowserWindow: BrowserWindowMock,
   dialog: {
     showErrorBox: vi.fn(),
@@ -209,6 +211,8 @@ vi.mock('../projectLoaderIpc.js', () => ({
 vi.mock('../projectSpineIpc.js', () => ({
   getProjectSpineSnapshot: projectSpineMocks.getProjectSpineSnapshot,
   registerProjectSpineIpc: projectSpineMocks.registerProjectSpineIpc,
+  withProjectSpineRevisionCapture: vi.fn(),
+  provisionOfflineSpelling: vi.fn(async () => ({ available: true })),
 }));
 
 vi.mock('../layoutIpc.js', () => ({
@@ -263,9 +267,13 @@ vi.mock('../../shared/config/runtime.js', () => {
 });
 
 async function loadMainModule(): Promise<void> {
+  const previousResources = Object.getOwnPropertyDescriptor(process, 'resourcesPath');
+  Object.defineProperty(process, 'resourcesPath', { configurable: true, value: 'C:/isolated-package-resources' });
   await import('../main');
   await new Promise((resolve) => setImmediate(resolve));
   await new Promise((resolve) => setImmediate(resolve));
+  if (previousResources) Object.defineProperty(process, 'resourcesPath', previousResources);
+  else Reflect.deleteProperty(process, 'resourcesPath');
 }
 
 async function closeCoordinator() {
@@ -451,7 +459,7 @@ describe('main split command launch hook', () => {
 
     expect(browserWindowState.instances).toHaveLength(1);
     const [primaryWindow] = browserWindowState.instances;
-    expect(primaryWindow.options.webPreferences.additionalArguments).toEqual([]);
+    expect(primaryWindow.options.webPreferences.additionalArguments).toEqual(['--blackskies-offline-spelling=ready']);
     expect(getOwnershipSyncPayloads(primaryWindow)).toHaveLength(0);
     expect(projectSpineMocks.registerProjectSpineIpc).toHaveBeenCalledWith(
       expect.objectContaining({ originSessionId: expect.any(String) }),

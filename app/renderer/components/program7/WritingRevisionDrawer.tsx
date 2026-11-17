@@ -152,7 +152,7 @@ export default function WritingRevisionDrawer({
         <h2 id={`drawer-source-${candidate.id}`}>
           {sourceIsHistorical ? 'Saved source passage' : 'Your current manuscript'}
         </h2>
-        <pre>{redacted ? 'Content hidden by protection policy.' : candidate.sourceSnapshot.text}</pre>
+        <pre tabIndex={0}>{redacted ? 'Content hidden by protection policy.' : candidate.sourceSnapshot.text}</pre>
       </section>
       <section aria-labelledby={`drawer-candidate-${candidate.id}`}>
         <h2 id={`drawer-candidate-${candidate.id}`}>Revision alternative</h2>

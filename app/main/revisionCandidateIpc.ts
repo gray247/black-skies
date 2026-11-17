@@ -64,6 +64,7 @@ function cancelLocalAi(
 }
 
 export interface RegisterRevisionCandidateIpcOptions {
+  readonly withCaptureSession?: <T>(binding: RevisionCandidateProjectBinding, operation: () => Promise<T>) => Promise<T>;
   readonly resolveWindowRole: (webContentsId: number) => ProjectSpineWindowRole | null;
   readonly getWritingSnapshot: () => ProjectSpineSessionSnapshot;
   readonly repositoryFactory?: (projectPath: string) => RevisionCandidateRepository;
@@ -123,6 +124,7 @@ function activeProject(
   event: IpcMainInvokeEvent,
   request: unknown,
   mutation: boolean,
+  allowInactiveSource = false,
 ):
   | { snapshot: ProjectSpineSessionSnapshot; repository: RevisionCandidateRepository }
   | RevisionCandidateFailure {
@@ -149,7 +151,7 @@ function activeProject(
       'STALE_SESSION',
       'The active project changed before the revision candidate request completed.',
     );
-  if (request.unitId !== undefined && request.unitId !== snapshot.activeUnitId)
+  if (!allowInactiveSource && request.unitId !== undefined && request.unitId !== snapshot.activeUnitId)
     return fail('INVALID_REQUEST', 'The revision candidate unit is not active.');
   return {
     snapshot,
@@ -314,6 +316,7 @@ function validLifecycle(value: unknown): value is RevisionCandidateLifecycle {
 
 function repoFailure(error: unknown): RevisionCandidateResult {
   if (error instanceof RevisionCandidateRepositoryError) {
+    if (error.code === 'INVALID') return fail('INVALID_REQUEST', error.message);
     if (error.code === 'STALE') return fail('STALE_CANDIDATES', error.message);
     if (error.code === 'UNKNOWN_CANDIDATE') return fail('UNKNOWN_CANDIDATE', error.message);
     if (error.code === 'PROTECTED_SOURCE') return fail('PROTECTED_SOURCE', error.message);
@@ -368,12 +371,13 @@ async function createManual(
     )
   )
     return fail('INVALID_REQUEST', 'The manual revision candidate request is invalid.');
-  const active = activeProject(event, request, true);
+  const active = activeProject(event, request, true, true);
   if (failure(active)) return active;
   if (
     !validRevision(request.expectedRevision) ||
     !validSource(request.sourceSnapshot) ||
-    request.sourceSnapshot.unitId !== active.snapshot.activeUnitId ||
+    (request.unitId !== undefined && request.unitId !== request.sourceSnapshot.unitId) ||
+    request.operationId.length > 240 ||
     !validAnchor(request.sourceAnchor) ||
     !validText(request.purpose, REVISION_CANDIDATE_MAX_PURPOSE_LENGTH) ||
     (request.deleteSource !== undefined && typeof request.deleteSource !== 'boolean') ||
@@ -391,40 +395,31 @@ async function createManual(
       'PROTECTED_SOURCE',
       'Protected or excluded source content cannot be persisted as a candidate.',
     );
-  if (
-    !sourceCurrent(
-      active.snapshot,
-      request.sourceSnapshot.unitId,
-      request.sourceSnapshot.bodySha256,
-    )
-  )
-    return fail('STALE_CANDIDATES', 'The saved manuscript no longer matches this alternative’s source. Return to Writing Studio, save and select the intended passage again, then create a new alternative. Your proposed text has been kept.');
-  if (
-    !sourceAnchorCurrent(
-      active.snapshot,
-      request.sourceSnapshot.unitId,
-      request.sourceSnapshot.bodySha256,
-      request.sourceSnapshot.text,
-      request.sourceAnchor,
-    )
-  )
-    return fail('INVALID_REQUEST', 'The selected passage no longer matches the saved manuscript. Select it again in Writing Studio, then save a new alternative. Your manuscript has not changed.');
-  if (request.concernId !== undefined) {
-    if (!validText(request.concernId, 240)) return fail('INVALID_REQUEST', 'The concern identity is invalid.');
-    const concern = await verifiedRevisionConcern(active.snapshot, request.concernId, request.sourceSnapshot.unitId);
-    if (!concern || (concern.anchor && (!request.sourceAnchor || request.sourceAnchor.selectionFingerprint !== concern.anchor.selectionFingerprint)))
-      return fail('STALE_CANDIDATES', 'A concern evidence source is stale, protected or unavailable. Review both passages before creating a new alternative.');
-  }
   try {
-    return {
-      ok: true,
-      data: deriveSnapshotCurrentness(active.snapshot, await active.repository.createManual(
-        active.snapshot.project!.projectId,
-        request.expectedRevision,
-        request,
-      )),
+    const capture = async () => {
+      const validateSource = async () => {
+        const live = activeProject(event, request, true, true);
+        if (failure(live)) throw new RevisionCandidateRepositoryError('STALE', 'The project changed before this alternative could be saved. Your draft is retained.');
+        if (live.snapshot.dirtyUnitIds.includes(request.sourceSnapshot.unitId) ||
+          !sourceCurrent(live.snapshot, request.sourceSnapshot.unitId, request.sourceSnapshot.bodySha256))
+          throw new RevisionCandidateRepositoryError('STALE', 'The saved manuscript no longer matches this alternative’s source. Save and select the intended passage again. Your proposed text is retained.');
+        if (!sourceAnchorCurrent(live.snapshot, request.sourceSnapshot.unitId, request.sourceSnapshot.bodySha256, request.sourceSnapshot.text, request.sourceAnchor))
+          throw new RevisionCandidateRepositoryError('INVALID', 'The selected words no longer match the saved manuscript. Select them again; your draft is retained.');
+        if (request.concernId !== undefined) {
+          if (!validText(request.concernId, 240)) throw new RevisionCandidateRepositoryError('INVALID', 'The concern identity is invalid.');
+          const concern = await verifiedRevisionConcern(live.snapshot, request.concernId, request.sourceSnapshot.unitId);
+          if (!concern || (concern.anchor && (!request.sourceAnchor || request.sourceAnchor.selectionFingerprint !== concern.anchor.selectionFingerprint)))
+            throw new RevisionCandidateRepositoryError('STALE', 'A concern evidence source is stale, protected or unavailable. Review it before saving. Your draft is retained.');
+        }
+      };
+      const data = await active.repository.createManual(request.projectId, request.expectedRevision, request, validateSource);
+      return { ok: true as const, data: deriveSnapshotCurrentness(options!.getWritingSnapshot(), data) };
     };
+    // Production always supplies the existing session owner. The fallback keeps
+    // isolated IPC tests independent of a live project coordinator.
+    return await (options!.withCaptureSession ? options!.withCaptureSession(request, capture) : capture());
   } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'SAVE_IN_PROGRESS') return fail('CAPTURE_IN_PROGRESS', error.message);
     return repoFailure(error);
   }
 }

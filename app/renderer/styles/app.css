@@ -9819,7 +9819,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   padding: 0;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .stage19-spine--writing .stage19-writing-shell__edge-controls {
     display: flex;
     justify-content: space-between;
@@ -9961,7 +9961,12 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-command__tool-title { padding: .75rem 1rem; border-bottom: 1px solid var(--bs-line-quiet); }
 
 .stage19-spine--writing[data-writing-page="true"] .stage19-writing-shell__edge--bottom { bottom: 8px; }
-.stage19-spine--writing[data-writing-page="true"] .stage19-writing-shell__rail--bottom { margin-bottom: 12px; }
+.stage19-spine--writing[data-writing-page="true"] .stage19-writing-shell__rail--bottom {
+  /* Companion is inside this rail; the former fixed strip needs no reservation. */
+  margin: 8px 48px 12px;
+  padding: 10px 14px;
+  scroll-padding-bottom: 10px;
+}
 .stage19-writing-shell__rail--bottom .stage19-companion-bar { position: static; margin: 0; width: 100%; grid-template-columns: auto minmax(0, 1fr) auto; box-shadow: none; }
 .stage19-writing-shell__rail--bottom .stage19-companion-bar__scope,
 .stage19-writing-shell__rail--bottom .stage19-companion-bar__examples { grid-column: 1 / -1; }
@@ -10346,3 +10351,25 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 .stage19-writing-page-outline .stage19-outline-insertion { position: absolute; inset: 0 0 auto; height: 20px; margin: 0; padding: 0; font-size: .72rem; line-height: 18px; z-index: 2; background: var(--bs-surface-base, #111); }
 .stage19-writing-page-outline .stage19-outline-end-insertion { min-height: 24px; }
 .stage19-writing-page-outline.is-compact > ol > li > .stage19-outline-drag { float: right; width: 30px; min-width: 30px; padding: 2px; margin-left: 4px; cursor: grab; }
+
+/* Enlarged controls retain keyboard/pointer access within their own scroll
+   area; the manuscript and Review rail keep useful space at narrow widths. */
+@media (max-width: 760px) {
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__topbar {
+    min-block-size: 0; max-block-size: min(240px, 30vh); flex: 0 0 auto; overflow: auto;
+  }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-page-tools {
+    max-block-size: min(200px, 28vh); overflow: auto;
+  }
+}
+
+/* On a short, narrow window, supporting controls scroll within a bounded
+   area so the open Companion cannot consume the manuscript viewport. */
+@media (max-width: 760px) and (max-height: 640px) {
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__topbar {
+    min-block-size: 0; max-block-size: 96px; flex: 0 0 auto; overflow: auto;
+  }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-page-tools { max-block-size: 72px; overflow: auto; }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__notice-row { max-block-size: 60px; }
+  .stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--bottom { margin-inline: 8px; max-block-size: 100px; overflow-y: auto; }
+}

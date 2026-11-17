@@ -12,6 +12,7 @@ import { expect, restartElectronApp, test } from './_electron.fixture';
 import { openProgram7Project, showCommandInWriting, showWritingInWriting } from './program7-e2e-support';
 import {
   getStage19Windows,
+  readWritingPaintWitness,
   openWritingStudioRail,
   removeTemporaryDirectory,
 } from './stage19-electron-support';
@@ -193,6 +194,7 @@ test('Catalog B8 grows a five-word Pin into a long manuscript and tests distant 
     await expect.poll(async () => extractProjectSpineDraftBody(await readFile(draftPath, 'utf8'))).toBe(expected);
     await expect(writing.getByRole('button', { name: 'Save writing', exact: true })).toBeDisabled();
     await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds).toEqual([]);
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     const restarted = await restartElectronApp(electronApp);
     ({ writing } = await getStage19Windows(restarted, await restarted.firstWindow()));
     await openProgram7Project(writing, fixture.path); await showWritingInWriting(writing);
@@ -502,7 +504,7 @@ test('Catalog B5 preferences preserve exact source, dirty writing, history and p
   } finally { await removeTemporaryDirectory(parent); }
 });
 
-test('Catalog B5 qualifies the actual Electron US-English dictionary offline', async ({ electronApp, page }, testInfo) => {
+test('Catalog B5 qualifies the bundled US-English dictionary, correction and reopening offline', async ({ electronApp, page }, testInfo) => {
   const { writing } = await getStage19Windows(electronApp, page);
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-dictionary-'));
   try {
@@ -529,75 +531,132 @@ test('Catalog B5 qualifies the actual Electron US-English dictionary offline', a
   const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Dictionary writing', exact: true });
   await editor.evaluate(element => { element.setAttribute('spellcheck', 'true'); element.setAttribute('lang', 'en-US'); });
   await editor.click(); await editor.pressSequentially('foorrrest forest. ');
-  await expect.poll(() => writing.evaluate(() => window.projectSpine!.checkSpelling!('foorrrest').misspelled)).toBe(true);
-  const result = await writing.evaluate(() => ({ forest: window.projectSpine!.checkSpelling!('forest').misspelled, mistake: window.projectSpine!.checkSpelling!('foorrrest').misspelled, suggestions: window.projectSpine!.checkSpelling!('foorrrest').suggestions }));
+  await expect.poll(() => writing.evaluate(async () => (await window.projectSpine!.checkSpelling!('foorrrest')).misspelled)).toBe(true);
+  const result = await writing.evaluate(async () => { const forest = await window.projectSpine!.checkSpelling!('forest'), typo = await window.projectSpine!.checkSpelling!('foorrrest'); return { forest: forest.misspelled, mistake: typo.misspelled, suggestions: typo.suggestions }; });
   await testInfo.attach('electron-offline-dictionary-result', { body: JSON.stringify(result, null, 2), contentType: 'application/json' });
   expect(result.forest).toBe(false); expect(result.mistake).toBe(true); expect(result.suggestions).toContain('forest');
+  await editor.press('Control+Home');
+  for (let index = 0; index < 'foorrrest'.length; index += 1) await editor.press('Shift+ArrowRight');
+  await writing.getByText('Spelling and accepted words', { exact: true }).click();
+  await writing.getByRole('button', { name: 'Check selected word', exact: true }).click();
+  await writing.getByRole('button', { name: 'Use forest', exact: true }).click();
+  await expect(editor).toHaveText('forest forest. ');
+  await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(editor).toHaveText('foorrrest forest. ');
+  await writing.getByRole('button', { name: 'Redo', exact: true }).click();
+  await expect(editor).toHaveText('forest forest. ');
+  await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+  await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
+  const originalSession = await writing.evaluate(() => window.projectSpine!.getSession());
+  const restarted = await restartElectronApp(electronApp);
+  const windows = await getStage19Windows(restarted, await restarted.firstWindow());
+  await openProgram7Project(windows.writing, originalSession.project!.path);
+  const reopened = windows.writing.getByRole('textbox', { name: 'Manuscript editor: Dictionary writing', exact: true });
+  await expect(reopened).toHaveText('forest forest.');
+  const retained = await windows.writing.evaluate(() => window.projectSpine!.checkSpelling!('foorrrest'));
+  expect(retained).toMatchObject({ available: true, misspelled: true, suggestions: expect.arrayContaining(['forest']) });
+
   } finally { await removeTemporaryDirectory(parent); }
 });
 
-test('Catalog B5 diagnoses dictionary provisioning before offline qualification', async ({ electronApp, page }, testInfo) => {
-  test.setTimeout(60_000);
-  await getStage19Windows(electronApp, page);
-  const parent = await mkdtemp(join(tmpdir(), 'black-skies-dictionary-'));
-  try {
-  const profile = await electronApp.evaluate(({ app }) => app.getPath('sessionData'));
-  const { mkdir, copyFile } = await import('node:fs/promises');
-  await mkdir(join(profile, 'Dictionaries'), { recursive: true });
-  for (const name of ['en-US-10-1.bdic', 'en-US-10-0.bdic']) await copyFile(join(process.cwd(), 'resources', 'dictionaries', name), join(profile, 'Dictionaries', name));
-  const native = await restartElectronApp(electronApp);
-  const { writing } = await getStage19Windows(native, await native.firstWindow());
-  const engine = await native.evaluate(async ({ BrowserWindow }) => {
-    const preload = BrowserWindow.getAllWindows()[0]!.webContents.getLastWebPreferences().preload;
-    const window = new BrowserWindow({ show: false, webPreferences: { preload, spellcheck: true, contextIsolation: true, nodeIntegration: false } });
-    try {
-      await window.loadURL('data:text/html,<textarea spellcheck="true" lang="en-US">foorrrest qzxvwlj</textarea>');
-      return await window.webContents.executeJavaScript('({ bridge:!!window.projectSpine, word:window.projectSpine?.checkSpelling?.("foorrrest") })');
-    } finally { window.destroy(); }
-  });
-  await testInfo.attach('isolated-native-control-engine', { body: JSON.stringify(engine), contentType: 'application/json' });
-  const configure = await native.evaluate(({ BrowserWindow, app }) => {
-    const contents = BrowserWindow.getAllWindows()[0]!.webContents, session = contents.session;
-    const available = session.availableSpellCheckerLanguages;
-    session.setSpellCheckerEnabled(true);
-    if (available.includes('en-US')) session.setSpellCheckerLanguages(['en-US']);
-    const events: string[] = [];
-    session.on('spellcheck-dictionary-download-begin', (_event, language) => events.push(`begin:${language}`));
-    session.on('spellcheck-dictionary-download-success', (_event, language) => events.push(`success:${language}`));
-    session.on('spellcheck-dictionary-download-failure', (_event, language) => events.push(`failure:${language}`));
-    (globalThis as unknown as { dictionaryEvents: string[] }).dictionaryEvents = events;
+test('Catalog B5 compares the isolated bridge with the native checker in one offline session', async ({ electronApp, page }, testInfo) => {
+  const { writing } = await getStage19Windows(electronApp, page);
+  const words = ['foorrrest', 'qzxvwlj', 'forest', 'xxzzqpa'];
+  const configuration = await electronApp.evaluate(({ BrowserWindow, app }) => {
+    const owner = BrowserWindow.getAllWindows().find(window => window.id === 1)!;
+    const session = owner.webContents.session;
     session.enableNetworkEmulation({ offline: true });
-    return { available, configured: session.getSpellCheckerLanguages(), enabled: session.isSpellCheckerEnabled(), profile: app.getPath('userData'), sessionData: app.getPath('sessionData'), windows: BrowserWindow.getAllWindows().map(window => ({ id: window.id, url: window.webContents.getURL(), preferences: window.webContents.getLastWebPreferences().spellcheck })) };
+    return { userData: app.getPath('userData'), sessionData: app.getPath('sessionData'), storagePath: session.storagePath,
+      languages: session.getSpellCheckerLanguages(), enabled: session.isSpellCheckerEnabled(),
+      arguments: owner.webContents.getLastWebPreferences().additionalArguments, preferences: owner.webContents.getLastWebPreferences().spellcheck, preferenceKeys: Object.keys(owner.webContents.getLastWebPreferences()), preferenceThen: typeof (owner.webContents.getLastWebPreferences() as unknown as { then?: unknown }).then };
   });
-  await testInfo.attach('electron-dictionary-configuration', { body: JSON.stringify(configure, null, 2), contentType: 'application/json' });
-  expect(configure.available).toContain('en-US');
-  await writing.evaluate(async parentPath => {
-    const bridge = window.projectSpine!;
-    const project = await bridge.createProject({ parentPath, title: 'Native dictionary probe', operationId: 'dictionary-project' });
-    if (!project.ok) throw new Error(project.error.message);
-    const binding = { projectId: project.snapshot.project!.projectId, projectPath: project.snapshot.project!.path, generation: project.snapshot.generation };
-    const unit = await bridge.createUnit!({ ...binding, title: 'Dictionary writing', operationId: 'dictionary-unit' });
-    if (!unit.ok) throw new Error(unit.error.message);
-    const selected = await bridge.selectUnit({ ...binding, unitId: unit.data.unitId, operationId: 'dictionary-select' });
-    if (!selected.ok) throw new Error(selected.error.message);
-  }, parent);
-  const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Dictionary writing', exact: true });
-  await editor.evaluate(element => { element.setAttribute('spellcheck', 'true'); element.setAttribute('lang', 'en-US'); });
-  await native.evaluate(({ BrowserWindow }) => { const window = BrowserWindow.getAllWindows().find(w => w.webContents.getLastWebPreferences().additionalArguments?.some(value => value.includes('writing'))); const owner = window ?? BrowserWindow.getAllWindows().find(w => w.id === 1)!; owner.show(); owner.focus(); owner.webContents.focus(); });
-  await editor.click(); await editor.pressSequentially('foorrrest forest. ');
-  await writing.evaluate(() => { const textarea = document.createElement('textarea'); textarea.id = 'dictionary-diagnostic'; textarea.spellcheck = true; textarea.lang = 'en-US'; document.body.append(textarea); });
-  await writing.locator('#dictionary-diagnostic').fill('foorrrest qzxvwlj forest');
-  await writing.locator('#dictionary-diagnostic').press('Space');
+  const path = join(configuration.sessionData, 'Dictionaries', 'en-US-10-2.bdic');
+  const { createHash } = await import('node:crypto');
+  await testInfo.attach('native-dictionary-source', { body: JSON.stringify({ ...configuration, dictionaryPath: path,
+    dictionarySha256: createHash('sha256').update(await readFile(path)).digest('hex') }), contentType: 'application/json' });
+  await writing.evaluate(() => { const input = document.createElement('textarea'); input.id = 'native-spelling-control'; input.spellcheck = true; input.lang = 'en-US'; document.body.appendChild(input); });
+  await writing.locator('#native-spelling-control').fill(words.join(' '));
+  await writing.locator('#native-spelling-control').press('Space');
+  const before = await writing.evaluate(words => Promise.all(words.map(async word => ({ word, result: await window.projectSpine!.checkSpelling!(word) }))), words);
   try {
-    await expect.poll(() => writing.evaluate(() => window.projectSpine!.checkSpelling!('foorrrest').misspelled), { timeout: 25_000 }).toBe(true);
+    await electronApp.evaluate(async ({ BrowserWindow }) => {
+      const owner = BrowserWindow.getAllWindows().find(window => window.id === 1)!;
+      const probe = new BrowserWindow({ title: 'Development spelling diagnostic', width: 500, height: 300,
+        webPreferences: { session: owner.webContents.session, spellcheck: true, nodeIntegration: true, contextIsolation: false, sandbox: false } });
+      (globalThis as unknown as { nativeSpellingProbe?: import('electron').BrowserWindow }).nativeSpellingProbe = probe;
+      await probe.loadURL('data:text/html,<textarea spellcheck="true" lang="en-US"></textarea>');
+      probe.show(); probe.focus(); probe.webContents.focus();
+      await probe.webContents.executeJavaScript('document.querySelector("textarea").focus()');
+      await probe.webContents.insertText('foorrrest qzxvwlj forest xxzzqpa ');
+    });
+    const sampleNative = () => electronApp.evaluate(async () => {
+      const probe = (globalThis as unknown as { nativeSpellingProbe: import('electron').BrowserWindow }).nativeSpellingProbe;
+      return await probe.webContents.executeJavaScript('({ results: ["foorrrest","qzxvwlj","forest","xxzzqpa"].map(word => ({word,misspelled:require("electron").webFrame.isWordMisspelled(word),suggestions:require("electron").webFrame.getWordSuggestions(word)})) })');
+    });
+    const native = await sampleNative();
+    const after = await writing.evaluate(words => Promise.all(words.map(async word => ({ word, result: await window.projectSpine!.checkSpelling!(word) }))), words);
+    await testInfo.attach('native-and-isolated-spelling', { body: JSON.stringify({ before, native, after }), contentType: 'application/json' });
+    expect(after.find(value => value.word === 'foorrrest')!.result.misspelled).toBe(true);
+    expect(after.find(value => value.word === 'forest')!.result.misspelled).toBe(false);
   } finally {
-    await testInfo.attach('dictionary-download-events', { body: JSON.stringify(await native.evaluate(() => (globalThis as unknown as { dictionaryEvents: string[] }).dictionaryEvents)), contentType: 'application/json' });
+    await electronApp.evaluate(() => {
+      const state = globalThis as unknown as { nativeSpellingProbe?: import('electron').BrowserWindow };
+      state.nativeSpellingProbe?.destroy(); delete state.nativeSpellingProbe;
+    });
   }
-  await native.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]!.webContents.session.enableNetworkEmulation({ offline: true }));
-  const result = await writing.evaluate(() => ({ forest: window.projectSpine!.checkSpelling!('forest').misspelled, mistake: window.projectSpine!.checkSpelling!('foorrrest').misspelled, suggestions: window.projectSpine!.checkSpelling!('foorrrest').suggestions }));
-  await testInfo.attach('electron-offline-dictionary-result', { body: JSON.stringify(result, null, 2), contentType: 'application/json' });
-  expect(result.forest).toBe(false); expect(result.mistake).toBe(true); expect(result.suggestions).toContain('forest');
-  } finally { await removeTemporaryDirectory(parent); }
+});
+
+test('Catalog B5 diagnoses dictionary provisioning before offline qualification', async ({ electronApp, page }, testInfo) => {
+  const { writing } = await getStage19Windows(electronApp, page);
+  const boot = await electronApp.evaluate(({ app, BrowserWindow }) => {
+    const owner = BrowserWindow.getAllWindows().find(window => window.id === 1)!;
+    owner.webContents.session.enableNetworkEmulation({ offline: true });
+    return { packaged: app.isPackaged, appPath: app.getAppPath(), resourcesPath: process.resourcesPath, profile: app.getPath('sessionData'), runtime: process.versions.electron };
+  });
+  const resources = boot.packaged ? join(boot.resourcesPath, 'dictionaries') : join(boot.appPath, '..', '..', 'resources', 'dictionaries');
+  const metadata = JSON.parse(await readFile(join(resources, 'manifest.json'), 'utf8'));
+  const { createHash } = await import('node:crypto');
+  const verified: Record<string, string> = {};
+  for (const name of ['en-US-10-2.bdic', 'LICENSE', 'en-US.aff', 'en-US.dic', 'HUNSPELL-LICENSE']) {
+    const hash = createHash('sha256').update(await readFile(join(resources, name))).digest('hex');
+    expect(hash).toBe(name === metadata.dictionary ? metadata.sha256 : name === 'LICENSE' ? metadata.licenseSha256 : metadata.localChecker.files[name]);
+    verified[name] = hash;
+  }
+  expect(metadata.localChecker).toMatchObject({ engine: 'nspell', version: '2.1.5', dictionaryVersion: '4.0.0' });
+  await electronApp.evaluate(({ BrowserWindow }) => {
+    const state = globalThis as unknown as { spellingMarkerControl?: { word: string | null; listener: (event: { preventDefault(): void }, params: { misspelledWord: string }) => void } };
+    const listener = (event: { preventDefault(): void }, params: { misspelledWord: string }) => { event.preventDefault(); state.spellingMarkerControl!.word = params.misspelledWord; };
+    state.spellingMarkerControl = { word: null, listener };
+    BrowserWindow.getAllWindows().find(window => window.id === 1)!.webContents.on('context-menu', listener);
+  });
+  try {
+    // The control uses the actual provider installed in this app frame. It is
+    // outside the manuscript menu, so the browser's spelling marker is visible
+    // to its native context-menu event rather than intercepted by unit actions.
+    await writing.evaluate(() => {
+      const input = document.createElement('textarea'); input.id = 'automatic-spelling-control'; input.spellcheck = true; input.lang = 'en-US';
+      input.style.cssText = 'position:fixed;left:40px;top:100px;width:260px;height:64px;z-index:2147483647;font:18px serif';
+      document.body.appendChild(input);
+    });
+    const control = writing.locator('#automatic-spelling-control');
+    const marker = async () => {
+      await electronApp.evaluate(() => { (globalThis as unknown as { spellingMarkerControl: { word: string | null } }).spellingMarkerControl.word = null; });
+      await control.click({ button: 'right', position: { x: 16, y: 12 } });
+      return electronApp.evaluate(() => (globalThis as unknown as { spellingMarkerControl: { word: string | null } }).spellingMarkerControl.word);
+    };
+    await control.fill('foorrrest'); await control.press('Space');
+    await expect.poll(marker, { timeout: 10_000 }).toBe('foorrrest');
+    await control.fill('forest'); await control.press('Space');
+    await expect.poll(marker, { timeout: 10_000 }).toBe('');
+    await testInfo.attach('offline-spelling-provenance-and-native-marking', { body: JSON.stringify({ boot, metadata, verified, automaticMisspelling: 'foorrrest', correctlySpelledMarker: '' }), contentType: 'application/json' });
+  } finally {
+    await writing.evaluate(() => document.querySelector('#automatic-spelling-control')?.remove());
+    await electronApp.evaluate(({ BrowserWindow }) => {
+      const state = globalThis as unknown as { spellingMarkerControl?: { listener: (event: { preventDefault(): void }, params: { misspelledWord: string }) => void } };
+      if (state.spellingMarkerControl) BrowserWindow.getAllWindows().find(window => window.id === 1)?.webContents.removeListener('context-menu', state.spellingMarkerControl.listener);
+      delete state.spellingMarkerControl;
+    });
+  }
 });
 
 test('Catalog B4 Ideas copies use real Foundation/Outline owners with stale-target guards and durable retry identity', async ({ electronApp, page }, testInfo) => {
@@ -1436,7 +1495,8 @@ test.describe('Batch A development-build checks', () => {
             range.setStart(node, at); range.setEnd(node, at + 10);
             const selection = window.getSelection()!;
             selection.removeAllRanges(); selection.addRange(range);
-            element.dispatchEvent(new Event('pointerup', { bubbles: true }));
+            const rect = range.getBoundingClientRect();
+            element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: rect.right - 1, clientY: rect.top + rect.height / 2, pointerType: 'mouse', isPrimary: true, button: 0 }));
             return;
           }
           throw new Error('Missing red shirt in visible writing');
@@ -1829,7 +1889,7 @@ for (const interruptMetadata of [false, true]) {
 test(`Catalog B1 gap ${interruptMetadata ? 'recovers final metadata after renderer restart' : 'preview, fill, preserved planning Note, Undo and reopen use durable owners'}`, async ({ electronApp, page }, testInfo) => {
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-catalog-gap-'));
   try {
-    const { writing } = await getStage19Windows(electronApp, page);
+    let { writing } = await getStage19Windows(electronApp, page);
     await writing.setViewportSize({ width: 1600, height: 1100 });
     const source = 'forest moon glass winter';
     const fixture = await writing.evaluate(async ({ parent, source }) => {
@@ -1885,7 +1945,10 @@ test(`Catalog B1 gap ${interruptMetadata ? 'recovers final metadata after render
       await expect(writing.getByText('The story plan change could not be saved.', { exact: true })).toBeVisible();
       expect((await metadata()).items[0]).toMatchObject({ id: gapId, kind: 'gap', body: 'Keep original planning intention.' });
       expect((await metadata()).pendingGap.gapId).toBe(gapId);
-      await writing.reload(); await expect(editor).toBeVisible();
+      const resumed = await restartElectronApp(electronApp, { simulateInterruptedExit: true });
+      ({ writing } = await getStage19Windows(resumed, await resumed.firstWindow()));
+      await openProgram7Project(writing, fixture.path);
+      await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Forest page', exact: true })).toBeVisible();
       await writing.getByRole('button', { name: 'Finish gap save' }).click();
     }
     await expect.poll(async () => (await metadata()).items[0].kind).toBe('fragment');
@@ -1899,7 +1962,10 @@ test(`Catalog B1 gap ${interruptMetadata ? 'recovers final metadata after render
       await expect.poll(async () => (await metadata()).items[0].kind).toBe('fragment');
       await expect.poll(async () => extractProjectSpineDraftBody(await disk())).toBe(filled);
     }
-    await writing.reload(); await expect(editor).toBeVisible();
+    const save = writing.getByRole('button', { name: 'Save writing', exact: true });
+    if (await save.isEnabled()) await save.click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
+    await writing.reload(); await expect(writing.getByRole('textbox', { name: 'Manuscript editor: Forest page', exact: true })).toBeVisible();
     const final = await metadata();
     expect(final.items).toHaveLength(1); expect(final.writingGroups).toHaveLength(1);
     expect(final.items[0]).toMatchObject({ id: gapId, body: 'Keep original planning intention.', kind: 'fragment' });
@@ -2144,15 +2210,18 @@ test('Native local unit controls retain names, Notes and writing through Split, 
     // Undo before the first Save must clear every affected dirty receipt too.
     await writing.getByRole('button', { name: 'Undo', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds).toEqual([]);
     expect(await disk()).toEqual(bodies);
     await writing.getByRole('button', { name: 'Redo', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await expect.poll(disk).toEqual(['', bodies[1] + '\n\n' + bodies[0]]);
     expect((await metadata()).items[0]).toMatchObject({ id: noteId, body: 'Mother source stays linked.', manuscriptUnitId: fixture.ids[1], sourceAnchor: { selectionStart: bodies[1]!.length + 2, selectionEnd: bodies[1]!.length + 31 } });
     expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows', spans: [{ unitId: fixture.ids[1] }] });
     await writing.getByRole('button', { name: 'Undo', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await expect.poll(disk).toEqual(bodies);
     // Restore only the first-paragraph Pin: the earlier whole-unit Extend
     // concealed the separator case reported in the recovered author example.
@@ -2166,11 +2235,13 @@ test('Native local unit controls retain names, Notes and writing through Split, 
     await writing.getByRole('button', { name: 'Drag Mother knows in the manuscript', exact: true }).dragTo(riverRow);
     await expect(writing.getByText('Passage moved with its Notes. Save writing keeps it; Undo restores it.', { exact: true })).toBeVisible();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await expect.poll(disk).toEqual(['Loose words.', 'Mother knew about the poison.\n\nriver ending']);
     expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows', spans: [{ unitId: fixture.ids[1], selectionStart: 0, selectionEnd: 29 }] });
     expect((await metadata()).items[0]).toMatchObject({ id: noteId, body: 'Mother source stays linked.', manuscriptUnitId: fixture.ids[1], sourceAnchor: { selectionStart: 0, selectionEnd: 29 } });
     await writing.getByRole('button', { name: 'Undo', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await expect.poll(disk).toEqual(bodies);
     await editor.press('Control+Home'); await editor.press('ArrowRight'); await editor.press('Shift+F10');
     await controls.getByRole('button', { name: 'Move', exact: true }).click();
@@ -2178,9 +2249,11 @@ test('Native local unit controls retain names, Notes and writing through Split, 
     const movedParagraph = ['Loose words.', bodies[1] + '\n\nMother knew about the poison.\n\n'];
     await writing.getByRole('button', { name: 'Undo', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await expect.poll(disk).toEqual(bodies);
     await writing.getByRole('button', { name: 'Redo', exact: true }).click();
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
     await expect.poll(disk).toEqual(movedParagraph);
     await expect(writing.getByRole('status', { name: 'Story word count' })).toHaveText('9 words');
     expect((await metadata()).writingGroups[0]).toMatchObject({ id: joinedId, label: 'Mother knows', spans: [{ unitId: fixture.ids[1], selectionStart: bodies[1]!.length + 2, selectionEnd: bodies[1]!.length + 31 }] });
@@ -2328,6 +2401,7 @@ for (const size of [
       await editor.press('Control+End');
       await editor.pressSequentially(' A new ending.');
       await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
       await expect.poll(async () => extractProjectSpineDraftBody(await readFile(join(fixture.path, 'drafts', `${fixture.id}.md`), 'utf8'))).toBe(source + ' A new ending.');
       await expect(writing.getByText('Writing units and Notes saved.', { exact: true })).toBeVisible();
       const stored = JSON.parse(await readFile(join(fixture.path, 'living-outline.json'), 'utf8'));
@@ -2411,6 +2485,7 @@ test('Writer selection crosses pinned, unpinned and active section boundaries in
       throw new Error('Selection offset is unavailable');
     }, { id: fixture.ids[index]!, offset });
     const drag = async (reverse: boolean) => {
+      await writing.bringToFront();
       const start = await coordinate(reverse ? 2 : 0, reverse ? bodies[2]!.length - 2 : 2);
       const end = await coordinate(reverse ? 0 : 2, reverse ? 2 : bodies[2]!.length - 2);
       await writing.mouse.move(start.x, start.y);
@@ -2484,7 +2559,7 @@ test('Writer selection crosses pinned, unpinned and active section boundaries in
 
 
 
-test('Edited concern sources retain markers, decision quotes and History-only reopening through source Undo', async ({ electronApp, page }) => {
+test('Edited concern sources retain markers, decision quotes and History-only reopening through source Undo', async ({ electronApp, page }, testInfo) => {
   const parent = await mkdtemp(join(tmpdir(), 'black-skies-edited-concern-'));
   try {
     const { writing } = await getStage19Windows(electronApp, page);
@@ -2597,6 +2672,22 @@ test('Edited concern sources retain markers, decision quotes and History-only re
     await shirt.first().click();
     await disclosure.getByRole('button', { name: 'Mark addressed', exact: true }).click();
     await expect(shirt).toHaveCount(0);
+    try {
+      await expect.poll(async () => {
+        const note = (await notes()).notes.find((item: { id: string }) => item.id === ids.shirt);
+        return { lifecycle: note.lifecycle, history: note.dispositionHistory.map((event: { disposition: string }) => event.disposition) };
+      }).toEqual({ lifecycle: 'resolved', history: ['resolved', 'reopened', 'resolved'] });
+    } catch (error) {
+      await testInfo.attach('concern-decision-failure', { body: JSON.stringify({
+        messages: await writing.locator('[role="status"], [role="alert"], .program7-revision-capture__notice').allTextContents(),
+        session: await writing.evaluate(() => window.projectSpine!.getSession()),
+        concern: (await notes()).notes.find((item: { id: string }) => item.id === ids.shirt),
+      }), contentType: 'application/json' });
+      throw error;
+    }
+    expect(extractProjectSpineDraftBody(await readFile(join(fixture.binding.projectPath, 'drafts', fixture.ids[4] + '.md'), 'utf8'))).toBe(cotton);
+    const finalLinks = JSON.parse(await readFile(join(fixture.binding.projectPath, 'living-outline.json'), 'utf8'));
+    expect(finalLinks.writingGroups.find((group: { spans: { unitId: string }[] }) => group.spans.some(span => span.unitId === fixture.ids[4])).spans[0]).toEqual(await buildLivingOutlineSourceAnchor(fixture.ids[4]!, cotton, 0, cotton.length));
     const restarted = await restartElectronApp(electronApp);
     const resumed = (await getStage19Windows(restarted, await restarted.firstWindow())).writing;
     await openProgram7Project(resumed, fixture.binding.projectPath);
@@ -2609,5 +2700,78 @@ test('Edited concern sources retain markers, decision quotes and History-only re
     await expect(resumedRail.locator('[data-outline-concern-id="' + ids.timing + '"]')).toHaveCount(1);
     await expect(resumed.getByRole('button', { name: 'Open Command Center here', exact: true })).toBeVisible();
     expect(extractProjectSpineDraftBody(await readFile(join(fixture.binding.projectPath, 'drafts', fixture.ids[4] + '.md'), 'utf8'))).toBe(cotton);
+  } finally { await removeTemporaryDirectory(parent); }
+});
+
+for (const configuration of [
+  { name: 'short wide', paragraphs: 3, width: 1280, accessibility: false },
+  { name: 'short narrow accessibility', paragraphs: 3, width: 640, accessibility: true },
+  { name: 'long wide accessibility', paragraphs: 600, width: 1280, accessibility: true },
+  { name: 'long narrow', paragraphs: 600, width: 640, accessibility: false },
+]) test(`Writing paint witness: ${configuration.name} retains visible text through scrolling, Undo, Focus and surface switches`, async ({ electronApp, page }, testInfo) => {
+  const parent = await mkdtemp(join(tmpdir(), 'black-skies-paint-witness-'));
+  try {
+    const { writing } = await getStage19Windows(electronApp, page);
+    await writing.setViewportSize({ width: configuration.width, height: 900 });
+    await electronApp.evaluate(({ app }, enabled) => { app.setAccessibilitySupportEnabled(enabled); }, configuration.accessibility);
+    const body = Array.from({ length: configuration.paragraphs }, (_, index) => `Passage ${index + 1}: Moonlight crossed the quiet water while Mara watched the forest.`).join('\n\n');
+    const fixture = await writing.evaluate(async ({ parentPath, body }) => {
+      const api = window.projectSpine!;
+      const made = await api.createProject({ parentPath, title: 'Disposable paint witness', operationId: 'paint-project' });
+      if (!made.ok) throw Error(made.error.message);
+      const binding = { projectId: made.snapshot.project!.projectId, projectPath: made.snapshot.project!.path, generation: made.snapshot.generation };
+      const unit = await api.createUnit!({ ...binding, title: 'Paint passage', operationId: 'paint-unit' });
+      if (!unit.ok) throw Error(unit.error.message);
+      const raw = unit.snapshot.project!.drafts![unit.data.unitId]!;
+      const saved = await api.saveUnit!({ ...binding, unitId: unit.data.unitId, expectedMarkdown: raw, markdown: raw + body + '\n', submittedProse: body, operationId: 'paint-seed' });
+      if (!saved.ok) throw Error(saved.error.message);
+      return { ...binding, unitId: unit.data.unitId };
+    }, { parentPath: parent, body });
+    const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Paint passage', exact: true });
+    // CodeMirror deliberately virtualizes long documents; DOM text is not the whole source.
+    const readEditor = () => editor.evaluate(element => (element as unknown as { cmView: { view: { state: { doc: { toString(): string } } } } }).cmView.view.state.doc.toString());
+    await expect.poll(readEditor).toBe(body);
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
+    const before = await readFile(join(fixture.projectPath, 'drafts', fixture.unitId + '.md'), 'utf8');
+    const observe = async (name: string, expectedInk = true) => {
+      await writing.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      const line = editor.locator('.cm-line').last();
+      const result = await readWritingPaintWitness(electronApp, line);
+      await testInfo.attach(`${name}-native-window`, { body: Buffer.from(result.native.png, 'base64'), contentType: 'image/png' });
+      await testInfo.attach(`${name}-renderer`, { body: Buffer.from(result.renderer.png, 'base64'), contentType: 'image/png' });
+      await testInfo.attach(`${name}-paint`, { body: JSON.stringify({ ...result, native: { ...result.native, png: undefined }, renderer: { ...result.renderer, png: undefined } }), contentType: 'application/json' });
+      expect(result.rendererAlive).toBe(true);
+      expect(result.dom.text.trim().length).toBeGreaterThan(3);
+      if (expectedInk) {
+        expect(result.native.pixels, 'DOM text must also be painted in the independent native-window capture').toBeGreaterThan(5);
+        expect(result.renderer.pixels, 'The compositor capture must contain manuscript glyphs').toBeGreaterThan(5);
+      } else {
+        expect(result.native.pixels, 'The negative control must detect text present in DOM but absent from the screen').toBe(0);
+        expect(result.renderer.pixels).toBe(0);
+      }
+    };
+    await editor.press('Control+End'); await observe('after-scrolling');
+    await editor.press('End'); await editor.pressSequentially(' temporary');
+    await writing.getByRole('button', { name: 'Undo', exact: true }).click();
+    await expect.poll(readEditor).toBe(body); await editor.press('Control+End'); await observe('after-undo');
+    await writing.getByRole('button', { name: 'Enter Focus mode', exact: true }).click(); await observe('focus');
+    await writing.getByRole('button', { name: 'Exit Focus mode', exact: true }).click();
+    await showCommandInWriting(writing); await showWritingInWriting(writing);
+    await editor.press('Control+End'); await observe('surface-return');
+    await openWritingStudioRail(writing, 'Project Tools');
+    const tools = writing.getByRole('region', { name: 'Project Tools', exact: true });
+    await tools.evaluate(element => { element.scrollTop = element.scrollHeight; });
+    await tools.getByRole('button', { name: 'Close', exact: true }).click();
+    await observe('project-tools-scroll-return');
+    if (configuration.name === 'short wide') {
+      await editor.locator('.cm-line').last().evaluate(element => { (element as HTMLElement).style.visibility = 'hidden'; });
+      try { await observe('missing-paint-negative-control', false); }
+      finally { await editor.locator('.cm-line').last().evaluate(element => { (element as HTMLElement).style.visibility = ''; }); }
+      await observe('negative-control-restored');
+    }
+    const save = writing.getByRole('button', { name: 'Save writing', exact: true });
+    if (await save.isEnabled()) await save.click();
+    await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
+    expect(await readFile(join(fixture.projectPath, 'drafts', fixture.unitId + '.md'), 'utf8')).toBe(before);
   } finally { await removeTemporaryDirectory(parent); }
 });

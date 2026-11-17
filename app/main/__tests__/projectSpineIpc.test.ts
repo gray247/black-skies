@@ -40,6 +40,9 @@ vi.mock('electron', () => ({
 
 import { bootstrapFreshProject } from '../projectBootstrap';
 import {
+  provisionOfflineSpelling,
+  checkOfflineSpelling,
+  OFFLINE_SPELLING_DICTIONARY,
   createManuscriptUnit,
   loadProjectForSpine,
   registerProjectSpineIpc,
@@ -124,6 +127,59 @@ describe('project-spine IPC', () => {
   afterEach(async () => {
     resetProjectSpineForTests();
     await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
+  });
+
+
+  it('provisions the declared licensed offline dictionary into an empty profile and verifies restart bytes', async () => {
+    const root = await temporaryRoot(), source = join(process.cwd(), 'resources', 'dictionaries');
+    const profile = join(root, 'fresh-profile');
+    const first = await provisionOfflineSpelling(source, profile);
+    expect(first).toMatchObject({ available: true, sha256: 'b0d80e6b6c5491879365e176ecbd98074602a663429bcfcfb0a5a8375c051f13' });
+    const target = join(profile, 'Dictionaries', OFFLINE_SPELLING_DICTIONARY);
+    expect(await readFile(target)).toEqual(await readFile(join(source, OFFLINE_SPELLING_DICTIONARY)));
+    const before = await stat(target);
+    expect(await provisionOfflineSpelling(source, profile)).toEqual(first);
+    expect((await stat(target)).mtimeMs).toBe(before.mtimeMs);
+    await writeFile(target, 'Damaged cached dictionary');
+    expect(await provisionOfflineSpelling(source, profile)).toEqual(first);
+    expect(await readFile(target)).toEqual(await readFile(join(source, OFFLINE_SPELLING_DICTIONARY)));
+  }, 15_000); // Three real dictionary initializations plus fsync; startup performance has its separate unchanged gate.
+
+  it('reports missing packaged spelling resources unavailable even with an existing dictionary cache', async () => {
+    const root = await temporaryRoot(), source = join(process.cwd(), 'resources', 'dictionaries');
+    const profile = join(root, 'profile');
+    expect((await provisionOfflineSpelling(source, profile)).available).toBe(true);
+    const target = join(profile, 'Dictionaries', OFFLINE_SPELLING_DICTIONARY), before = await readFile(target);
+    expect((await provisionOfflineSpelling(join(root, 'missing-package-source'), profile)).available).toBe(false);
+    expect(await readFile(target)).toEqual(before);
+  });
+
+  it.each(['dictionary', 'license', 'manifest'] as const)('refuses damaged packaged %s without seeding a fresh spelling profile', async kind => {
+    const root = await temporaryRoot(), source = join(root, 'package-resources'), profile = join(root, 'fresh-profile');
+    await cp(join(process.cwd(), 'resources', 'dictionaries'), source, { recursive: true });
+    await writeFile(join(source, kind === 'dictionary' ? OFFLINE_SPELLING_DICTIONARY : kind === 'license' ? 'LICENSE' : 'manifest.json'), 'Damaged resource');
+    expect((await provisionOfflineSpelling(source, profile)).available).toBe(false);
+    await expect(stat(join(profile, 'Dictionaries', OFFLINE_SPELLING_DICTIONARY))).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
+  it('detects typos, offers a usable correction, respects accepted words, and fails closed after source loss', async () => {
+    const profile = join(await temporaryRoot(), 'offline-profile');
+    expect((await provisionOfflineSpelling(join(process.cwd(), 'resources', 'dictionaries'), profile)).available).toBe(true);
+    expect(checkOfflineSpelling('forest', [])).toMatchObject({ available: true, misspelled: false });
+    expect(checkOfflineSpelling('foorrrest', [])).toMatchObject({ available: true, misspelled: true, suggestions: expect.arrayContaining(['forest']) });
+    expect(checkOfflineSpelling('foorrrest', ['foorrrest'])).toMatchObject({ available: true, misspelled: false, suggestions: [] });
+    expect(checkOfflineSpelling('qzxvwlj', [], false)).toMatchObject({ available: true, misspelled: true, suggestions: [] });
+    await provisionOfflineSpelling(join(profile, 'missing-resources'), profile);
+    expect(checkOfflineSpelling('forest', [])).toEqual({ available: false, misspelled: false, suggestions: [] });
+  });
+
+  it.each(['en-US.aff', 'en-US.dic', 'HUNSPELL-LICENSE'])('refuses damaged local %s despite a warm cache', async name => {
+    const root = await temporaryRoot(), source = join(root, 'resources'), profile = join(root, 'profile');
+    await cp(join(process.cwd(), 'resources', 'dictionaries'), source, { recursive: true });
+    expect((await provisionOfflineSpelling(source, profile)).available).toBe(true);
+    await writeFile(join(source, name), 'Damaged local source');
+    expect((await provisionOfflineSpelling(source, profile)).available).toBe(false);
+    expect(checkOfflineSpelling('foorrrest', []).available).toBe(false);
   });
 
   it('persists project-wide preferences without touching dirty prose, identity, or unrelated metadata', async () => {
@@ -1361,6 +1417,7 @@ describe('project-spine IPC', () => {
     const expectedMarkdown = current.project.drafts[withUnit.unitId];
     const repository = new RevisionCandidateRepository(created.projectPath);
     const createdCandidate = await repository.createManual(created.projectId, 0, {
+    operationId: 'fixture-capture-1',
       sourceSnapshot: {
         unitId: withUnit.unitId,
         bodySha256: sha256(sourceText.slice(0, -1)),
@@ -1448,6 +1505,7 @@ describe('project-spine IPC', () => {
     const sourceStart = sourceText.indexOf(sourceTarget);
     const repository = new RevisionCandidateRepository(created.projectPath);
     const createdCandidate = await repository.createManual(created.projectId, 0, {
+    operationId: 'fixture-capture-2',
       sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: {
         unitId: withUnit.unitId,
@@ -1522,6 +1580,7 @@ describe('project-spine IPC', () => {
     const sourceStart = sourceText.indexOf(sourceTarget);
     const repository = new RevisionCandidateRepository(created.projectPath);
     const ambiguous = await repository.createManual(created.projectId, 0, {
+    operationId: 'fixture-capture-3',
       sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: null,
       purpose: 'No exact target.',
@@ -1530,6 +1589,7 @@ describe('project-spine IPC', () => {
       candidateText: 'At midnight, the lantern dimmed.',
     });
     const missing = await repository.createManual(created.projectId, 1, {
+    operationId: 'fixture-capture-4',
       sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: {
         unitId: withUnit.unitId,
@@ -1545,6 +1605,7 @@ describe('project-spine IPC', () => {
     const staleSource = 'Before the watchman waited. At midnight, the lantern guttered long ago. After, the road was still.\n';
     const staleTarget = 'At midnight, the lantern guttered long ago.';
     const stale = await repository.createManual(created.projectId, 2, {
+    operationId: 'fixture-capture-5',
       sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(staleSource), text: staleSource },
       sourceAnchor: {
         unitId: withUnit.unitId,
@@ -1622,6 +1683,7 @@ describe('project-spine IPC', () => {
     const expectedMarkdown = current.project.drafts[withUnit.unitId];
     const repository = new RevisionCandidateRepository(created.projectPath);
     const createdCandidate = await repository.createManual(created.projectId, 0, {
+    operationId: 'fixture-capture-6',
       sourceSnapshot: { unitId: withUnit.unitId, bodySha256: sha256(sourceText.slice(0, -1)), text: sourceText.slice(0, -1) },
       sourceAnchor: {
         unitId: withUnit.unitId,

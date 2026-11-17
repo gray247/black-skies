@@ -507,6 +507,7 @@ test('P3-D keeps the literary manuscript primary while edge families and Focus r
     await expect(writing.getByRole('region', {
       name: 'Story tools',
     })).toBeVisible();
+    await writing.getByRole('region', { name: 'Story tools', exact: true }).getByRole('button', { name: 'Keep open', exact: true }).click();
     await writing.getByText('Writing preferences', { exact: true }).first().click();
     const preferenceSize = writing.getByRole('spinbutton', { name: 'Text size (px)', exact: true });
     await preferenceSize.fill('24');
@@ -582,6 +583,7 @@ test('Slice 1 keeps long prose in a private canvas scroll region while rails sta
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Long Draft' });
     await editor.fill(Array.from({ length: 180 }, (_, index) => `Line ${index + 1}: the manuscript remains one continuous draft.`).join('\n'));
     await openWritingStudioRail(writing, 'Story');
+    await writing.getByRole('region', { name: 'Story tools', exact: true }).getByRole('button', { name: 'Keep open', exact: true }).click();
     const geometryBefore = await writing.evaluate(() => {
       const shell = document.querySelector('.stage19-writing-shell');
       const canvas = document.querySelector('[data-manuscript-scroll-owner="true"]');
