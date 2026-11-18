@@ -23,6 +23,10 @@ const receipt = {
   unpacked: { executable: { sha256: "c".repeat(64) }, asar: { sha256: "d".repeat(64) } }
 };
 
+// The hosted lifecycle runs under PowerShell 7. Use the same interpreter
+// for its fixture and keep Windows PowerShell coverage in local runs.
+const lifecycleShell = process.env.GITHUB_ACTIONS === "true" ? "pwsh.exe" : "powershell.exe";
+
 describe("Package 19.22 candidate-bound qualification witness", () => {
   // A cold native PowerShell launch can exceed Vitest's five-second default
   // on a fresh Windows runner. Bound the child and integration test separately.
@@ -38,7 +42,7 @@ describe("Package 19.22 candidate-bound qualification witness", () => {
     const outputPaths = ["external-manifest.json", "receipt.json", "lifecycle-evidence.json"].map((name) => join(working, name));
     try {
       const command = `${helper}\n$sample = [ordered]@{ schema = 'test'; nested = [ordered]@{ value = 'ok' } }\nWrite-JsonUtf8NoBom -LiteralPath $env:MANIFEST_PATH -Value $sample -Depth 5\nWrite-JsonUtf8NoBom -LiteralPath $env:RECEIPT_PATH -Value $sample -Depth 20\nWrite-JsonUtf8NoBom -LiteralPath $env:LIFECYCLE_PATH -Value $sample -Depth 5`;
-      execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], {
+      execFileSync(lifecycleShell, ["-NoProfile", "-NonInteractive", "-Command", command], {
         env: { ...process.env, MANIFEST_PATH: outputPaths[0]!, RECEIPT_PATH: outputPaths[1]!, LIFECYCLE_PATH: outputPaths[2]! },
         stdio: "pipe",
         timeout: 15_000,
@@ -67,7 +71,7 @@ $receipt = [pscustomobject]@{ schema = 'black-skies.stage19.package-receipt.v1';
 $replacement = [ordered]@{ status = 'passed'; qualificationMode = 'offline-firewall-isolated' }
 Set-ReceiptInstalledLifecycle -ReceiptDocument $receipt -Value $replacement
 $receipt | ConvertTo-Json -Depth 10`;
-    const updated = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", stdio: "pipe", timeout: 15_000 }));
+    const updated = JSON.parse(execFileSync(lifecycleShell, ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", stdio: "pipe", timeout: 15_000 }));
 
     expect(updated).toMatchObject({
       schema: "black-skies.stage19.package-receipt.v1",
