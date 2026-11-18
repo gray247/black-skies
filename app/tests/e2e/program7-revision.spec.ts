@@ -427,6 +427,8 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   await expect(writing.getByText('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.', { exact: true })).toBeVisible();
   await expect.poll(() => readFile(draftPath, 'utf8')).toBe(expected);
   expect((await readCandidates()).find((candidate: { id: string }) => candidate.id === sentence.id)?.lifecycle).toBe('partially accepted');
+  await showWritingInWriting(writing);
+  await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
   const restarted = await restartElectronApp(electronApp);
   const { writing: reopened } = await getProgram7Windows(restarted, await restarted.firstWindow());
   await openProgram7Project(reopened, projectPath);
@@ -506,6 +508,8 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   await expect.poll(() => readFile(draftPath, 'utf8')).toBe(expected.replace('brass', 'silver'));
   expect(await readFile(otherPath, 'utf8')).toBe(otherBefore);
   expect((await readCandidates()).find((candidate: { id: string }) => candidate.id === previewCandidate.id)?.lifecycle).toBe('accepted');
+  await showWritingInWriting(reopened);
+  await expect(reopened.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
   const finalApp = await restartElectronApp(restarted);
   const { writing: finalWriting } = await getProgram7Windows(finalApp, await finalApp.firstWindow());
   await openProgram7Project(finalWriting, projectPath);
