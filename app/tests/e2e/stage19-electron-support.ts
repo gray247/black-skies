@@ -4,7 +4,19 @@ import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { _electron as electron, expect, type ElectronApplication, type Page } from '@playwright/test';
+import { _electron as electron, expect, type ElectronApplication, type Locator, type Page } from '@playwright/test';
+
+/** Activate the Writing window and select the actual editable text through its
+ * keyboard command. Scripted DOM focus alone does not activate the editor in a
+ * background Electron window with detached Command Center in front.
+ */
+export async function selectWritingEditorProse(editor: Locator, prose: string): Promise<void> {
+  await editor.page().bringToFront();
+  await editor.click();
+  await expect(editor).toBeFocused();
+  await editor.press('Control+a');
+  await expect.poll(() => editor.evaluate(() => window.getSelection()?.toString())).toBe(prose);
+}
 
 type ElectronProcess = NonNullable<ReturnType<ElectronApplication['process']>>;
 

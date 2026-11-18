@@ -10194,6 +10194,16 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 }
 
 @media (max-width: 1100px) {
+  /* Review sits beneath the canvas at this width. Keep open section tools
+     inside the Story rail so both rails retain their pointer targets. */
+  .stage19-spine--writing .stage19-writing-shell__workspace[data-right-open="true"]
+    .stage19-outline-planning > .stage19-spine__binder {
+    position: static;
+    width: 100%;
+    max-height: clamp(4.5rem, 18vh, 13rem);
+    padding: .4rem;
+    box-shadow: none;
+  }
   .stage19-spine[data-writing-page="true"] .stage19-writing-shell__rail--left {
     padding: .55rem .65rem;
   }

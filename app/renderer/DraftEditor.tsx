@@ -93,11 +93,14 @@ const emphasisPresentation = StateField.define<ReturnType<typeof buildEmphasisPr
 
 function paragraphDecorations(state: EditorState): DecorationSet {
   const marks = [];
+  let previousLineBlank = true;
   for (let number = 1; number <= state.doc.lines; number += 1) {
     const line = state.doc.line(number);
-    if (line.text.trim() && (number === 1 || !state.doc.line(number - 1).text.trim())) {
+    const lineBlank = !line.text.trim();
+    if (!lineBlank && previousLineBlank) {
       marks.push(Decoration.line({ class: number === 1 ? 'writing-paragraph-first' : 'writing-paragraph-start' }).range(line.from));
     }
+    previousLineBlank = lineBlank;
   }
   return Decoration.set(marks);
 }

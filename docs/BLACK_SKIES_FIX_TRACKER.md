@@ -10356,3 +10356,14 @@ The final clean local matrix, repeated renderer and revision cases, and Windows 
 
 
 The Windows run for `651f3751` exposed an overbroad section-menu filter in beginning/end Pin. The filter now excludes only the section heading. The same integration journey checks that the heading leaves Pin armed and both genuine text endpoints create one linked unit. The superseded hosted and local receipts remain retained. The physical-display baseline on preserved Electron 39 also passed all four configurations, so the historical missing-paint observation remains open.
+
+
+## November 17 desktop follow-up for narrow Review and concern saves
+
+Development checkpoint `f1a65325` passed 1,809 offline tests with two permitted external qualification skips and 72 of 74 local desktop cases. The retained local failures were a 133.4 ms Story rail frame gap against the 100 ms limit and a concern that remained active after a write failure. The [Windows run](https://github.com/gray247/black-skies/actions/runs/44200829988) passed 939 focused tests with two permitted skips and 33 of 36 desktop cases. It stopped before packaging. The failed journeys and traces remain preserved.
+
+The reported short-window overlap reproduced at 706 by 557 pixels while saved-section tools were open. The compact Story panel now stays within its rail while Review is open. The existing desktop checks activate the editor through a pointer action and verify the exact selected prose before opening Review. Five focused desktop journeys passed, including all three Windows failures, the separate Program 7 narrow-width sweep and the paired-evidence concern workflow. The outbound-preview checks use the existing deterministic local test fixture.
+
+An injected sharing fault and a real temporary Windows file handle both reproduced the concern write error while the previous file remained intact. The three existing repositories share the bounded replacement policy. Each retains its own write queue, format and cleanup. The real handle probe then confirmed exactly one durable concern decision with its evidence preserved after release. The original intermittent failure did not record a filesystem error code, so its exact trigger is still unknown.
+
+The profile identified unnecessary whole-section tokenization for a ten-word Outline preview and an unused paragraph scan on passive previews. With those scans bounded and editor paragraph processing reading each line once, all five new processes passed the unchanged scale gate across 17, 34, 68 and 136 sections. The peak was 99.9 ms. The intermediate 108.2 ms cold-opening failure is retained. This targeted result still requires the complete exact-source gate. Historical missing painting remains unresolved. The final-source renderer and revision repetitions and actual first-offline Windows package qualification remain open.

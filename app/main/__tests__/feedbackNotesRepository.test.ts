@@ -550,7 +550,18 @@ it('retains decision-time evidence through later source changes, reload and expl
   const originalEvidence = [{ unitId: 'unit-a', status: 'exact' as const, scope: 'unit' as const, text: 'green shirt' }];
   const made = await repository.createRevisionItem({ projectId: 'project-a', unitId: 'unit-a', body: 'Shirt continuity', originalEvidence });
   const captured = [{ unitId: 'unit-a', status: 'potentially-outdated' as const, scope: 'unit' as const, text: 'cotton shirt' }];
+  const ledgerPath = join(projectPath, FEEDBACK_NOTES_FILENAME);
+  const originalBytes = await readFile(ledgerPath, 'utf8');
+  const rename = vi.spyOn(fs, 'rename').mockImplementationOnce(async () => {
+    expect(await readFile(ledgerPath, 'utf8')).toBe(originalBytes);
+    throw Object.assign(new Error('temporary Windows sharing lock'), { code: 'EPERM' });
+  });
   const addressed = await repository.setLifecycle('project-a', made.document.revision, made.note!.id, 'resolved', undefined, captured);
+  expect(rename).toHaveBeenCalledTimes(2);
+  expect(rename.mock.calls[0]).toEqual(rename.mock.calls[1]);
+  expect(addressed.document.revision).toBe(made.document.revision + 1);
+  expect((await readdir(projectPath)).filter(name => name.endsWith('.tmp'))).toEqual([]);
+  rename.mockRestore();
   captured[0]!.text = 'later mutation';
   const reopened = await new FeedbackNotesRepository(projectPath).setLifecycle('project-a', addressed.document.revision, made.note!.id, 'active');
   const item = (await new FeedbackNotesRepository(projectPath).listRevisionItems('project-a'))[0]!;

@@ -1,6 +1,6 @@
 import { isWritingGroups, sameWritingAnchor, validGapWritingOperation } from '../shared/writingRanges.js';
 import { randomUUID } from 'node:crypto';
-import { setTimeout as delay } from 'node:timers/promises';
+import { commitStagedFile } from './commitStagedFile.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -345,18 +345,7 @@ export class LivingOutlineRepository {
     try {
       await fs.mkdir(directory, { recursive: true });
       await fs.writeFile(tempPath, `${JSON.stringify(document, null, 2)}\n`, 'utf8');
-      // A short Windows sharing lock must not discard an otherwise valid save.
-      // Keep the mutation queue and atomic replacement; never delete the target.
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        try {
-          await fs.rename(tempPath, this.filePath);
-          return;
-        } catch (error) {
-          const code = (error as NodeJS.ErrnoException).code;
-          if (attempt === 2 || !['EPERM', 'EACCES', 'EBUSY'].includes(code ?? '')) throw error;
-          await delay(25 * (attempt + 1));
-        }
-      }
+      await commitStagedFile(tempPath, this.filePath);
     } catch {
       await fs.rm(tempPath, { force: true }).catch(() => undefined);
       throw new LivingOutlineRepositoryError('WRITE_FAILED', 'The story plan change could not be saved.');

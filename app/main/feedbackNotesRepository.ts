@@ -5,6 +5,7 @@ import { extractProjectSpineDraftBody } from '../shared/projectSpineDraft.js';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { commitStagedFile } from './commitStagedFile.js';
 
 import {
   FEEDBACK_NOTE_HISTORY_LIMIT,
@@ -770,7 +771,7 @@ export class FeedbackNotesRepository {
       await handle.sync();
       await handle.close();
       handle = null;
-      await fs.rename(tempPath, this.filePath);
+      await commitStagedFile(tempPath, this.filePath);
     } catch {
       await handle?.close().catch(() => undefined);
       await fs.rm(tempPath, { force: true }).catch(() => undefined);

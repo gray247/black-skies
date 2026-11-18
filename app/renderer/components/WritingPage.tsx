@@ -2333,7 +2333,8 @@ export function WritingPageOutline({ compact = false }: { compact?: boolean } = 
         key: part.groupId ?? `unpinned-${unit.id}-${part.from}`,
         label:
           (group ? writingGroupLabel(group, model.buffers) : undefined) ??
-          (body.slice(part.from, part.to).trim().split(/\s+/u).slice(0, 10).join(' ') ||
+          // The label needs only its first ten words, even in long sections.
+          (body.slice(part.from, part.to).trimStart().match(/^\S+(?:\s+\S+){0,9}/u)?.[0].replace(/\s+/gu, ' ') ||
             'Unpinned writing'),
         ranges: group
           ? group.spans.map((span) => ({
@@ -2643,10 +2644,12 @@ export function WritingSourcePreview({ unitId, text, from: start = 0, to: end = 
   const context = useWritingContext();
   const marks = interactive ? getWritingMarks(context, unitId) : [];
   const emphasis = useMemo(() => getDraftEmphasis(text), [text]);
-  const paragraphs = [0, ...[...text.matchAll(/\n\s*\n(?=\S)/gu)].map(match => match.index! + match[0].length)];
   const preference = context?.model.snapshot.project?.writingPreferences?.values;
   const layout = Boolean(interactive && (preference?.paragraphSpacing || preference?.firstLineIndent));
-  const points = [...new Set([start, end, ...marks.flatMap((mark) => [mark.from, mark.to]), ...(layout ? paragraphs : []),
+  const paragraphs = useMemo(() => layout
+    ? [0, ...Array.from(text.matchAll(/\n\s*\n(?=\S)/gu), match => match.index! + match[0].length)]
+    : [], [layout, text]);
+  const points = [...new Set([start, end, ...marks.flatMap((mark) => [mark.from, mark.to]), ...paragraphs,
     ...emphasis.flatMap(span => [span.from, span.contentFrom, span.contentTo, span.to]),
     ...marks.filter(mark => mark.kind === 'move').map(mark => mark.from)])]
     .filter((point) => point >= start && point <= end && point >= 0 && point <= text.length)

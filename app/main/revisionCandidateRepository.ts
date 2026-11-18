@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { setTimeout as delay } from 'node:timers/promises';
+import { commitStagedFile } from './commitStagedFile.js';
 
 import {
   REVISION_CAPTURE_LEDGER_SCHEMA_VERSION,
@@ -1023,18 +1023,7 @@ export class RevisionCandidateRepository {
       await handle.sync();
       await handle.close();
       handle = null;
-      // Match the existing Outline repository's handling of a short sharing
-      // lock. Keep the same synced temporary file, receipt and queue throughout.
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        try {
-          await fs.rename(tempPath, this.filePath);
-          break;
-        } catch (error) {
-          const code = (error as NodeJS.ErrnoException).code;
-          if (attempt >= 2 || !['EPERM', 'EACCES', 'EBUSY'].includes(code ?? '')) throw error;
-          await delay(25 * (attempt + 1));
-        }
-      }
+      await commitStagedFile(tempPath, this.filePath);
       const reread = await fs.readFile(this.filePath, 'utf8');
       if (reread !== JSON.stringify(document, null, 2) + String.fromCharCode(10) || !validDocument(JSON.parse(reread), document.projectId)) throw new Error('Durable revision readback did not match.');
     } catch {

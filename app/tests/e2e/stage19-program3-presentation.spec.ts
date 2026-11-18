@@ -6,6 +6,7 @@ import { expect, test } from './_electron.fixture';
 import {
   getStage19Windows,
   openWritingStudioRail,
+  selectWritingEditorProse,
   openSavedWritingSections,
   removeTemporaryDirectory,
 } from './stage19-electron-support';
@@ -65,8 +66,7 @@ test('Program 3 reflows at large text, honors reduced motion, and preserves keyb
     await expect(writing.getByRole('region', { name: 'Story tools', exact: true })).toBeVisible();
     await writing.getByRole('region', { name: 'Story tools', exact: true }).getByRole('button', { name: 'Close', exact: true }).click();
 
-    await editor.focus();
-    await writing.keyboard.press('Control+A');
+    await selectWritingEditorProse(editor, prose);
     await openWritingStudioRail(writing, 'Review');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await writing.getByLabel('OpenAI API key (session only; no readback)')

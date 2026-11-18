@@ -7,6 +7,7 @@ import { expect, test } from './_electron.fixture';
 import {
   getStage19Windows,
   openWritingStudioRail,
+  selectWritingEditorProse,
   removeTemporaryDirectory,
 } from './stage19-electron-support';
 
@@ -47,11 +48,11 @@ test('dedicated Stage 19 writing and command surfaces have no WCAG A/AA axe viol
       .withTags(['wcag2a', 'wcag2aa'])
       .analyze();
 
+    await writing.setViewportSize({ width: 706, height: 557 });
     const prose = `${'Rain marked the station glass while Mara waited beneath a clock that had stopped before midnight. '.repeat(5)}End.`;
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Keyboard canvas' });
     await editor.fill(prose);
-    await editor.focus();
-    await writing.keyboard.press('Control+A');
+    await selectWritingEditorProse(editor, prose);
     await openWritingStudioRail(writing, 'Review');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await writing.getByLabel('OpenAI API key (session only; no readback)')
