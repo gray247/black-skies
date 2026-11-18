@@ -58,8 +58,10 @@ export function getDraftEmphasis(source: string, tree?: ReturnType<typeof markdo
   // Without either Markdown emphasis delimiter there can be no emphasis spans.
   // Avoid parsing every plain passive section during one synchronous render.
   if (!source.includes('*') && !source.includes('_')) return spans;
-  (tree ?? markdownLanguage.parser.parse(source)).iterate({ enter: ({ node, name, from, to }) => {
+  (tree ?? markdownLanguage.parser.parse(source)).iterate({ enter: (cursor) => {
+    const { name } = cursor;
     if (name !== 'StrongEmphasis' && name !== 'Emphasis') return;
+    const { node, from, to } = cursor;
     const opening = node.firstChild;
     const closing = node.lastChild;
     if (opening?.name !== 'EmphasisMark' || closing?.name !== 'EmphasisMark' || opening === closing) return;

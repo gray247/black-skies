@@ -10278,6 +10278,11 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   min-height: 100%;
   padding: 28px clamp(20px, 4vw, 64px) 72px;
 }
+/* The manuscript owns its scroll viewport. Keep its layout and paint
+   contained when a sibling rail is revealed. */
+.stage19-spine[data-writing-page="true"] .stage19-writing-shell__canvas {
+  contain: layout paint;
+}
 .stage19-spine[data-writing-page="true"] .stage19-continuous-manuscript {
   width: min(100%, 76ch);
   margin-inline: auto;

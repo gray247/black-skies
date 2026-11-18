@@ -747,8 +747,10 @@ test('Catalog B4 Ideas copies use real Foundation/Outline owners with stale-targ
     await branch().getByLabel('Send to', { exact: true }).selectOption('outline');
     await branch().getByRole('button', { name: 'Preview destination' }).click();
     await branch().getByRole('button', { name: 'Send to Outline', exact: true }).click();
-    await expect.poll(async () => (await outline()).items.length).toBe(1);
-    const noteId = (await outline()).items[0].id;
+    await expect(writing.getByText('The accepted idea was written as an author-owned Living Outline note. Open Outline to review it.', { exact: true })).toBeVisible();
+    const committedOutline = await outline();
+    expect(committedOutline.items).toHaveLength(1);
+    const noteId = committedOutline.items[0].id;
     expect((await outline()).items[0]).toMatchObject({ body: 'The gate remembers every visitor.', manuscriptUnitId: null, sourcePromotionId: expect.any(String) });
     expect(await manuscript()).toBe(original);
     const restarted = await restartElectronApp(electronApp);
