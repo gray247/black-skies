@@ -1018,14 +1018,24 @@ export class RevisionCandidateRepository {
         }
       }
 
+      const bytes = Buffer.from(`${JSON.stringify(document, null, 2)}\n`, 'utf8');
       handle = await fs.open(tempPath, 'wx');
-      await handle.writeFile(`${JSON.stringify(document, null, 2)}\n`, 'utf8');
+      let offset = 0;
+      while (offset < bytes.length) {
+        const { bytesWritten } = await handle.write(bytes, offset, bytes.length - offset, offset);
+        if (bytesWritten === 0) throw new Error('The staged revision write made no progress.');
+        offset += bytesWritten;
+      }
       await handle.sync();
       await handle.close();
       handle = null;
+      // Verify the staged bytes before they can replace the last valid ledger.
+      if (!(await fs.readFile(tempPath)).equals(bytes)) throw new Error('Staged revision bytes did not match.');
       await commitStagedFile(tempPath, this.filePath);
-      const reread = await fs.readFile(this.filePath, 'utf8');
-      if (reread !== JSON.stringify(document, null, 2) + String.fromCharCode(10) || !validDocument(JSON.parse(reread), document.projectId)) throw new Error('Durable revision readback did not match.');
+      const reread = await fs.readFile(this.filePath);
+      if (!reread.equals(bytes) || !validDocument(JSON.parse(reread.toString('utf8')), document.projectId)) {
+        throw new Error('Durable revision readback did not match.');
+      }
     } catch {
       await handle?.close().catch(() => undefined);
       await fs.rm(tempPath, { force: true }).catch(() => undefined);

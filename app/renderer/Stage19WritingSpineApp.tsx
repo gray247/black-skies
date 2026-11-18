@@ -2733,7 +2733,7 @@ export default function Stage19WritingSpineApp({
   useEffect(() => {
     if (windowRole !== 'writing') return;
     const handler = (event: BeforeUnloadEvent) => {
-      if (hasLocalUnsaved || (writingPage.enabled && (writingPage.busy || writingPage.unsaved)) || manualCaptureBusyRef.current || manualCaptureRequestRef.current || snapshotRef.current.saveState.status === 'save-failed') {
+      if (hasLocalUnsaved || (writingPage.enabled && (writingPage.busy || writingPage.unsaved)) || manualCaptureBusyRef.current || manualCaptureRequestRef.current || program7CandidateDecisionRef.current || snapshotRef.current.saveState.status === 'save-failed') {
         event.preventDefault();
         event.returnValue = '';
       }
@@ -3913,7 +3913,6 @@ export default function Stage19WritingSpineApp({
       setProgram7Candidates(null);
       applySnapshot(result.snapshot);
       closeProgram7Candidate();
-      setProgram7Notice('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.');
       const refreshed = await revisionCandidatesBridge?.list?.({
         operationId: operationId('program7-candidates-after-accept'),
         projectId: current.project.projectId,
@@ -3926,6 +3925,9 @@ export default function Stage19WritingSpineApp({
       }
       setProgram7Candidates(refreshed.data);
       await refreshProgram7RevisionItems();
+      if (bindingMatchesSnapshot(binding, snapshotRef.current)) {
+        setProgram7Notice('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.');
+      }
     } catch {
       if (bindingMatchesSnapshot(binding, snapshotRef.current)) {
         setProgram7Notice(applied

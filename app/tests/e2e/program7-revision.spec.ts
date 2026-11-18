@@ -424,7 +424,9 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   for (let index = 0; index < replacement.length; index += 1) await partial.press('Shift+ArrowRight');
   await comparison.getByRole('button', { name: 'Apply only the selected part', exact: true }).click();
   const expected = before.replace(source, `${source.slice(0, 60)}${replacement}${source.slice(118)}`);
+  await expect(writing.getByText('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.', { exact: true })).toBeVisible();
   await expect.poll(() => readFile(draftPath, 'utf8')).toBe(expected);
+  expect((await readCandidates()).find((candidate: { id: string }) => candidate.id === sentence.id)?.lifecycle).toBe('partially accepted');
   const restarted = await restartElectronApp(electronApp);
   const { writing: reopened } = await getProgram7Windows(restarted, await restarted.firstWindow());
   await openProgram7Project(reopened, projectPath);
@@ -500,13 +502,16 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   const previewComparison = reopened.getByTestId('revision-comparison').filter({ has: reopened.getByText('Inactive preview word', { exact: true }) });
   await expect(previewComparison.getByTestId('revision-replacement-text')).toHaveText('brass');
   await previewComparison.getByRole('button', { name: 'Apply all of this alternative', exact: true }).click();
+  await expect(reopened.getByText('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.', { exact: true })).toBeVisible();
   await expect.poll(() => readFile(draftPath, 'utf8')).toBe(expected.replace('brass', 'silver'));
   expect(await readFile(otherPath, 'utf8')).toBe(otherBefore);
+  expect((await readCandidates()).find((candidate: { id: string }) => candidate.id === previewCandidate.id)?.lifecycle).toBe('accepted');
   const finalApp = await restartElectronApp(restarted);
   const { writing: finalWriting } = await getProgram7Windows(finalApp, await finalApp.firstWindow());
   await openProgram7Project(finalWriting, projectPath);
   expect(await readFile(draftPath, 'utf8')).toBe(expected.replace('brass', 'silver'));
   expect(await readFile(otherPath, 'utf8')).toBe(otherBefore);
+  expect((await readCandidates()).find((candidate: { id: string }) => candidate.id === previewCandidate.id)?.lifecycle).toBe('accepted');
   await finalWriting.screenshot({ path: testInfo.outputPath('inactive-preview-revision-reopened.png') });
 
 });

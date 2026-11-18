@@ -171,6 +171,37 @@ describe('revision candidate repository', () => {
     }
   });
 
+  it('keeps the last committed revision file when the staged write contains shifted bytes', async () => {
+    const root = await project(), repo = store(root);
+    const first = await repo.createManual('project-a', 0, manualInput());
+    const file = join(root, REVISION_CANDIDATES_FILENAME);
+    const before = await readFile(file);
+    const realOpen = fs.open.bind(fs);
+    const open = vi.spyOn(fs, 'open').mockImplementationOnce(async (...args) => {
+      const handle = await realOpen(...args);
+      const sync = handle.sync.bind(handle);
+      vi.spyOn(handle, 'sync').mockImplementationOnce(async () => {
+        const original = await readFile(args[0]);
+        const shift = Math.max(1, Math.floor(original.length / 10));
+        const damaged = Buffer.alloc(original.length);
+        original.copy(damaged, 0, shift);
+        const overwritten = await handle.write(damaged, 0, damaged.length, 0);
+        expect(overwritten.bytesWritten).toBe(original.length);
+        await sync();
+      });
+      return handle;
+    });
+    try {
+      await expect(repo.setLifecycle('project-a', first.document.revision, first.document.candidates[0]!.id, 'parked'))
+        .rejects.toMatchObject({ code: 'WRITE_FAILED' });
+      expect(await readFile(file)).toEqual(before);
+      expect(await new RevisionCandidateRepository(root).read('project-a')).toEqual(first);
+      expect((await readdir(root)).filter(name => name.endsWith('.tmp'))).toEqual([]);
+    } finally {
+      open.mockRestore();
+    }
+  });
+
   it('reconciles a committed file when durable readback fails after rename', async () => {
     const root = await project(), repo = store(root), input = manualInput();
     const realRead = fs.readFile.bind(fs);
