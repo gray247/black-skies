@@ -3582,20 +3582,20 @@ export default function Stage19WritingSpineApp({
     let request = manualCaptureRequestRef.current;
     const stillCurrent = () => manualCaptureEpochRef.current === epoch &&
       bindingMatchesSnapshot(request ?? entryBinding, snapshotRef.current);
-    const finishCommitted = (data: RevisionCandidatesSnapshotV1): boolean => {
+    const finishCommitted = (data: RevisionCandidatesSnapshotV1): string | undefined => {
       const receipt = data.document.captures?.find(item => item.operationId === request?.operationId);
       const candidate = data.document.candidates.find(item => item.id === receipt?.candidateId);
       if (!request || receipt?.status !== 'committed' || !candidate ||
         receipt.payload.candidateText !== request.candidateText || receipt.payload.purpose !== request.purpose ||
         receipt.payload.sourceSnapshot.unitId !== request.sourceSnapshot.unitId ||
-        receipt.payload.sourceSnapshot.bodySha256 !== request.sourceSnapshot.bodySha256) return false;
-      if (!stillCurrent()) return true;
+        receipt.payload.sourceSnapshot.bodySha256 !== request.sourceSnapshot.bodySha256) return;
+      if (!stillCurrent()) return;
       setProgram7Candidates(data);
       manualCaptureRequestRef.current = null;
       setProgram7CaptureNeedsReconcile(false);
       setProgram7CandidateText(''); setProgram7CandidatePurpose(''); setProgram7FrozenTarget(null);
       setProgram7Notice('Manual revision alternative saved. Your manuscript has not changed.');
-      return true;
+      return candidate.id;
     };
     const reconcile = async (notice: string, definitiveFailure = false) => {
       if (!request || !stillCurrent()) return;
@@ -3605,7 +3605,8 @@ export default function Stage19WritingSpineApp({
         if (!stillCurrent()) return;
         if (listed.ok) {
           setProgram7Candidates(listed.data);
-          if (finishCommitted(listed.data)) return;
+          const savedId = finishCommitted(listed.data);
+          if (savedId) return savedId;
           const outcome = listed.data.document.captures?.find(item => item.operationId === request!.operationId);
           if (outcome?.status === 'rejected' || (!outcome && definitiveFailure && listed.data.availability === 'ready')) {
             manualCaptureRequestRef.current = null; setProgram7CaptureNeedsReconcile(false);
@@ -3645,9 +3646,10 @@ export default function Stage19WritingSpineApp({
         new Promise<never>((_resolve, reject) => { deadline = setTimeout(() => reject(new Error('Save confirmation timed out')), 15_000); }),
       ]).finally(() => clearTimeout(deadline));
       if (!stillCurrent()) return;
-      if (result.ok && finishCommitted(result.data)) return;
-      await reconcile(result.ok ? 'The save did not return a committed receipt. Your draft is retained.' : result.error.message, !result.ok && !['CANDIDATE_WRITE_FAILED', 'CAPTURE_IN_PROGRESS'].includes(result.error.code));
-    } catch { await reconcile('The alternative could not be saved. Your draft is retained.'); }
+      const savedId = result.ok ? finishCommitted(result.data) : undefined;
+      if (savedId) return savedId;
+      return await reconcile(result.ok ? 'The save did not return a committed receipt. Your draft is retained.' : result.error.message, !result.ok && !['CANDIDATE_WRITE_FAILED', 'CAPTURE_IN_PROGRESS'].includes(result.error.code));
+    } catch { return await reconcile('The alternative could not be saved. Your draft is retained.'); }
     finally {
       if (manualCaptureEpochRef.current === epoch) { manualCaptureBusyRef.current = false; setProgram7CapturePending(false); }
     }

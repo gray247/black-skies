@@ -529,7 +529,16 @@ test('Catalog B5 qualifies the bundled US-English dictionary, correction and reo
     if (!selected.ok) throw new Error(selected.error.message);
   }, parent);
   const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Dictionary writing', exact: true });
-  await editor.evaluate(element => { element.setAttribute('spellcheck', 'true'); element.setAttribute('lang', 'en-US'); });
+  const underlines = writing.getByRole('checkbox', { name: 'Underline possible misspellings in the active passage' });
+  const openSpelling = () => writing.getByText('Spelling and accepted words', { exact: true }).click();
+  await expect(editor).toHaveAttribute('spellcheck', 'true');
+  await openSpelling();
+  await expect(underlines).toBeChecked();
+  await underlines.click();
+  await expect(editor).toHaveAttribute('spellcheck', 'false');
+  await underlines.click();
+  await expect(editor).toHaveAttribute('spellcheck', 'true');
+  await openSpelling();
   await editor.click(); await editor.pressSequentially('foorrrest forest. ');
   await expect.poll(() => writing.evaluate(async () => (await window.projectSpine!.checkSpelling!('foorrrest')).misspelled)).toBe(true);
   const result = await writing.evaluate(async () => { const forest = await window.projectSpine!.checkSpelling!('forest'), typo = await window.projectSpine!.checkSpelling!('foorrrest'); return { forest: forest.misspelled, mistake: typo.misspelled, suggestions: typo.suggestions }; });
@@ -547,12 +556,15 @@ test('Catalog B5 qualifies the bundled US-English dictionary, correction and reo
   await expect(editor).toHaveText('forest forest. ');
   await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
   await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state')).toHaveText('Saved');
+  await underlines.click();
+  await expect(editor).toHaveAttribute('spellcheck', 'false');
   const originalSession = await writing.evaluate(() => window.projectSpine!.getSession());
   const restarted = await restartElectronApp(electronApp);
   const windows = await getStage19Windows(restarted, await restarted.firstWindow());
   await openProgram7Project(windows.writing, originalSession.project!.path);
   const reopened = windows.writing.getByRole('textbox', { name: 'Manuscript editor: Dictionary writing', exact: true });
   await expect(reopened).toHaveText('forest forest.');
+  await expect(reopened).toHaveAttribute('spellcheck', 'false');
   const retained = await windows.writing.evaluate(() => window.projectSpine!.checkSpelling!('foorrrest'));
   expect(retained).toMatchObject({ available: true, misspelled: true, suggestions: expect.arrayContaining(['forest']) });
 
@@ -986,7 +998,7 @@ test('Catalog B3 manual concern keeps paired evidence, guarded alternatives, aut
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Gate passage 1', exact: true });
     await editor.click(); await editor.press('Control+a');
     await showCommandInWriting(writing); await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
-    await writing.getByLabel('Purpose', { exact: true }).fill('Deliberately remove this passage.');
+    await writing.getByLabel('Alternative name', { exact: true }).fill('Deliberately remove this passage.');
     await writing.getByRole('checkbox', { name: 'Propose deleting the exact linked passage' }).check();
     await writing.getByRole('button', { name: 'Save alternative', exact: true }).click();
     const deletion = writing.getByTestId('revision-comparison').filter({ hasText: 'Deliberately remove this passage.' });

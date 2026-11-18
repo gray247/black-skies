@@ -513,7 +513,12 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   expect(previewCandidate.sourceAnchor).toMatchObject({ unitId: originalId, selectionStart: source.indexOf('brass'), selectionEnd: source.indexOf('brass') + 5 });
   const previewComparison = reopened.getByTestId('revision-comparison').filter({ has: reopened.getByText('Inactive preview word', { exact: true }) });
   await expect(previewComparison.getByTestId('revision-replacement-text')).toHaveText('brass');
-  await previewComparison.getByRole('button', { name: 'Apply all of this alternative', exact: true }).click();
+  const replacementRegion = previewComparison.getByRole('region', { name: 'Text that will be replaced', exact: true });
+  const apply = replacementRegion.getByRole('button', { name: 'Apply all of this alternative', exact: true });
+  await expect(replacementRegion).toBeFocused();
+  await expect(apply).toBeInViewport();
+  expect(await readFile(draftPath, 'utf8')).toBe(expected);
+  await apply.click();
   await expect(reopened.getByText('Revision alternative applied to your manuscript. The related concern is still yours to finish or set aside.', { exact: true })).toBeVisible();
   await expect.poll(() => readFile(draftPath, 'utf8')).toBe(expected.replace('brass', 'silver'));
   expect(await readFile(otherPath, 'utf8')).toBe(otherBefore);

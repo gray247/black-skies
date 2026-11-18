@@ -152,6 +152,23 @@ export default function RevisionComparison({
           <ul>{candidate.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
         </aside>
       ) : null}
+      {!redacted ? (
+        <section className="program7-revision-comparison__replacement" tabIndex={-1} aria-labelledby={`revision-replacement-${candidate.id}`}>
+          <h2 id={`revision-replacement-${candidate.id}`}>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted' ? 'Text that was replaced' : sourceIsHistorical ? 'Text linked for replacement' : 'Text that will be replaced'}</h2>
+          <pre tabIndex={0} data-testid="revision-replacement-text">{replacementText}</pre>
+          <ReplacementChanges before={replacementText} after={candidateText} />
+          {editable && !stale ? <p>The manuscript text shown here is the replacement target. Selecting part of the alternative below changes what you insert, not which manuscript words are replaced.</p> : null}
+          {editable && !stale && replacesWholeSection ? (
+            <label>
+              <input type="checkbox" checked={wholeSectionConfirmed} disabled={decisionPending} onChange={(event) => setWholeSectionConfirmed(event.currentTarget.checked)} />
+              This replaces the entire saved section. I intend to replace this entire section.
+            </label>
+          ) : null}
+          <button type="button" disabled={!acceptEnabled || !onAcceptAll} onClick={() => onAcceptAll?.(candidate)}>
+            {candidate.deleteSource ? 'Delete this linked passage' : 'Apply all of this alternative'}
+          </button>
+        </section>
+      ) : null}
       <div className="program7-revision-comparison__panes">
         <article aria-labelledby={`revision-current-${candidate.id}`}>
           <h2 id={`revision-current-${candidate.id}`}>{sourceIsHistorical ? 'Saved source passage' : 'Your current manuscript'}</h2>
@@ -166,20 +183,6 @@ export default function RevisionComparison({
           <pre tabIndex={0} data-testid="revision-candidate-text">{redacted ? 'Content hidden by protection policy.' : candidate.deleteSource ? 'Delete the exact linked passage. No replacement words will be inserted.' : visibleCandidateText(candidate)}</pre>
         </article>
       </div>
-      {!redacted ? (
-        <section className="program7-revision-comparison__replacement" aria-labelledby={`revision-replacement-${candidate.id}`}>
-          <h2 id={`revision-replacement-${candidate.id}`}>{candidate.lifecycle === 'accepted' || candidate.lifecycle === 'partially accepted' ? 'Text that was replaced' : sourceIsHistorical ? 'Text linked for replacement' : 'Text that will be replaced'}</h2>
-          <pre tabIndex={0} data-testid="revision-replacement-text">{replacementText}</pre>
-          <ReplacementChanges before={replacementText} after={candidateText} />
-          {editable && !stale ? <p>The manuscript text shown here is the replacement target. Selecting part of the alternative below changes what you insert, not which manuscript words are replaced.</p> : null}
-          {editable && !stale && replacesWholeSection ? (
-            <label>
-              <input type="checkbox" checked={wholeSectionConfirmed} disabled={decisionPending} onChange={(event) => setWholeSectionConfirmed(event.currentTarget.checked)} />
-              This replaces the entire saved section. I intend to replace this entire section.
-            </label>
-          ) : null}
-        </section>
-      ) : null}
       <div className="program7-revision-comparison__partial">
         <label htmlFor={`revision-partial-${candidate.id}`}>Part of this alternative to apply</label>
         <textarea
@@ -243,10 +246,8 @@ export default function RevisionComparison({
         />
       </div>
       <div className="program7-revision-comparison__actions" aria-label="Revision alternative actions">
+        {redacted ? <button type="button" disabled>Apply all of this alternative</button> : null}
         {onOpenEditor && editable && !candidate.deleteSource ? <button type="button" disabled={decisionPending} onClick={() => onOpenEditor(candidate)}>{stale ? 'View alternative' : 'Edit alternative'}</button> : null}
-        <button type="button" disabled={!acceptEnabled || !onAcceptAll} onClick={() => onAcceptAll?.(candidate)}>
-          {candidate.deleteSource ? 'Delete this linked passage' : 'Apply all of this alternative'}
-        </button>
         <button
           type="button"
           disabled={!acceptEnabled || !hasExactSourceAnchor || !onPartialAccept || selection.end <= selection.start}

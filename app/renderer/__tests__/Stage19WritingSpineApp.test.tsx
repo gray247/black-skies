@@ -976,7 +976,7 @@ describe('Stage19WritingSpineApp', () => {
     await screen.findByRole('textbox', { name: 'Manuscript editor: First Unit' });
     fireEvent.click(screen.getByRole('button', { name: 'Open Command Center here' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
-    const purpose = await screen.findByRole('textbox', { name: 'Purpose' });
+    const purpose = await screen.findByRole('textbox', { name: 'Alternative name' });
     await waitFor(() => expect(purpose).toBeEnabled());
     fireEvent.click(screen.getByRole('checkbox', { name: 'Use this entire saved section for the alternative' }));
     fireEvent.change(purpose, { target: { value: '  Preserve rhythm.  ' } });
@@ -994,8 +994,8 @@ describe('Stage19WritingSpineApp', () => {
           primarySurface: 'command', commandSnapshot: snapshot('command', { projectId: 'proj_b', path: 'C:/projects/b', generation: 2, revision: 1 }) });
       });
       fireEvent.click(await screen.findByRole('button', { name: 'Create / Develop' }));
-      await waitFor(() => expect(screen.getByRole('textbox', { name: 'Purpose' })).toBeEnabled());
-      const newPurpose = screen.getByRole('textbox', { name: 'Purpose' });
+      await waitFor(() => expect(screen.getByRole('textbox', { name: 'Alternative name' })).toBeEnabled());
+      const newPurpose = screen.getByRole('textbox', { name: 'Alternative name' });
       const newText = screen.getByRole('textbox', { name: 'Proposed text' });
       fireEvent.change(newPurpose, { target: { value: 'New project draft' } });
       fireEvent.change(newText, { target: { value: 'New project wording' } });

@@ -10442,3 +10442,28 @@ navigated from its initial page. The helper again uses the existing
 DOM role locators, which tolerate startup navigation. It still retains
 the distinct pair from a single readiness observation. The hosted failure
 and its eleven affected tests remain recorded in run 44330702623.
+
+## V4 — Finding the new revision comparison after Save
+
+The author passed the Note, concern and spelling exercises on `d34e73ac`.
+After manuscript Undo, the resolved shirt concern remained resolved and
+available in History. The author could not apply the wording alternative.
+The disposable project contained two durable proposals targeting the exact
+word “watched”, both proposing “studied”, and no Apply decision. The saved
+manuscript still read “watched”.
+
+The revision form now appears first in Revision Desk. Once the existing
+transaction confirms the candidate ID, Save focuses and scrolls to that
+candidate’s exact replacement comparison. Apply sits beside the before
+and after text. Alternatives still require explicit application. The
+existing native revision journey confirms focus, that Apply is in view,
+that Save alone leaves the source intact, and that Apply, Undo and reopen
+retain the expected source and History. Conflict and protection guards
+remain part of the regression suite.
+
+The author also asked for spelling marks. The spelling panel now exposes
+the current passage’s US English underlines through the existing saved
+project preference. It uses the bundled dictionary. The native test
+checks switching it off and on, correcting a word and reopening with the
+saved setting. Full-manuscript spelling and thesaurus lookup are separate
+feature requests. Step 3 needs focused author retest and step 4 is pending.

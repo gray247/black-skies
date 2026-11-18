@@ -1630,6 +1630,8 @@ function WritingSpelling() {
   if (!context?.model.snapshot.project) return null;
   const { model, commands } = context;
   const project = model.snapshot.project!;
+  const preferences = project.writingPreferences;
+  const values = preferences?.values ?? DEFAULT_WRITING_PREFERENCES;
   const dictionary = async (action: 'inspect' | 'accept' | 'remove', selected = word) => {
     if (!window.projectSpine?.spellingDictionary || busy) return;
     setBusy(true);
@@ -1642,7 +1644,25 @@ function WritingSpelling() {
     finally { setBusy(false); }
   };
   return <details><summary>Spelling and accepted words</summary><section aria-label="Spelling and accepted words">
-    <p>US English. Spelling checks use a dictionary included with Black Skies and work offline.</p>
+    <label>
+      <input type="checkbox" checked={values.spellcheck}
+        disabled={busy || preferences?.invalid || model.recoveryBlocksEditing || Boolean(model.writingPage?.pendingGap) || !window.projectSpine?.setWritingPreferences}
+        onChange={async event => {
+          const setPreferences = window.projectSpine?.setWritingPreferences;
+          if (!setPreferences) return;
+          const spellcheck = event.currentTarget.checked;
+          setBusy(true);
+          try {
+            const result = await setPreferences({ projectId: project.projectId, projectPath: project.path, generation: model.snapshot.generation,
+              operationId: crypto.randomUUID(), expectedRevision: preferences?.revision ?? 0, values: { ...values, spellcheck } });
+            setMessage(result.ok ? '' : result.error.message);
+          } catch {
+            setMessage('The spelling display setting could not be saved.');
+          } finally { setBusy(false); }
+        }} />
+      Underline possible misspellings in the active passage
+    </label>
+    <p>Black Skies checks words as you edit using its included US English dictionary. Select a word for suggestions.</p>
     <button type="button" onMouseDown={event => event.preventDefault()} disabled={busy} onClick={async () => {
       const range = context.selection.length === 1 ? context.selection[0] : null;
       const body = range ? model.buffers[range.unitId] : undefined;

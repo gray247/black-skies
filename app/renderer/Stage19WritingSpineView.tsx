@@ -387,7 +387,7 @@ export interface Stage19WritingSpineViewActions {
   readonly createManualConcern?: (body: string, ranges: readonly { unitId: string; from: number; to: number; body: string }[]) => Promise<boolean>;
   readonly considerProgram7Concern?: (item: RevisionItem) => MaybeAsync;
   readonly clearProgram7Concern?: () => void;
-  readonly createProgram7ManualCandidate: (deleteSource?: boolean, wholeSection?: boolean) => MaybeAsync;
+  readonly createProgram7ManualCandidate: (deleteSource?: boolean, wholeSection?: boolean) => void | Promise<string | void>;
   readonly createProgram7LocalAiCandidate: () => MaybeAsync;
   readonly cancelProgram7LocalAiCandidate: () => MaybeAsync;
   readonly openProgram7Candidate: (candidate: RevisionCandidateV1) => void;
@@ -685,6 +685,17 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   const candidates = model.program7Candidates?.document.candidates ?? [];
   const canWrite = model.windowRole === 'writing';
   const [activeSection, setActiveSection] = useState<Program7CreateDevelopSection>('revision-desk');
+  const [compareId, setCompareId] = useState<string>();
+  const candidatesRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!compareId || activeSection !== 'revision-desk') return;
+    const target = candidatesRef.current?.ownerDocument.getElementById('revision-replacement-' + compareId)?.parentElement;
+    if (!candidatesRef.current?.contains(target ?? null)) return;
+    if (!target) return;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView?.({ block: 'start' });
+    setCompareId(undefined);
+  }, [compareId, activeSection, model.program7Candidates]);
   const [proposeDeletion, setProposeDeletion] = useState(false);
   const [wholeSection, setWholeSection] = useState(false);
   useEffect(() => { if (model.program7CaptureNeedsReconcile) setProposeDeletion(model.program7CaptureDeleteSource === true); }, [model.program7CaptureNeedsReconcile, model.program7CaptureDeleteSource]);
@@ -695,29 +706,10 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
   const sourceReady = !target || target.kind === 'selection' || (target.kind === 'section' && wholeSection);
   const revisionDesk = (
     <>
-      <RevisionDesk pending={model.program7RevisionPending}
-        renderEvidence={item => <RevisionEvidence item={item} bodies={model.buffers} dirtyUnitIds={model.dirtyUnitIds} onRead={source => void actions.returnToStorySource(source)} />}
-        onConsiderRevision={actions.considerProgram7Concern ? item => void actions.considerProgram7Concern?.(item) : undefined}
-        activeItems={model.program7RevisionItems.activeItems}
-        historyItems={model.program7RevisionItems.historyItems}
-        availability={model.program7RevisionItems.availability}
-        unavailableMessage={model.program7RevisionItems.notice}
-        canResolve={canWrite}
-        localAiAvailable={model.program7LocalAiAvailable !== false}
-        onReturnToSource={(item) => void actions.returnProgram7RevisionItemToSource(item)}
-        onLifecycle={canWrite ? (item, lifecycle) => void actions.setProgram7RevisionItemLifecycle(item, lifecycle) : undefined}
-        onRecheck={canWrite ? (item, method) => void actions.recheckProgram7RevisionItem(item, method) : undefined}
-        onOpenRecurrence={(_item, recurrenceId) => {
-          const recurrence = model.program7RevisionItems.activeItems.concat(model.program7RevisionItems.historyItems)
-            .find((candidate) => candidate.id === recurrenceId);
-          if (recurrence) void actions.returnProgram7RevisionItemToSource(recurrence);
-        }}
-      />
       <section className="program7-revision-capture" aria-labelledby="program7-revision-capture-heading">
         <header>
           <h2 id="program7-revision-capture-heading">Draft a revision alternative</h2>
-          <p>Try the change in your own words. Your manuscript stays untouched until you apply an alternative.</p>
-          <p>To apply only part later, first save your manuscript and select the exact words to replace in Writing Studio. Then return here and save a new alternative. An older alternative cannot be linked afterward.</p>
+          <p>Compare new wording with the words you selected in Writing Studio. Save alternative opens the comparison. Choose Apply there to change the manuscript.</p>
         </header>
         {model.program7ConcernId ? <p>Alternative for concern <code>{model.program7ConcernId}</code>. <button type="button" onClick={actions.clearProgram7Concern} disabled={Boolean(captureLocked)}>Draft without a concern link</button></p> : null}
         {target ? <section className="program7-revision-capture__target" aria-label="Replacement target">
@@ -726,12 +718,12 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           {target.kind === 'section' ? <label><input type="checkbox" checked={wholeSection} onChange={event => setWholeSection(event.currentTarget.checked)} disabled={!canWrite || !captureReady || Boolean(captureLocked)} />Use this entire saved section for the alternative</label> : null}
         </section> : null}
         {actions.useCurrentProgram7Target ? <button type="button" onClick={actions.useCurrentProgram7Target} disabled={!canWrite || !captureReady || Boolean(captureLocked)}>Use current writing selection</button> : null}
-        <label htmlFor="program7-candidate-purpose">Purpose</label>
+        <label htmlFor="program7-candidate-purpose">Alternative name</label>
         <input
           id="program7-candidate-purpose"
           value={model.program7CandidatePurpose}
           onChange={(event) => actions.setProgram7CandidatePurpose(event.target.value)}
-          placeholder="What should this revision improve?"
+          placeholder="Name this alternative, e.g. Wording check"
           maxLength={1000}
           disabled={!canWrite || !captureReady || Boolean(captureLocked)}
         />
@@ -747,9 +739,12 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           aria-describedby="program7-proposed-text-help"
           disabled={!canWrite || !captureReady || Boolean(captureLocked) || proposeDeletion}
         />
-        <p id="program7-proposed-text-help">Write the replacement wording here. Save alternative keeps a proposal for comparison and clears this field for another draft.</p>
+        <p id="program7-proposed-text-help">Enter only the words you want to put in place of the selected text.</p>
         <div className="program7-revision-capture__actions">
-          <button type="button" onClick={() => void actions.createProgram7ManualCandidate(proposeDeletion, wholeSection)} disabled={!canWrite || !captureReady || model.program7CapturePending || (!model.program7CaptureNeedsReconcile && (!sourceReady || !model.program7CandidatePurpose.trim() || (!proposeDeletion && !model.program7CandidateText.trim())))}>{model.program7CapturePending ? 'Saving alternative…' : model.program7CaptureNeedsReconcile ? 'Check save' : 'Save alternative'}</button>
+          <button type="button" onClick={async () => {
+            const savedId = await actions.createProgram7ManualCandidate(proposeDeletion, wholeSection);
+            if (savedId) setCompareId(savedId);
+          }} disabled={!canWrite || !captureReady || model.program7CapturePending || (!model.program7CaptureNeedsReconcile && (!sourceReady || !model.program7CandidatePurpose.trim() || (!proposeDeletion && !model.program7CandidateText.trim())))}>{model.program7CapturePending ? 'Saving alternative…' : model.program7CaptureNeedsReconcile ? 'Check save' : 'Save alternative'}</button>
           {model.program7LocalAiAvailable !== false && model.program7LocalAiRequestId ? (
             <button type="button" onClick={() => void actions.cancelProgram7LocalAiCandidate()}>Stop local AI</button>
           ) : model.program7LocalAiAvailable !== false ? (
@@ -759,7 +754,7 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
         {model.program7LocalAiAvailable === false ? <p className="program7-revision-capture__manual-path" role="status">Local AI is unavailable. You can still create and review revision alternatives yourself.</p> : null}
       </section>
       {candidates.length > 0 ? (
-        <section className="program7-revision-candidates" aria-labelledby="program7-revision-candidates-heading">
+        <section className="program7-revision-candidates" aria-labelledby="program7-revision-candidates-heading" ref={candidatesRef}>
           <header>
             <h2 id="program7-revision-candidates-heading">Revision alternatives</h2>
             <p>These alternatives stay separate from your manuscript until you choose to apply one.</p>
@@ -784,6 +779,24 @@ function Program7CreateDevelopView({ model, actions }: Stage19WritingSpineViewPr
           ))}
         </section>
       ) : null}
+      <RevisionDesk pending={model.program7RevisionPending}
+        renderEvidence={item => <RevisionEvidence item={item} bodies={model.buffers} dirtyUnitIds={model.dirtyUnitIds} onRead={source => void actions.returnToStorySource(source)} />}
+        onConsiderRevision={actions.considerProgram7Concern ? item => void actions.considerProgram7Concern?.(item) : undefined}
+        activeItems={model.program7RevisionItems.activeItems}
+        historyItems={model.program7RevisionItems.historyItems}
+        availability={model.program7RevisionItems.availability}
+        unavailableMessage={model.program7RevisionItems.notice}
+        canResolve={canWrite}
+        localAiAvailable={model.program7LocalAiAvailable !== false}
+        onReturnToSource={(item) => void actions.returnProgram7RevisionItemToSource(item)}
+        onLifecycle={canWrite ? (item, lifecycle) => void actions.setProgram7RevisionItemLifecycle(item, lifecycle) : undefined}
+        onRecheck={canWrite ? (item, method) => void actions.recheckProgram7RevisionItem(item, method) : undefined}
+        onOpenRecurrence={(_item, recurrenceId) => {
+          const recurrence = model.program7RevisionItems.activeItems.concat(model.program7RevisionItems.historyItems)
+            .find((candidate) => candidate.id === recurrenceId);
+          if (recurrence) void actions.returnProgram7RevisionItemToSource(recurrence);
+        }}
+      />
     </>
   );
   const foundation = model.program7Foundation ? (
