@@ -10397,3 +10397,21 @@ The historical missing paint symptom remains open. Final repeated qualification 
 The exact development candidate 905f274d passed Windows packaging, 1,810 offline tests with two permitted skips, and all 74 local desktop cases. Normal Notes and concern Undo each passed 60 fresh-profile runs with zero renderer exits. Two revision repetitions then tried to restart at the final Apply while Writing Studio displayed Saving and its linked units and Notes were still being saved. The unload protection kept the app open. The traces recorded this pending state. The superseded disposable run was stopped, with its partial results retained and excluded from final qualification.
 
 The existing native journey now checks the committed revision outcome, returns to Writing Studio, and waits for the existing Saved indicator at each restart. Byte checks and exact candidate identity checks remain in place. This correction changes the test and this record. The previous package and ledger-integrity evidence remain available with their exact commit and artifact.
+
+## Detached concern restart waits for a distinct window pair
+
+The `16d1a719` candidate passed 1,810 offline app checks with two specified
+skips, all 74 native journeys, and four repeat groups of 60 fresh profiles.
+The final detached concern group passed 53 of 60. All seven failures reached
+the restart with the expected saved concern decision, manuscript and linked
+unit anchor. The existing helper found a secondary Command Center in its
+readiness poll, then failed on a separate enumeration. Writing Studio's failure
+snapshot reported that Command Center was open in a second window. The
+retained process packets show no renderer terminations across the 300 starts.
+
+The test now returns the distinct writing and command pages from the same
+readiness observation and verifies the command page's native bridge role.
+Detached DevTools is an auxiliary page. The failing logs and traces remain
+in the private candidate evidence. This change affects only the test and
+requires rerunning the gate. No executable source change or new renderer
+repair is claimed. Historical missing text paint remains open.

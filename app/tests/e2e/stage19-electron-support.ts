@@ -496,34 +496,34 @@ export async function getStage19Windows(
     );
   }
 
-  const hasDistinctCommand = async (): Promise<boolean> =>
-    (await Promise.all(electronApp.windows().map(async (candidate) => ({
-      candidate,
-      command: await candidate.locator('[data-stage19-role="command"]').count(),
-    })))).some((entry) => entry.command > 0 && entry.candidate !== writingCandidate);
+  const findCommand = async (): Promise<Page | undefined> => {
+    const candidates = electronApp.windows().filter((candidate) => candidate !== writingCandidate);
+    const ready = await Promise.all(candidates.map(async (candidate) =>
+      await candidate.evaluate(() =>
+        window.projectSpine?.windowRole === 'command' &&
+        document.querySelector('[data-stage19-role="command"]') !== null,
+      ) ? candidate : undefined,
+    ));
+    return ready.find((candidate) => candidate !== undefined);
+  };
 
-  if (!(await hasDistinctCommand())) {
-    await writingCandidate.getByRole('button', {
-      name: 'Open Command Center in second window',
-    }).click();
+  let command = await findCommand();
+  if (!command) {
+    const openCommand = writingCandidate.getByRole('button', {
+      name: 'Open Command Center in second window', exact: true,
+    });
+    if (await openCommand.isVisible()) await openCommand.click();
   }
 
-  await expect.poll(hasDistinctCommand, { timeout: 30_000 }).toBe(true);
-
-  const candidates = fixturePage
-    ? [fixturePage, ...electronApp.windows().filter((candidate) => candidate !== fixturePage)]
-    : electronApp.windows();
-  const identified = await Promise.all(candidates.map(async (candidate) => ({
-    candidate,
-    writing: await candidate.locator('[data-stage19-role="writing"]').count(),
-    command: await candidate.locator('[data-stage19-role="command"]').count(),
-  })));
-  const writing = identified.find((entry) => entry.writing > 0)?.candidate;
-  const command = identified.find((entry) => entry.command > 0)?.candidate;
-  if (!writing || !command || writing === command) {
-    throw new Error('Stage 19 did not expose its optional distinct Command Center.');
-  }
-  return { writing, command };
+  // Keep the pair observed by the readiness check. Detached DevTools adds
+  // another Playwright page, and logical roles can change during startup.
+  await expect.poll(async () => {
+    command = await findCommand();
+    return Boolean(command) &&
+      await writingCandidate.locator('[data-stage19-role="writing"]').count() === 1;
+  }, { timeout: 30_000 }).toBe(true);
+  if (!command) throw new Error('Stage 19 did not expose its optional distinct Command Center.');
+  return { writing: writingCandidate, command };
 }
 
 function waitForCleanElectronExit(
