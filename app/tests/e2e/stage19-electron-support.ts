@@ -499,10 +499,7 @@ export async function getStage19Windows(
   const findCommand = async (): Promise<Page | undefined> => {
     const candidates = electronApp.windows().filter((candidate) => candidate !== writingCandidate);
     const ready = await Promise.all(candidates.map(async (candidate) =>
-      await candidate.evaluate(() =>
-        window.projectSpine?.windowRole === 'command' &&
-        document.querySelector('[data-stage19-role="command"]') !== null,
-      ) ? candidate : undefined,
+      await candidate.locator('[data-stage19-role="command"]').count() === 1 ? candidate : undefined,
     ));
     return ready.find((candidate) => candidate !== undefined);
   };

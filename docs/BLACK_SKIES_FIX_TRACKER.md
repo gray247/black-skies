@@ -10415,3 +10415,30 @@ Detached DevTools is an auxiliary page. The failing logs and traces remain
 in the private candidate evidence. This change affects only the test and
 requires rerunning the gate. No executable source change or new renderer
 repair is claimed. Historical missing text paint remains open.
+
+## V3 — Revision Undo considers the revision's source
+
+In the packaged combined rehearsal, correcting spelling in Passage 3,
+then applying a selected-word alternative to Passage 1, left Passage 3
+as the active editor. After Save, Writing Studio refused to undo the
+revision and displayed “A newer source action must be undone first.”
+The spelling correction and applied revision were both still durable.
+The existing native revision journey reproduced the refusal with the
+same sequence. Its retained before-fix result shows the applied word
+still visible after Undo.
+
+The manuscript history already records the revision at the correct
+chronological position. The final editor-history guard compared the
+active editor against an empty fallback when the revision touched a
+different section. It now checks that local editor history only when the
+revision actually changed that section. The existing chronology, source
+and link guards still apply. The regression checks Undo, Redo, the other
+passage's saved correction, the accepted History decision, and exact
+saved prose and decision after a fresh process.
+
+The separate Windows run for `b5c12e8e` exposed a test helper issue.
+Raw page evaluation could lose its execution context as Command Center
+navigated from its initial page. The helper again uses the existing
+DOM role locators, which tolerate startup navigation. It still retains
+the distinct pair from a single readiness observation. The hosted failure
+and its eleven affected tests remain recorded in run 44330702623.

@@ -1330,7 +1330,12 @@ export function WritingPageProvider({
       const message = 'The earlier batch was not restored over newer edits. Use Undo to reverse the latest action first.';
       if (requiredKind === 'replacement') setSearchNotice(message); else setArrangementNotice(message); return;
     }
-    if (batch.kind === 'revision' && commandsRef.current?.hasHistory?.('undo') && !commandsRef.current.historyMatches?.('undo', batch.before[latest.current.model.activeUnit?.id ?? ''] ?? '')) { setArrangementNotice('A newer source action must be undone first.'); return; }
+    const editorBefore = batch.before[latest.current.model.activeUnit?.id ?? ''];
+    if (batch.kind === 'revision' && editorBefore !== undefined &&
+        commandsRef.current?.hasHistory?.('undo') && !commandsRef.current.historyMatches?.('undo', editorBefore)) {
+      setArrangementNotice('A newer source action must be undone first.');
+      return;
+    }
     if (!matchesBodies(batch.after)) {
       const message = 'Writing changed after this action. The earlier batch was not restored over newer edits.';
       if (batch.kind === 'move') setArrangementNotice(message);
