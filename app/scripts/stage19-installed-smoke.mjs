@@ -436,6 +436,7 @@ async function runtimeTruth(
     "captureRecoveryCheckpoint",
     "chooseDirectory",
     "checkSpelling",
+    "checkSpellingBatch",
     "spellingDictionary",
     "setWritingPreferences",
     "createProject",
@@ -828,9 +829,16 @@ async function closeSpellingLaunch(launched, executablePath) {
 async function spellingUiExercise(writing, unavailable) {
   const editor = writing.getByRole("textbox", { name: "Manuscript editor: Offline spelling words", exact: true });
   await editor.fill("foorrrest forest.");
+  await writing.getByText("Spell Checker", { exact: true }).click();
+  await writing.getByRole("button", { name: "Check manuscript", exact: true }).click();
+  if (unavailable) {
+    await writing.getByText("The manuscript could not be checked. The spelling dictionary is unavailable.", { exact: true }).waitFor();
+  } else {
+    await writing.getByText("1 possible misspelling in the manuscript.", { exact: true }).waitFor();
+    assert(await editor.locator(".stage19-writing-spelling").innerText() === "foorrrest", "The manuscript scan marked the wrong word.");
+  }
   await editor.press("Control+Home");
   for (let index = 0; index < "foorrrest".length; index += 1) await editor.press("Shift+ArrowRight");
-  await writing.getByText("Spell Checker", { exact: true }).click();
   await writing.getByRole("button", { name: "Check selected word", exact: true }).click();
   if (unavailable) {
     await writing.getByText("Spelling is unavailable. The included US-English dictionary could not be loaded. Your writing is unchanged.", { exact: true }).waitFor();
