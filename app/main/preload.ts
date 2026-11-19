@@ -2430,6 +2430,22 @@ if (process.platform !== 'darwin' && projectSpineWindowRole === 'writing' && typ
 }
 
 const projectSpineBaseBridge: ProjectSpineBridge = {
+  checkSpellingBatch: async (words) => {
+    if (!Array.isArray(words) || words.length > 128 ||
+        words.some(word => typeof word !== 'string' || !/^[\p{L}\p{M}'’–-]{1,80}$/u.test(word)) ||
+        process.argv.includes('--blackskies-offline-spelling=unavailable')) return null;
+    if (process.platform === 'darwin') {
+      const available = webFrame.isWordMisspelled('foorrrest') || webFrame.isWordMisspelled('qzxvwlj');
+      return available ? words.map(word => webFrame.isWordMisspelled(word)) : null;
+    }
+    try {
+      const results: { available: boolean; misspelled: boolean }[] =
+        await ipcRenderer.invoke(PROJECT_SPINE_CHANNELS.checkSpelling, { words, suggestions: false });
+      return results.length === words.length && results.every(result => result.available)
+        ? results.map(result => result.misspelled)
+        : null;
+    } catch { return null; }
+  },
   checkSpelling: async (word) => {
     if (typeof word !== 'string' || !/^[\p{L}\p{M}'’–-]{1,80}$/u.test(word) || process.argv.includes('--blackskies-offline-spelling=unavailable')) return { available: false, misspelled: false, suggestions: [] };
     // Preserve the existing macOS system checker; the Windows/Linux bundled

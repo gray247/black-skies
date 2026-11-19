@@ -469,11 +469,11 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   await otherEditor.press('Control+End');
   await otherEditor.press('ArrowLeft');
   for (let index = 0; index < 'foorrrest'.length; index += 1) await otherEditor.press('Shift+ArrowLeft');
-  await reopened.getByText('Spelling and accepted words', { exact: true }).click();
+  await reopened.getByText('Spell Checker', { exact: true }).click();
   await reopened.getByRole('button', { name: 'Check selected word', exact: true }).click();
   await reopened.getByRole('button', { name: 'Use forest', exact: true }).click();
   await expect(otherEditor).toHaveText(otherText);
-  await reopened.getByText('Spelling and accepted words', { exact: true }).click();
+  await reopened.getByText('Spell Checker', { exact: true }).click();
   await otherEditor.press('Control+s');
   const otherPath = path.join(projectPath, 'drafts', `${otherId}.md`);
   await expect.poll(() => readFile(otherPath, 'utf8')).toContain(otherText);

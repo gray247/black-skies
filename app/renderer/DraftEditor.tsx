@@ -17,7 +17,7 @@ import { syntaxTree } from '@codemirror/language';
 export interface DraftEditorWritingMark {
   readonly from: number;
   readonly to: number;
-  readonly kind: 'pinned' | 'unpinned' | 'concern' | 'pin' | 'note' | 'move';
+  readonly kind: 'pinned' | 'unpinned' | 'concern' | 'pin' | 'note' | 'move' | 'spelling';
   readonly id?: string;
   readonly label?: string;
 }

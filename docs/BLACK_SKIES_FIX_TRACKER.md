@@ -10467,3 +10467,25 @@ project preference. It uses the bundled dictionary. The native test
 checks switching it off and on, correcting a word and reopening with the
 saved setting. Full-manuscript spelling and thesaurus lookup are separate
 feature requests. Step 3 needs focused author retest and step 4 is pending.
+
+## Manuscript spelling and author review follow-up
+
+The author reports that the revision and reopen retest passed on the
+`4df69a84` review build. The intended role of Revision is exploring story-wide
+themes, ideas and substantive revisions. Reassess that author workflow
+after Program 10, when the integrated context is available. Preserve the
+historical disappearing-text report as open.
+
+Writing Studio now has a visible Spelling underlines switch and a shorter
+Spell Checker panel. Check manuscript reviews the current text in every
+section offline, including unsaved prose. It reuses the existing spelling
+owner and sends deduplicated words in bounded batches. The result marks
+exact source offsets, including in inactive sections, and Next misspelling
+opens the corresponding editor. Editing invalidates the changed section’s
+old marks. The panel supports rechecking and leaves prose unchanged until
+the author chooses a correction. The dictionary field and actions sit on
+separate rows and the panel has an explicit close control for narrow windows.
+
+The focused native check covers offline checking in more than one section,
+the visible switch, exact marks, narrow layout, correction and reopening.
+Thesaurus lookup remains a separate request.

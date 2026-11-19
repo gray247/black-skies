@@ -51,6 +51,13 @@ import type {
 import type { WritingLinksSnapshot } from '../useWritingPage';
 import type { GapWritingOperationV1, LivingOutlineSourceAnchorV1, LivingOutlineItemState } from '../../shared/ipc/livingOutline';
 
+type SpellingPass = {
+  readonly bodies: Readonly<Record<string, string>>;
+  readonly ranges: ReadonlyMap<string, readonly WritingRange[]>;
+};
+const spellingWords = (text: string) =>
+  text.matchAll(/(?<![\p{L}\p{M}\p{N}])\p{L}[\p{L}\p{M}]*(?:['’–-][\p{L}\p{M}]+)*(?![\p{L}\p{M}\p{N}])/gu);
+
 type Point = { unitId: string; offset: number };
 type PreparedMove = { groupId: string; plan: WritingMovePlan; projectKey: string; beforeLinks: WritingLinksSnapshot; afterLinks: WritingLinksSnapshot };
 type MoveSource = { groupId: string; projectKey: string; bodies: Record<string, string>; linksKey: string };
@@ -78,6 +85,8 @@ export interface WritingSearchState {
 }
 export interface WritingContext {
   model: Stage19WritingSpineViewModel;
+  spellingPass: SpellingPass | null;
+  setSpellingPass: (pass: SpellingPass | null) => void;
   actions: Stage19WritingSpineViewActions;
   selection: readonly WritingRange[];
   armed: 'beginning' | Point | null;
@@ -241,6 +250,7 @@ export function WritingPageProvider({
   const latest = useRef({ model, actions });
   latest.current = { model, actions };
   const projectKey = `${model.snapshot.project?.projectId ?? ''}:${model.snapshot.project?.path ?? ''}:${model.snapshot.generation}`;
+  const [spelling, setSpelling] = useState<{ key: string; pass: SpellingPass } | null>(null);
   const [concernProjection, setConcernProjection] = useState<{
     bodies: typeof model.buffers; items: typeof model.program7RevisionItems.activeItems; dirty: typeof model.dirtyUnitIds;
     sources: (FeedbackSourceEvidence & { concernId: string })[];
@@ -1390,6 +1400,8 @@ export function WritingPageProvider({
   };
   const context: WritingContext = {
     model,
+    spellingPass: spelling?.key === projectKey ? spelling.pass : null,
+    setSpellingPass: pass => setSpelling(pass ? { key: projectKey, pass } : null),
     actions,
     createGap: async (label, body) => {
       const unitId = model.activeUnit?.id;
@@ -1626,7 +1638,11 @@ function WritingSpelling() {
   const [words, setWords] = useState<readonly string[]>([]);
   const [word, setWord] = useState('');
   const [busy, setBusy] = useState(false);
+  const scan = useRef<AbortController | null>(null);
+  const projectKey = context?.model.snapshot.project?.path;
+  const generation = context?.model.snapshot.generation;
   const [checked, setChecked] = useState<{ unitId: string; body: string; from: number; to: number; suggestions: readonly string[] } | null>(null);
+  useEffect(() => () => scan.current?.abort(), [projectKey, generation]);
   if (!context?.model.snapshot.project) return null;
   const { model, commands } = context;
   const project = model.snapshot.project!;
@@ -1638,13 +1654,60 @@ function WritingSpelling() {
     try {
       const result = await window.projectSpine.spellingDictionary({ projectId: project.projectId, projectPath: project.path, generation: model.snapshot.generation,
         operationId: crypto.randomUUID(), action, word: selected });
-      if (result.ok) { setWords(result.data.words); setMessage(action === 'inspect' ? 'Native dictionary entries loaded. This does not establish that spelling checks are working.' : 'Native dictionary updated.'); }
+      if (result.ok) {
+        setWords(result.data.words);
+        if (action !== 'inspect') context.setSpellingPass(null);
+        setMessage(action === 'inspect' ? 'Accepted words loaded.' : 'Dictionary updated. Check the manuscript again to refresh underlines.');
+      }
       else setMessage(result.error.message);
     } catch { setMessage('The native dictionary is unavailable. Writing remains available.'); }
     finally { setBusy(false); }
   };
-  return <details><summary>Spelling and accepted words</summary><section aria-label="Spelling and accepted words">
-    <label>
+  const checkManuscript = async () => {
+    const bridge = window.projectSpine;
+    if (!bridge?.checkSpellingBatch || busy) return;
+    const controller = new AbortController();
+    scan.current = controller;
+    const bodies = Object.fromEntries(project.units.map(unit => [unit.id, model.buffers[unit.id] ?? '']));
+    setMessage('Checking manuscript…');
+    setBusy(true);
+    try {
+      const unique = new Set<string>();
+      for (const body of Object.values(bodies)) {
+        for (const [token] of spellingWords(body)) if (token.length <= 80) unique.add(token);
+      }
+      const tokens = [...unique];
+      const flagged = new Set<string>();
+      for (let start = 0; start < tokens.length && !controller.signal.aborted; start += 128) {
+        const batch = tokens.slice(start, start + 128);
+        const results = await bridge.checkSpellingBatch(batch);
+        if (!results || results.length !== batch.length) throw new Error('Spelling unavailable');
+        batch.forEach((token, index) => { if (results[index]) flagged.add(token); });
+      }
+      if (controller.signal.aborted) return;
+      const ranges = new Map<string, WritingRange[]>();
+      for (const [unitId, body] of Object.entries(bodies)) {
+        const matches: WritingRange[] = [];
+        for (const match of spellingWords(body)) {
+          if (flagged.has(match[0])) matches.push({ unitId, from: match.index, to: match.index + match[0].length });
+        }
+        ranges.set(unitId, matches);
+      }
+      context.setSpellingPass({ bodies, ranges });
+      setMessage('');
+    } catch {
+      if (!controller.signal.aborted) setMessage('The manuscript could not be checked. The spelling dictionary is unavailable.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  const pass = context.spellingPass;
+  const currentRanges = pass ? project.units.flatMap(unit =>
+    model.buffers[unit.id] === pass.bodies[unit.id] ? pass.ranges.get(unit.id) ?? [] : []) : [];
+  const changed = pass && (Object.keys(pass.bodies).length !== project.units.length ||
+    project.units.some(unit => model.buffers[unit.id] !== pass.bodies[unit.id]));
+  return <>
+    <label className="stage19-spelling-toggle">
       <input type="checkbox" checked={values.spellcheck}
         disabled={busy || preferences?.invalid || model.recoveryBlocksEditing || Boolean(model.writingPage?.pendingGap) || !window.projectSpine?.setWritingPreferences}
         onChange={async event => {
@@ -1660,9 +1723,31 @@ function WritingSpelling() {
             setMessage('The spelling display setting could not be saved.');
           } finally { setBusy(false); }
         }} />
-      Underline possible misspellings in the active passage
+      Spelling underlines
     </label>
-    <p>Black Skies checks words as you edit using its included US English dictionary. Select a word for suggestions.</p>
+    <details onKeyDown={event => {
+      if (event.key !== 'Escape' || !event.currentTarget.open) return;
+      event.stopPropagation();
+      event.currentTarget.open = false;
+      event.currentTarget.querySelector('summary')?.focus();
+    }}><summary>Spell Checker</summary><section aria-label="Spell Checker">
+    <button type="button" className="stage19-spell-close" aria-label="Close Spell Checker" onClick={event => {
+      const details = event.currentTarget.closest('details');
+      if (details) details.open = false;
+      details?.querySelector('summary')?.focus();
+    }}>×</button>
+    <div className="stage19-spell-actions">
+      <button type="button" disabled={busy || !window.projectSpine?.checkSpellingBatch} onClick={() => void checkManuscript()}>Check manuscript</button>
+      {currentRanges.length ? <button type="button" disabled={busy} onClick={event => {
+        const panel = event.currentTarget.closest('details');
+        if (panel) panel.open = false;
+        const selected = context.selection[0];
+        const index = currentRanges.findIndex(range => range.unitId === selected?.unitId && range.from === selected.from);
+        void context.navigate(currentRanges[(index + 1) % currentRanges.length]!);
+      }}>Next misspelling</button> : null}
+    </div>
+    {pass ? <p role="status">{currentRanges.length} possible {currentRanges.length === 1 ? 'misspelling' : 'misspellings'}{changed ? ' in checked passages. Check the manuscript again to include changes.' : ' in the manuscript.'}</p> : null}
+    <p>Uses the included US English dictionary offline. Select a word for suggestions.</p>
     <button type="button" onMouseDown={event => event.preventDefault()} disabled={busy} onClick={async () => {
       const range = context.selection.length === 1 ? context.selection[0] : null;
       const body = range ? model.buffers[range.unitId] : undefined;
@@ -1685,13 +1770,17 @@ function WritingSpelling() {
       setMessage('Correction applied. Ordinary Undo and Save are available.'); setChecked(null);
     }}>Use {suggestion}</button>)}
     <p>Accepted words belong to the native Electron session dictionary, across its projects. Electron can also update the Windows system dictionary; these are not project-only words.</p>
-    <fieldset disabled={busy}><label>Accepted word<input aria-label="Accepted word" value={word} maxLength={80} onChange={event => setWord(event.target.value)} /></label>
-      <button type="button" onClick={() => void dictionary('accept')}>Accept word in native dictionary</button>
-      <button type="button" onClick={() => void dictionary('inspect')}>Show accepted words</button>
-      <ul>{words.map(value => <li key={value}>{value}<button type="button" aria-label={`Remove accepted word ${value}`} onClick={() => void dictionary('remove', value)}>Remove</button></li>)}</ul>
+    <fieldset className="stage19-spelling-dictionary" disabled={busy}>
+      <label>Accepted word<input aria-label="Accepted word" value={word} maxLength={80} onChange={event => setWord(event.target.value)} /></label>
+      <div className="stage19-spell-actions">
+        <button type="button" disabled={!word.trim()} onClick={() => void dictionary('accept')}>Accept dictionary</button>
+        <button type="button" onClick={() => void dictionary('inspect')}>Show accepted words</button>
+      </div>
+      {words.length ? <ul>{words.map(value => <li key={value}>{value}<button type="button" aria-label={`Remove accepted word ${value}`} onClick={() => void dictionary('remove', value)}>Remove</button></li>)}</ul> : null}
     </fieldset>
     {message ? <p role="status">{message}</p> : null}
-  </section></details>;
+  </section></details>
+  </>;
 }
 
 export function WritingPreferences() {
@@ -2667,14 +2756,15 @@ export function WritingSourcePreview({ unitId, text, from: start = 0, to: end = 
   unitId: string; text: string; from?: number; to?: number; interactive?: boolean;
 }) {
   const context = useWritingContext();
-  const marks = interactive ? getWritingMarks(context, unitId) : [];
+  const marks = interactive ? getWritingMarks(context, unitId, false) : [];
+  const spelling = interactive ? spellingRanges(context, unitId, text) : [];
   const emphasis = useMemo(() => getDraftEmphasis(text), [text]);
   const preference = context?.model.snapshot.project?.writingPreferences?.values;
   const layout = Boolean(interactive && (preference?.paragraphSpacing || preference?.firstLineIndent));
   const paragraphs = useMemo(() => layout
     ? [0, ...Array.from(text.matchAll(/\n\s*\n(?=\S)/gu), match => match.index! + match[0].length)]
     : [], [layout, text]);
-  const points = [...new Set([start, end, ...marks.flatMap((mark) => [mark.from, mark.to]), ...paragraphs,
+  const points = [...new Set([start, end, ...spelling.flatMap(range => [range.from, range.to]), ...marks.flatMap((mark) => [mark.from, mark.to]), ...paragraphs,
     ...emphasis.flatMap(span => [span.from, span.contentFrom, span.contentTo, span.to]),
     ...marks.filter(mark => mark.kind === 'move').map(mark => mark.from)])]
     .filter((point) => point >= start && point <= end && point >= 0 && point <= text.length)
@@ -2712,15 +2802,18 @@ export function WritingSourcePreview({ unitId, text, from: start = 0, to: end = 
           </span>
         ),
       );
+  let spellingIndex = 0;
   return (
     <span data-writing-source={interactive ? "true" : undefined}>
       {widgets(start)}
       {points.slice(0, -1).map((from, index) => {
         const to = points[index + 1]!;
+        while (spelling[spellingIndex] && spelling[spellingIndex]!.to <= from) spellingIndex += 1;
+        const typo = spelling[spellingIndex];
         const classes = marks
           .filter((mark) => mark.to > mark.from && mark.from <= from && mark.to >= to)
-          .map((mark) => `stage19-writing-${mark.kind}`)
-          .join(' ');
+          .map((mark) => `stage19-writing-${mark.kind}`);
+        if (typo && typo.from <= from && typo.to >= to) classes.push('stage19-writing-spelling');
         const hidden = emphasis.some(span => (from >= span.from && to <= span.contentFrom) || (from >= span.contentTo && to <= span.to));
         const styles = emphasis.filter(span => span.contentFrom <= from && span.contentTo >= to);
         return (
@@ -2731,7 +2824,7 @@ export function WritingSourcePreview({ unitId, text, from: start = 0, to: end = 
             </> : null}
             {/* Retain hidden source text in the DOM for exact native-selection
                 offsets across sections; it is never visible manuscript prose. */}
-            <span data-writing-span="true" data-writing-from={from} className={classes}
+            <span data-writing-span="true" data-writing-from={from} className={classes.join(' ')}
               hidden={hidden} aria-hidden={hidden || undefined}
               style={{ fontWeight: styles.some(span => span.style === 'bold') ? 700 : undefined,
                 fontStyle: styles.some(span => span.style === 'italic') ? 'italic' : undefined }}>
@@ -2745,15 +2838,24 @@ export function WritingSourcePreview({ unitId, text, from: start = 0, to: end = 
   );
 }
 
+function spellingRanges(context: WritingContext | null, unitId: string, body: string): readonly WritingRange[] {
+  const pass = context?.spellingPass;
+  return pass && context?.model.snapshot.project?.writingPreferences?.values.spellcheck !== false &&
+    pass.bodies[unitId] === body ? pass.ranges.get(unitId) ?? [] : [];
+}
+
 export function getWritingMarks(
   context: WritingContext | null,
   unitId: string,
+  includeSpelling = true,
 ): DraftEditorWritingMark[] {
   const page = context?.model.writingPage;
   if (!context || !page || !page.ready) return [];
   const body = context.model.buffers[unitId] ?? '';
   const groups = page.groups.filter((group) => !page.unresolved.includes(group.id));
-  const marks: DraftEditorWritingMark[] = [];
+  const marks: DraftEditorWritingMark[] = includeSpelling
+    ? spellingRanges(context, unitId, body).map(range => ({ ...range, kind: 'spelling' }))
+    : [];
   if (context.movingGroupId) for (const offset of writingMoveBoundaries(unitId, body, groups))
     marks.push({ kind: 'move', from: offset, to: offset, id: `${context.movingGroupId}:${offset}`, label: `Insert writing here, position ${offset}` });
   try {

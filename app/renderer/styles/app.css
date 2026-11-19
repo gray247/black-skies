@@ -10248,6 +10248,23 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   font-size: .8rem;
   color: var(--bs-text-muted);
 }
+.stage19-spelling-toggle,
+.stage19-spell-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+.stage19-spell-close { float: inline-end; margin-inline-start: .5rem; }
+.stage19-spelling-dictionary {
+  display: grid;
+  min-inline-size: 0;
+  gap: .6rem;
+}
+.stage19-spelling-dictionary label { display: grid; gap: .3rem; }
+.stage19-spine .stage19-spelling-dictionary input { width: 100%; min-width: 0; box-sizing: border-box; }
+.stage19-spine .stage19-spell-actions button { display: inline-grid; place-items: center; text-align: center; }
+.stage19-writing-spelling { text-decoration: underline wavy #d64b4b; text-underline-offset: .15em; }
 .stage19-writing-page-options > .stage19-writing-preferences { display: contents; }
 .stage19-writing-page-options details > summary { cursor: pointer; padding: .2rem 0; }
 .stage19-spine[data-writing-page="true"] .stage19-writing-page-tools > [aria-label="Writing organization"] > button {
@@ -10261,7 +10278,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   max-height: 55dvh;
   overflow: auto;
 }
-.stage19-writing-page-options :is(form[aria-label="Writing preferences"], [aria-label="Spelling and accepted words"], [aria-label="Story gaps"]) {
+.stage19-writing-page-options :is(form[aria-label="Writing preferences"], [aria-label="Spell Checker"], [aria-label="Story gaps"]) {
   position: fixed;
   z-index: 36;
   inset: 160px auto auto clamp(16px, 3vw, 48px);

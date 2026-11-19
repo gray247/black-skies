@@ -763,6 +763,7 @@ describe('splitCommand preload bridge', () => {
         'acceptRevisionCandidate',
         'captureRecoveryCheckpoint',
         'checkSpelling',
+        'checkSpellingBatch',
         'chooseDirectory',
         'createProject',
         'createUnit',

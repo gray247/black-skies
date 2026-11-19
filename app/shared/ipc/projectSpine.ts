@@ -471,6 +471,7 @@ export interface ProjectSpineBridge {
   spellingDictionary?(request: SpellingDictionaryRequest): Promise<ProjectSpineResult<SpellingDictionaryState>>;
   setWritingPreferences?(request: SetWritingPreferencesRequest): Promise<ProjectSpineResult>;
   /** Bundled local dictionary through the existing main spelling owner. */
+  checkSpellingBatch?(words: readonly string[]): Promise<readonly boolean[] | null>;
   checkSpelling?(word: string): Promise<{ available: boolean; misspelled: boolean; suggestions: readonly string[] }>;
   readonly windowRole: ProjectSpineWindowRole;
   /** Writing Studio only. Re-activates the owning Electron window after a native dialog closes. */

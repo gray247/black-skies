@@ -830,7 +830,7 @@ async function spellingUiExercise(writing, unavailable) {
   await editor.fill("foorrrest forest.");
   await editor.press("Control+Home");
   for (let index = 0; index < "foorrrest".length; index += 1) await editor.press("Shift+ArrowRight");
-  await writing.getByText("Spelling and accepted words", { exact: true }).click();
+  await writing.getByText("Spell Checker", { exact: true }).click();
   await writing.getByRole("button", { name: "Check selected word", exact: true }).click();
   if (unavailable) {
     await writing.getByText("Spelling is unavailable. The included US-English dictionary could not be loaded. Your writing is unchanged.", { exact: true }).waitFor();
