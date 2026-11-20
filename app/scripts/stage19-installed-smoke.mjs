@@ -910,7 +910,8 @@ export async function qualifyFirstOfflineSpelling(executablePath, root) {
         const accepted = await writing.evaluate(word => window.projectSpine.checkSpelling(word), profileWord);
         assert(accepted.available && !accepted.misspelled, "An explicitly accepted word was not accepted.");
         await editor.fill("forest forest.");
-        await writing.getByRole("button", { name: "Save writing", exact: true }).click();
+        // Restoring the exact saved prose may already clear the dirty state.
+        await editor.press("Control+s");
         await writing.waitForFunction(() => document.querySelector(".stage19-writing-shell__status .stage19-spine__save-state")?.textContent === "Saved");
         await launched.writing.evaluate(async parentPath => {
           const result = await window.projectSpine.createProject({ parentPath, title: "Other spelling project", operationId: "offline-other-project" });
