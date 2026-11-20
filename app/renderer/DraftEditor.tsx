@@ -124,6 +124,7 @@ export interface DraftEditorDiffConfig {
 
 export interface DraftEditorCommands {
   beginDocumentSelection?(): () => void;
+  ownsEditor?(element: Element): boolean;
   replaceExactRange?(expected: string, from: number, to: number, text: string): boolean;
   format(style: 'bold' | 'italic'): void;
   undo(): void;
@@ -857,6 +858,7 @@ export default function DraftEditor({
       format: (style) => formatSelection(style === 'bold' ? 'b' : 'i'),
       undo: () => { const view = viewRef.current; if (view) historyCommands.current?.undo(view); },
       redo: () => { const view = viewRef.current; if (view) historyCommands.current?.redo(view); },
+      ownsEditor: element => viewRef.current?.contentDOM === element,
       replaceExactRange: (expected, from, to, text) => {
         const view = viewRef.current;
         if (!view || view.state.readOnly || view.state.doc.toString() !== expected || from < 0 || to < from || to > expected.length) return false;

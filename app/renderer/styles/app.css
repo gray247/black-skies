@@ -10248,7 +10248,6 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
   font-size: .8rem;
   color: var(--bs-text-muted);
 }
-.stage19-spelling-toggle,
 .stage19-spell-actions {
   display: flex;
   flex-wrap: wrap;
@@ -10365,6 +10364,7 @@ body[data-stage19-spine][data-stage19-theme="light"] :focus-visible {
 
 /* Current Writing Studio: local source actions and shared move markers. */
 .stage19-writing-context-menu { width: min(292px, calc(100vw - 16px)); max-height: min(420px, calc(100vh - 16px)); overflow: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; z-index: 100; }
+.stage19-context-spelling { display: grid; gap: .35rem; padding-block: .35rem; border-block: 1px solid var(--bs-line-quiet); }
 .stage19-writing-context-menu p { margin: 4px 0; font-size: .85rem; }
 .stage19-writing-context-menu form, .stage19-writing-context-menu label { display: grid; gap: 6px; min-width: 0; }
 .stage19-writing-context-menu input { min-width: 0; width: 100%; box-sizing: border-box; }

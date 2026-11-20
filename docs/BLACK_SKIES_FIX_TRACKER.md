@@ -10489,3 +10489,21 @@ separate rows and the panel has an explicit close control for narrow windows.
 The focused native check covers offline checking in more than one section,
 the visible switch, exact marks, narrow layout, correction and reopening.
 Thesaurus lookup remains a separate request.
+
+## Live spelling and panel lock
+
+Spelling underlines now sit beside Pinned, Unpinned, and Open concern.
+Writing Studio checks the active passage after typing pauses. Check
+manuscript still checks every section, and later live results replace
+stale ranges in the edited passage. Next misspelling keeps the panel
+open. Lock Spell Checker keeps it open while interacting with the manuscript.
+
+The existing manuscript context menu now checks the word under the pointer
+and offers dictionary suggestions and Add to dictionary. A correction
+uses the editor bound to the exact current passage and participates in
+ordinary Undo. Accepting a word clears that word’s checked marks.
+
+The native regression exercised two live misspellings before a manual scan,
+right-click correction with Undo, the toolbar switch, whole-manuscript
+scanning, and navigation with the panel locked. The installed test
+exercises contextual dictionary acceptance on an isolated Windows runner.

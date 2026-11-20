@@ -897,12 +897,21 @@ export async function qualifyFirstOfflineSpelling(executablePath, root) {
       const raw = readFileSync(path.join(binding.projectPath, "drafts", `${binding.unitId}.md`), "utf8");
       assert(raw === snapshot.project.drafts[binding.unitId] && raw.includes("forest forest.") && !raw.includes("foorrrest"), "Saved spelling content differed from the durable project projection.");
       if (locale === "en-US") {
-        const accepted = await launched.writing.evaluate(async ({ binding, word }) => {
-          const result = await window.projectSpine.spellingDictionary({ ...binding, operationId: "offline-accept-word", action: "accept", word });
-          if (!result.ok) throw new Error(result.error.message);
-          return window.projectSpine.checkSpelling(word);
-        }, { binding, word: profileWord });
+        const writing = launched.writing;
+        const closeSpellChecker = writing.getByRole("button", { name: "Close Spell Checker", exact: true });
+        if (await closeSpellChecker.isVisible()) await closeSpellChecker.click();
+        const editor = writing.getByRole("textbox", { name: "Manuscript editor: Offline spelling words", exact: true });
+        await editor.press("Control+End");
+        await editor.pressSequentially(` ${profileWord} `);
+        const mark = editor.locator(".stage19-writing-spelling").filter({ hasText: profileWord });
+        await mark.click({ button: "right" });
+        await writing.getByRole("group", { name: "Spelling suggestions" }).getByRole("button", { name: "Add to dictionary", exact: true }).click();
+        await mark.waitFor({ state: "hidden" });
+        const accepted = await writing.evaluate(word => window.projectSpine.checkSpelling(word), profileWord);
         assert(accepted.available && !accepted.misspelled, "An explicitly accepted word was not accepted.");
+        await editor.fill("forest forest.");
+        await writing.getByRole("button", { name: "Save writing", exact: true }).click();
+        await writing.waitForFunction(() => document.querySelector(".stage19-writing-shell__status .stage19-spine__save-state")?.textContent === "Saved");
         await launched.writing.evaluate(async parentPath => {
           const result = await window.projectSpine.createProject({ parentPath, title: "Other spelling project", operationId: "offline-other-project" });
           if (!result.ok) throw new Error(result.error.message);

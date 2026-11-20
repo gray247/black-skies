@@ -58,10 +58,38 @@ type SpellingPass = {
 const spellingWords = (text: string) =>
   text.matchAll(/(?<![\p{L}\p{M}\p{N}])\p{L}[\p{L}\p{M}]*(?:['’–-][\p{L}\p{M}]+)*(?![\p{L}\p{M}\p{N}])/gu);
 
+async function checkSpellingBodies(bodies: SpellingPass['bodies'], signal: AbortSignal): Promise<SpellingPass | null> {
+  const bridge = window.projectSpine;
+  if (!bridge?.checkSpellingBatch) return null;
+  const words = new Set<string>();
+  for (const body of Object.values(bodies)) {
+    for (const [word] of spellingWords(body)) if (word.length <= 80) words.add(word);
+  }
+  const tokens = [...words];
+  const flagged = new Set<string>();
+  for (let from = 0; from < tokens.length; from += 128) {
+    if (signal.aborted) return null;
+    const batch = tokens.slice(from, from + 128);
+    const result = await bridge.checkSpellingBatch(batch);
+    if (!result || result.length !== batch.length) return null;
+    batch.forEach((word, index) => { if (result[index]) flagged.add(word); });
+  }
+  if (signal.aborted) return null;
+  const ranges = new Map<string, WritingRange[]>();
+  for (const [unitId, body] of Object.entries(bodies)) {
+    const matches: WritingRange[] = [];
+    for (const match of spellingWords(body)) {
+      if (flagged.has(match[0])) matches.push({ unitId, from: match.index, to: match.index + match[0].length });
+    }
+    ranges.set(unitId, matches);
+  }
+  return { bodies, ranges };
+}
+
 type Point = { unitId: string; offset: number };
 type PreparedMove = { groupId: string; plan: WritingMovePlan; projectKey: string; beforeLinks: WritingLinksSnapshot; afterLinks: WritingLinksSnapshot };
 type MoveSource = { groupId: string; projectKey: string; bodies: Record<string, string>; linksKey: string };
-type UnitControls = { x: number; y: number; ranges: readonly WritingRange[]; point: Point; bodies: Record<string, string>; linksKey: string; keyboard: boolean };
+type UnitControls = { x: number; y: number; ranges: readonly WritingRange[]; point: Point; bodies: Record<string, string>; linksKey: string; keyboard: boolean; spellingPoint?: Point };
 function splitWord(body: string, offset: number) {
   return [...body.matchAll(/[\p{L}\p{N}][\p{L}\p{N}\p{M}'’–-]*/gu)]
     .find(word => word.index! + word[0].length > offset);
@@ -86,7 +114,10 @@ export interface WritingSearchState {
 export interface WritingContext {
   model: Stage19WritingSpineViewModel;
   spellingPass: SpellingPass | null;
-  setSpellingPass: (pass: SpellingPass | null) => void;
+  setSpellingPass: (pass: SpellingPass) => void;
+  spellingVersion: number;
+  refreshSpelling: (acceptedWord?: string) => void;
+  applySpelling: (range: WritingRange, body: string, replacement: string) => Promise<void>;
   actions: Stage19WritingSpineViewActions;
   selection: readonly WritingRange[];
   armed: 'beginning' | Point | null;
@@ -251,6 +282,38 @@ export function WritingPageProvider({
   latest.current = { model, actions };
   const projectKey = `${model.snapshot.project?.projectId ?? ''}:${model.snapshot.project?.path ?? ''}:${model.snapshot.generation}`;
   const [spelling, setSpelling] = useState<{ key: string; pass: SpellingPass } | null>(null);
+  const spellingPass = spelling?.key === projectKey ? spelling.pass : null;
+  const [spellingVersion, setSpellingVersion] = useState(0);
+  const refreshSpelling = (acceptedWord?: string) => {
+    setSpelling(previous => {
+      if (!acceptedWord || previous?.key !== projectKey) return null;
+      const { bodies, ranges } = previous.pass;
+      return { key: projectKey, pass: { bodies, ranges: new Map([...ranges].map(([unitId, matches]) =>
+        [unitId, matches.filter(match => bodies[unitId]?.slice(match.from, match.to) !== acceptedWord)])) } };
+    });
+    setSpellingVersion(version => version + 1);
+  };
+  const activeSpellingId = model.activeUnit?.id;
+  const activeSpellingBody = activeSpellingId ? model.buffers[activeSpellingId] : undefined;
+  const needsLiveSpelling = Boolean(activeSpellingId && activeSpellingBody !== undefined &&
+    (model.snapshot.project?.writingPreferences?.values.spellcheck !== false || spellingPass) &&
+    spellingPass?.bodies[activeSpellingId] !== activeSpellingBody);
+  useEffect(() => {
+    if (!needsLiveSpelling || !activeSpellingId || activeSpellingBody === undefined || model.logicalSurface !== 'writing') return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      void checkSpellingBodies({ [activeSpellingId]: activeSpellingBody }, controller.signal).then(result => {
+        if (!result || controller.signal.aborted || latest.current.model.buffers[activeSpellingId] !== activeSpellingBody) return;
+        setSpelling(previous => {
+          const pass = previous?.key === projectKey ? previous.pass : null;
+          const ranges = new Map(pass?.ranges);
+          ranges.set(activeSpellingId, result.ranges.get(activeSpellingId) ?? []);
+          return { key: projectKey, pass: { bodies: { ...pass?.bodies, ...result.bodies }, ranges } };
+        });
+      }).catch(() => {});
+    }, 260);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [activeSpellingId, activeSpellingBody, model.logicalSurface, needsLiveSpelling, projectKey, spellingVersion]);
   const [concernProjection, setConcernProjection] = useState<{
     bodies: typeof model.buffers; items: typeof model.program7RevisionItems.activeItems; dirty: typeof model.dirtyUnitIds;
     sources: (FeedbackSourceEvidence & { concernId: string })[];
@@ -634,7 +697,7 @@ export function WritingPageProvider({
           const rect = event.target.getBoundingClientRect();
           setContextMenu({ x: Math.max(4, Math.min(rect.left, window.innerWidth - 300)),
             y: Math.max(4, Math.min(rect.top + 24, window.innerHeight - 300)),
-            ranges: selected.ranges, point: selected.a, bodies: { ...state.buffers },
+            ranges: selected.ranges, point: selected.a, spellingPoint: selected.a, bodies: { ...state.buffers },
             linksKey: state.writingPage!.captureLinks().key, keyboard: true });
           event.preventDefault(); event.stopPropagation();
         }
@@ -698,6 +761,8 @@ export function WritingPageProvider({
         return;
       event.preventDefault();
       const selected = readSelection();
+      const caret = document.caretRangeFromPoint?.(event.clientX, event.clientY);
+      const spellingPoint = readPoint(caret?.startContainer ?? null, caret?.startOffset ?? 0) ?? selected?.a;
       let ranges = selected?.ranges ?? [];
       if (!ranges.length && selected)
         ranges = [{ unitId: selected.a.unitId, from: selected.a.offset, to: selected.a.offset }];
@@ -706,7 +771,7 @@ export function WritingPageProvider({
       setContextMenu({
         x: Math.max(4, Math.min(event.clientX, window.innerWidth - 300)),
         y: Math.max(4, Math.min(event.clientY, window.innerHeight - 300)),
-        ranges, point: selected?.a ?? { unitId: latest.current.model.activeUnit?.id ?? '', offset: 0 },
+        ranges, spellingPoint: spellingPoint ?? undefined, point: selected?.a ?? { unitId: latest.current.model.activeUnit?.id ?? '', offset: 0 },
         bodies: { ...latest.current.model.buffers }, linksKey: latest.current.model.writingPage!.captureLinks().key, keyboard: true,
       });
     };
@@ -1400,8 +1465,40 @@ export function WritingPageProvider({
   };
   const context: WritingContext = {
     model,
-    spellingPass: spelling?.key === projectKey ? spelling.pass : null,
-    setSpellingPass: pass => setSpelling(pass ? { key: projectKey, pass } : null),
+    spellingPass,
+    spellingVersion,
+    refreshSpelling,
+    setSpellingPass: pass => setSpelling(previous => {
+      const latestPass = previous?.key === projectKey ? previous.pass : null;
+      const bodies = { ...pass.bodies };
+      const ranges = new Map(pass.ranges);
+      for (const [id, body] of Object.entries(latest.current.model.buffers)) {
+        if (body !== pass.bodies[id] && body === latestPass?.bodies[id]) {
+          bodies[id] = body;
+          ranges.set(id, latestPass.ranges.get(id) ?? []);
+        }
+      }
+      return { key: projectKey, pass: { bodies, ranges } };
+    }),
+    applySpelling: async (range, body, replacement) => {
+      const original = latest.current.model.snapshot;
+      if (latest.current.model.buffers[range.unitId] !== body) return;
+      setContextMenu(null);
+      if (latest.current.model.activeUnit?.id !== range.unitId) await navigate(range);
+      // The editor registers its commands after a section switch renders.
+      for (let frame = 0; frame < 12; frame += 1) {
+        const current = latest.current.model;
+        if (current.snapshot.generation !== original.generation || current.snapshot.project?.path !== original.project?.path ||
+            current.buffers[range.unitId] !== body || current.recoveryBlocksEditing) break;
+        const activeEditor = document.querySelector('[data-stage19-role="writing"] .stage19-continuous-manuscript__section.is-active .cm-content');
+        const commands = commandsRef.current;
+        if (activeEditor?.closest<HTMLElement>('[data-manuscript-unit-id]')?.dataset.manuscriptUnitId === range.unitId &&
+            commands?.ownsEditor?.(activeEditor) &&
+            commands.replaceExactRange?.(body, range.from, range.to, replacement)) return;
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      }
+      setArrangementNotice('Could not apply the spelling suggestion. Check the word again.');
+    },
     actions,
     createGap: async (label, body) => {
       const unitId = model.activeUnit?.id;
@@ -1632,6 +1729,39 @@ function WritingGapTools() {
   </details>;
 }
 
+function WritingSpellingToggle() {
+  const context = useWritingContext();
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const model = context?.model;
+  const project = model?.snapshot.project;
+  if (!model || !project) return null;
+  const preferences = project.writingPreferences;
+  const values = preferences?.values ?? DEFAULT_WRITING_PREFERENCES;
+  return <>
+    <label className="stage19-spelling-toggle">
+      <input type="checkbox" checked={values.spellcheck}
+        disabled={saving || preferences?.invalid || model.recoveryBlocksEditing || Boolean(model.writingPage?.pendingGap) || !window.projectSpine?.setWritingPreferences}
+        onChange={async event => {
+          const setPreferences = window.projectSpine?.setWritingPreferences;
+          if (!setPreferences) return;
+          const spellcheck = event.currentTarget.checked;
+          setSaving(true);
+          setMessage('');
+          try {
+            const result = await setPreferences({ projectId: project.projectId, projectPath: project.path, generation: model.snapshot.generation,
+              operationId: crypto.randomUUID(), expectedRevision: preferences?.revision ?? 0, values: { ...values, spellcheck } });
+            if (!result.ok) setMessage(result.error.message);
+          } catch {
+            setMessage('The spelling display setting could not be saved.');
+          } finally { setSaving(false); }
+        }} />
+      Spelling underlines
+    </label>
+    {message ? <span role="status">{message}</span> : null}
+  </>;
+}
+
 function WritingSpelling() {
   const context = useWritingContext();
   const [message, setMessage] = useState('');
@@ -1642,12 +1772,23 @@ function WritingSpelling() {
   const projectKey = context?.model.snapshot.project?.path;
   const generation = context?.model.snapshot.generation;
   const [checked, setChecked] = useState<{ unitId: string; body: string; from: number; to: number; suggestions: readonly string[] } | null>(null);
-  useEffect(() => () => scan.current?.abort(), [projectKey, generation]);
+  const spellingVersion = context?.spellingVersion;
+  const panelRef = useRef<HTMLDetailsElement>(null);
+  const [locked, setLocked] = useState(false);
+  useEffect(() => () => scan.current?.abort(), [projectKey, generation, spellingVersion]);
+  useEffect(() => {
+    if (locked) return;
+    const dismiss = (event: PointerEvent) => {
+      const panel = panelRef.current;
+      if (panel?.open && event.target instanceof Node && !panel.contains(event.target) &&
+          !(event.target instanceof Element && event.target.closest('.stage19-spelling-toggle'))) panel.open = false;
+    };
+    document.addEventListener('pointerdown', dismiss);
+    return () => document.removeEventListener('pointerdown', dismiss);
+  }, [locked]);
   if (!context?.model.snapshot.project) return null;
   const { model, commands } = context;
   const project = model.snapshot.project!;
-  const preferences = project.writingPreferences;
-  const values = preferences?.values ?? DEFAULT_WRITING_PREFERENCES;
   const dictionary = async (action: 'inspect' | 'accept' | 'remove', selected = word) => {
     if (!window.projectSpine?.spellingDictionary || busy) return;
     setBusy(true);
@@ -1656,7 +1797,7 @@ function WritingSpelling() {
         operationId: crypto.randomUUID(), action, word: selected });
       if (result.ok) {
         setWords(result.data.words);
-        if (action !== 'inspect') context.setSpellingPass(null);
+        if (action !== 'inspect') context.refreshSpelling(action === 'accept' ? selected : undefined);
         setMessage(action === 'inspect' ? 'Accepted words loaded.' : 'Dictionary updated. Check the manuscript again to refresh underlines.');
       }
       else setMessage(result.error.message);
@@ -1672,28 +1813,10 @@ function WritingSpelling() {
     setMessage('Checking manuscript…');
     setBusy(true);
     try {
-      const unique = new Set<string>();
-      for (const body of Object.values(bodies)) {
-        for (const [token] of spellingWords(body)) if (token.length <= 80) unique.add(token);
-      }
-      const tokens = [...unique];
-      const flagged = new Set<string>();
-      for (let start = 0; start < tokens.length && !controller.signal.aborted; start += 128) {
-        const batch = tokens.slice(start, start + 128);
-        const results = await bridge.checkSpellingBatch(batch);
-        if (!results || results.length !== batch.length) throw new Error('Spelling unavailable');
-        batch.forEach((token, index) => { if (results[index]) flagged.add(token); });
-      }
+      const pass = await checkSpellingBodies(bodies, controller.signal);
       if (controller.signal.aborted) return;
-      const ranges = new Map<string, WritingRange[]>();
-      for (const [unitId, body] of Object.entries(bodies)) {
-        const matches: WritingRange[] = [];
-        for (const match of spellingWords(body)) {
-          if (flagged.has(match[0])) matches.push({ unitId, from: match.index, to: match.index + match[0].length });
-        }
-        ranges.set(unitId, matches);
-      }
-      context.setSpellingPass({ bodies, ranges });
+      if (!pass) throw new Error('Spelling unavailable');
+      context.setSpellingPass(pass);
       setMessage('');
     } catch {
       if (!controller.signal.aborted) setMessage('The manuscript could not be checked. The spelling dictionary is unavailable.');
@@ -1707,46 +1830,28 @@ function WritingSpelling() {
   const changed = pass && (Object.keys(pass.bodies).length !== project.units.length ||
     project.units.some(unit => model.buffers[unit.id] !== pass.bodies[unit.id]));
   return <>
-    <label className="stage19-spelling-toggle">
-      <input type="checkbox" checked={values.spellcheck}
-        disabled={busy || preferences?.invalid || model.recoveryBlocksEditing || Boolean(model.writingPage?.pendingGap) || !window.projectSpine?.setWritingPreferences}
-        onChange={async event => {
-          const setPreferences = window.projectSpine?.setWritingPreferences;
-          if (!setPreferences) return;
-          const spellcheck = event.currentTarget.checked;
-          setBusy(true);
-          try {
-            const result = await setPreferences({ projectId: project.projectId, projectPath: project.path, generation: model.snapshot.generation,
-              operationId: crypto.randomUUID(), expectedRevision: preferences?.revision ?? 0, values: { ...values, spellcheck } });
-            setMessage(result.ok ? '' : result.error.message);
-          } catch {
-            setMessage('The spelling display setting could not be saved.');
-          } finally { setBusy(false); }
-        }} />
-      Spelling underlines
-    </label>
-    <details onKeyDown={event => {
-      if (event.key !== 'Escape' || !event.currentTarget.open) return;
+    <details ref={panelRef} onKeyDown={event => {
+      if (locked || event.key !== 'Escape' || !event.currentTarget.open) return;
       event.stopPropagation();
       event.currentTarget.open = false;
       event.currentTarget.querySelector('summary')?.focus();
     }}><summary>Spell Checker</summary><section aria-label="Spell Checker">
     <button type="button" className="stage19-spell-close" aria-label="Close Spell Checker" onClick={event => {
       const details = event.currentTarget.closest('details');
+      setLocked(false);
       if (details) details.open = false;
       details?.querySelector('summary')?.focus();
     }}>×</button>
     <div className="stage19-spell-actions">
+      <button type="button" aria-pressed={locked} onClick={() => setLocked(value => !value)}>{locked ? 'Unlock Spell Checker' : 'Lock Spell Checker'}</button>
       <button type="button" disabled={busy || !window.projectSpine?.checkSpellingBatch} onClick={() => void checkManuscript()}>Check manuscript</button>
-      {currentRanges.length ? <button type="button" disabled={busy} onClick={event => {
-        const panel = event.currentTarget.closest('details');
-        if (panel) panel.open = false;
+      {currentRanges.length ? <button type="button" disabled={busy} onClick={() => {
         const selected = context.selection[0];
         const index = currentRanges.findIndex(range => range.unitId === selected?.unitId && range.from === selected.from);
         void context.navigate(currentRanges[(index + 1) % currentRanges.length]!);
       }}>Next misspelling</button> : null}
     </div>
-    {pass ? <p role="status">{currentRanges.length} possible {currentRanges.length === 1 ? 'misspelling' : 'misspellings'}{changed ? ' in checked passages. Check the manuscript again to include changes.' : ' in the manuscript.'}</p> : null}
+    {pass && !message ? <p role="status">{currentRanges.length} possible {currentRanges.length === 1 ? 'misspelling' : 'misspellings'}{changed ? ' in checked passages. Check the manuscript again to include changes.' : ' in the manuscript.'}</p> : null}
     <p>Uses the included US English dictionary offline. Select a word for suggestions.</p>
     <button type="button" onMouseDown={event => event.preventDefault()} disabled={busy} onClick={async () => {
       const range = context.selection.length === 1 ? context.selection[0] : null;
@@ -2110,6 +2215,7 @@ export function WritingPageToolbar() {
             {key === 'pinned' ? 'Pinned' : key === 'unpinned' ? 'Unpinned' : 'Open concern'}
           </label>
         ))}
+        <WritingSpellingToggle />
       </div>
       {page.notice ? <p role="status">{page.notice}</p> : null}
       {context.note ? (
@@ -2262,8 +2368,55 @@ function WritingUnitControls() {
       </form> : null}
       <button type="button" disabled={disabled} onClick={() => { if (context.controlsCurrent()) context.startMove(group.id); }}>Move</button>
     </> : null}
+    {menu.spellingPoint ? <SpellingMenuActions point={menu.spellingPoint} body={menu.bodies[menu.spellingPoint.unitId] ?? ''} disabled={disabled} /> : null}
     <button type="button" aria-label="Add Note here" disabled={disabled} onClick={context.contextNote}>Notes</button>
     <button type="button" onClick={context.closeContextMenu}>Close menu</button>
+  </div>;
+}
+
+function SpellingMenuActions({ point, body, disabled }: { point: Point; body: string; disabled: boolean }) {
+  const context = useWritingContext();
+  const [result, setResult] = useState<{ word: string; from: number; suggestions: readonly string[] } | null>(null);
+  const [message, setMessage] = useState('');
+  const [adding, setAdding] = useState(false);
+  const { unitId, offset } = point;
+  const currentBody = context?.model.buffers[unitId];
+  const spellingVersion = context?.spellingVersion;
+  useEffect(() => {
+    let current = true;
+    setResult(null);
+    setMessage('');
+    if (currentBody !== body || disabled) return;
+    for (const match of spellingWords(body)) {
+      const from = match.index;
+      const word = match[0];
+      if (from > offset) break;
+      if (word.length > 80 || from + word.length < offset) continue;
+      void window.projectSpine?.checkSpelling?.(word).then(answer => {
+        if (current && answer.available && answer.misspelled) setResult({ word, from, suggestions: answer.suggestions });
+      }).catch(() => {});
+      break;
+    }
+    return () => { current = false; };
+  }, [body, currentBody, disabled, offset, spellingVersion]);
+  const project = context?.model.snapshot.project;
+  if (!context || !project || !result || disabled || currentBody !== body) return null;
+  return <div className="stage19-context-spelling" role="group" aria-label="Spelling suggestions">
+    {result.suggestions.map(suggestion => <button type="button" key={suggestion} disabled={adding}
+      onClick={() => void context.applySpelling({ unitId, from: result.from, to: result.from + result.word.length }, body, suggestion)}>{suggestion}</button>)}
+    <button type="button" disabled={adding} onClick={async () => {
+      const bridge = window.projectSpine;
+      if (!bridge?.spellingDictionary) return;
+      setAdding(true);
+      try {
+        const reply = await bridge.spellingDictionary({ projectId: project.projectId, projectPath: project.path,
+          generation: context.model.snapshot.generation, operationId: crypto.randomUUID(), action: 'accept', word: result.word });
+        if (reply.ok) { context.refreshSpelling(result.word); context.closeContextMenu(); }
+        else setMessage(reply.error.message);
+      } catch { setMessage('Could not add the word to the dictionary.'); }
+      finally { setAdding(false); }
+    }}>Add to dictionary</button>
+    {message ? <p role="status">{message}</p> : null}
   </div>;
 }
 
