@@ -10,6 +10,7 @@ import {
   openSavedWritingSections,
   removeTemporaryDirectory,
   requestWritingStudioClose,
+  selectWritingEditorProse,
   waitForCleanElectronApplicationExit,
 } from './stage19-electron-support';
 
@@ -83,8 +84,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
     await writing.getByRole('button', { name: 'Save writing', exact: true }).click();
     await expect(writing.locator('.stage19-writing-shell__status .stage19-spine__save-state').filter({ hasText: /^Saved$/u })).toBeVisible();
 
-    await openingEditor.focus();
-    await writing.keyboard.press('Control+A');
+    await selectWritingEditorProse(openingEditor, openingProse);
     await writing.getByRole('button', { name: 'Add story content' }).click();
     await expect(writing.getByRole('button', { name: 'Note', exact: true })).toBeEnabled();
     await writing.getByRole('button', { name: 'Note', exact: true }).click();
@@ -139,8 +139,7 @@ test('Human Gate 1 workflows remain advisory, linked, isolated, and durable acro
 
     await writing.getByRole('button', { name: /^01 Opening Signal$/ }).click();
     await writing.getByRole('region', { name: 'Story tools', exact: true }).getByRole('button', { name: 'Close', exact: true }).click();
-    await openingEditor.focus();
-    await writing.keyboard.press('Control+A');
+    await selectWritingEditorProse(openingEditor, openingProse);
     await openWritingStudioRail(writing, 'Review');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await expect(writing.getByRole('heading', { name: 'Exact outbound preview' })).toBeVisible();

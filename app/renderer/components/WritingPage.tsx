@@ -562,6 +562,35 @@ export function WritingPageProvider({
       : null;
   };
 
+  const selectDocumentRanges = (ranges: readonly WritingRange[], canvas: Element) => {
+    const first = ranges[0], last = ranges.at(-1);
+    if (!first || !last) return false;
+    const point = (range: WritingRange, offset: number) => {
+      const section = [...canvas.querySelectorAll<HTMLElement>('[data-manuscript-unit-id]')].find(node => node.dataset.manuscriptUnitId === range.unitId);
+      const source = section?.querySelector<HTMLElement>('.cm-content, [data-writing-source]');
+      if (!source) return null;
+      if (source.classList.contains('cm-content')) return EditorView.findFromDOM(source)?.domAtPos(offset) ?? null;
+      const walker = document.createTreeWalker(source, NodeFilter.SHOW_TEXT);
+      let node: Node | null, remaining = offset;
+      while ((node = walker.nextNode())) {
+        if (node.parentElement?.closest('[data-writing-decoration]')) continue;
+        const length = node.textContent?.length ?? 0;
+        if (remaining <= length) return { node, offset: remaining };
+        remaining -= length;
+      }
+      return null;
+    };
+    const a = point(first, first.from), b = point(last, last.to);
+    if (!a || !b) return false;
+    restoreDocumentSelection.current?.();
+    const restore = commandsRef.current?.beginDocumentSelection?.();
+    restoreDocumentSelection.current = () => { restore?.(); restoreDocumentSelection.current = null; };
+    crossSelection.current = { a: { unitId: first.unitId, offset: first.from }, b: { unitId: last.unitId, offset: last.to } };
+    window.getSelection()?.setBaseAndExtent(a.node, a.offset, b.node, b.offset);
+    setSelection(ranges);
+    return true;
+  };
+
   useEffect(() => {
     if (!model.writingPage) return;
     let selecting = false;
@@ -681,6 +710,23 @@ export function WritingPageProvider({
     const escape = (event: KeyboardEvent) => {
       suppressClick.current = null;
       const key = event.key.toLowerCase();
+      if (key === 'a' && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey &&
+          event.target instanceof Element && event.target.closest('.cm-content, [data-writing-source]')) {
+        const canvas = event.target.closest('[data-stage19-role="writing"] [data-manuscript-scroll-owner]');
+        const current = latest.current.model;
+        const units = canvas ? current.snapshot.project?.units ?? [] : [];
+        const ranges = units.flatMap(unit => {
+          const length = current.buffers[unit.id]?.length ?? 0;
+          return length ? [{ unitId: unit.id, from: 0, to: length }] : [];
+        });
+        if (canvas && (ranges.length > 1 || (ranges.length === 1 && ranges[0]!.unitId !== current.activeUnit?.id)) &&
+            selectDocumentRanges(ranges, canvas)) {
+          setContextMenu(null);
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+      }
       if ((event.ctrlKey || event.metaKey) && !event.altKey &&
           event.target instanceof Element && event.target.closest('.cm-content') &&
           (key === 'z' || key === 'y')) {
@@ -713,6 +759,7 @@ export function WritingPageProvider({
         crossSelection.current = null;
         restoreDocumentSelection.current?.();
         restoreEditor();
+        window.getSelection()?.removeAllRanges();
         setSelection([]);
         commandsRef.current?.focus();
         event.preventDefault();
@@ -927,36 +974,14 @@ export function WritingPageProvider({
   useEffect(() => {
     if (!sourceSelection || returnRequest || !hasEditor) return;
     const request = sourceSelection;
-    const first = request.ranges[0]!, last = request.ranges.at(-1)!;
+    const first = request.ranges[0]!;
     if (request.projectKey !== projectKey || request.ranges.some(range => model.buffers[range.unitId] !== request.bodies[range.unitId])) {
       setSourceSelection(null); return;
     }
     if (model.activeUnit?.id !== first.unitId) return;
-    const point = (range: WritingRange, offset: number) => {
-      const section = [...document.querySelectorAll<HTMLElement>('[data-manuscript-unit-id]')].find(node => node.dataset.manuscriptUnitId === range.unitId);
-      const source = section?.querySelector<HTMLElement>('.cm-content, [data-writing-source]');
-      if (!source) return null;
-      if (source.classList.contains('cm-content')) return EditorView.findFromDOM(source)?.domAtPos(offset) ?? null;
-      const walker = document.createTreeWalker(source, NodeFilter.SHOW_TEXT);
-      let node: Node | null, remaining = offset;
-      while ((node = walker.nextNode())) {
-        if (node.parentElement?.closest('[data-writing-decoration]')) continue;
-        const length = node.textContent?.length ?? 0;
-        if (remaining <= length) return { node, offset: remaining };
-        remaining -= length;
-      }
-      return null;
-    };
-    const a = point(first, first.from), b = point(last, last.to);
-    if (!a || !b) { setSourceSelection(null); return; }
-    restoreDocumentSelection.current?.();
-    const restore = commandsRef.current?.beginDocumentSelection?.();
-    restoreDocumentSelection.current = () => { restore?.(); restoreDocumentSelection.current = null; };
-    crossSelection.current = { a: { unitId: first.unitId, offset: first.from }, b: { unitId: last.unitId, offset: last.to } };
-    window.getSelection()?.setBaseAndExtent(a.node, a.offset, b.node, b.offset);
-    setSelection(request.ranges);
+    const canvas = document.querySelector('[data-stage19-role="writing"] [data-manuscript-scroll-owner]');
+    if (canvas && selectDocumentRanges(request.ranges, canvas)) follow({ unitId: first.unitId, offset: first.from });
     setSourceSelection(null);
-    follow({ unitId: first.unitId, offset: first.from });
     // The request is source-guarded and must wait for the editor's exact return.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceSelection, returnRequest, hasEditor, model.activeUnit?.id, model.buffers, projectKey]);

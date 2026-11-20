@@ -10507,3 +10507,15 @@ The native regression exercised two live misspellings before a manual scan,
 right-click correction with Undo, the toolbar switch, whole-manuscript
 scanning, and navigation with the panel locked. The installed test
 exercises contextual dictionary acceptance on an isolated Windows runner.
+
+## Ctrl+A selects the manuscript
+
+The author reports the live spelling review passed. In Writing Studio,
+Ctrl+A now selects the manuscript in section order from the writing
+area. It uses the existing cross-passage selection and copy handling,
+includes current unsaved prose, and leaves ordinary text fields with their
+own selection behavior. Escape returns focus to the active editor.
+
+Passage-specific review fixtures now explicitly select the passage by
+its keyboard boundaries. The desktop regression checks exact copied
+prose across sections, restored editor focus, and Ctrl+A in the Find field.

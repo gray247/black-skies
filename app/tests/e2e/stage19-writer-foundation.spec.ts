@@ -550,6 +550,23 @@ test('Catalog B5 qualifies the bundled US-English dictionary, correction and reo
   await expect(liveMark).toHaveText(['foorrrest', 'qzxvwlj']);
   await editor.fill('foorrrest forest. ');
   await expect(liveMark).toHaveText('foorrrest');
+  await editor.press('Control+a');
+  const selection = await writing.evaluate(() => {
+    const clipboard = new DataTransfer();
+    const event = new ClipboardEvent('copy', { clipboardData: clipboard, bubbles: true, cancelable: true });
+    document.dispatchEvent(event);
+    return { copied: clipboard.getData('text/plain'), collapsed: window.getSelection()?.isCollapsed };
+  });
+  expect(selection).toEqual({ copied: 'foorrrest forest. \n\nA qzxvwlj in the forest.', collapsed: false });
+  await writing.keyboard.press('Escape');
+  await expect(editor).toBeFocused();
+  await expect(editor).toHaveAttribute('contenteditable', 'true');
+  await writing.getByRole('button', { name: 'Find & replace', exact: true }).click();
+  const find = writing.locator('[data-writing-find-input]');
+  await find.fill('forest');
+  await find.press('Control+a');
+  expect(await find.evaluate((input: HTMLInputElement) => [input.selectionStart, input.selectionEnd])).toEqual([0, 6]);
+  await writing.getByRole('button', { name: 'Close search', exact: true }).click();
   await liveMark.click({ button: 'right' });
   const suggestions = writing.getByRole('group', { name: 'Spelling suggestions' });
   await expect(suggestions.getByRole('button', { name: 'Add to dictionary' })).toBeVisible();
@@ -891,7 +908,7 @@ test('Catalog B3 manual concern keeps paired evidence, guarded alternatives, aut
         if (!selected.ok) throw new Error(selected.error.message);
       }, fixture.ids[index]!);
       const editor = writing.getByRole('textbox', { name: `Manuscript editor: Gate passage ${index + 1}`, exact: true });
-      await editor.click(); await editor.press('Control+a');
+      await editor.click(); await editor.press('Control+Home'); await editor.press('Control+Shift+End');
       await capture.getByRole('button', { name: index ? 'Attach selected related evidence' : 'Attach selected primary evidence' }).click();
     }
     await expect(capture.locator('blockquote').nth(0)).toHaveText(bodies[0]!);
@@ -1043,7 +1060,7 @@ test('Catalog B3 manual concern keeps paired evidence, guarded alternatives, aut
     expect(await body(0)).toBe('Mara unsealed the gate.');
     await showWritingInWriting(writing);
     const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Gate passage 1', exact: true });
-    await editor.click(); await editor.press('Control+a');
+    await editor.click(); await editor.press('Control+Home'); await editor.press('Control+Shift+End');
     await showCommandInWriting(writing); await writing.getByRole('button', { name: 'Create / Develop', exact: true }).click();
     await writing.getByLabel('Alternative name', { exact: true }).fill('Deliberately remove this passage.');
     await writing.getByRole('checkbox', { name: 'Propose deleting the exact linked passage' }).check();

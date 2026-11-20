@@ -355,7 +355,7 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   const proposed = `${replacement} She held her breath.`;
   const editor = writing.getByRole('textbox', { name: 'Manuscript editor: Selection scope check' });
   await editor.click();
-  await editor.press('Control+a');
+  await editor.press('Control+Home'); await editor.press('Control+Shift+End');
   await writing.keyboard.insertText(source);
   await expect.poll(async () => (await writing.evaluate(() => window.projectSpine!.getSession())).dirtyUnitIds.length).toBe(1);
   await editor.press('Control+s');
@@ -365,7 +365,7 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   });
   await expect.poll(() => readFile(draftPath, 'utf8')).toContain(source);
   const before = await readFile(draftPath, 'utf8');
-  await editor.press('Control+a');
+  await editor.press('Control+Home'); await editor.press('Control+Shift+End');
   await editor.click();
   await expect.poll(() => writing.evaluate(() => window.getSelection()?.isCollapsed)).toBe(true);
   await showCommandInWriting(writing);
@@ -386,7 +386,7 @@ test('Manual sentence replacement distinguishes a collapsed caret, whole section
   expect(await readFile(draftPath, 'utf8')).toBe(before);
 
   await showWritingInWriting(writing);
-  await editor.press('Control+a');
+  await editor.press('Control+Home'); await editor.press('Control+Shift+End');
   await showCommandInWriting(writing);
   await writing.locator('#program7-candidate-purpose').fill('Whole section scope');
   await writing.locator('#program7-candidate-text').fill(proposed);

@@ -111,7 +111,7 @@ test('Program 3 Writing Studio and Command Review match their targeted reference
     );
 
     await editor.focus();
-    await writing.keyboard.press('Control+A');
+    await writing.keyboard.press('Control+Home'); await writing.keyboard.press('Control+Shift+End');
     await openWritingStudioRail(writing, 'Review');
     await writing.getByRole('button', { name: 'Review outbound critique request' }).click();
     await writing.getByLabel('OpenAI API key (session only; no readback)')

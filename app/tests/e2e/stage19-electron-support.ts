@@ -14,7 +14,7 @@ export async function selectWritingEditorProse(editor: Locator, prose: string): 
   await editor.page().bringToFront();
   await editor.click();
   await expect(editor).toBeFocused();
-  await editor.press('Control+a');
+  await editor.press('Control+Home'); await editor.press('Control+Shift+End');
   await expect.poll(() => editor.evaluate(() => window.getSelection()?.toString())).toBe(prose);
 }
 
