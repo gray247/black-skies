@@ -103,20 +103,20 @@ test('Stage 19 startup surface-host preflight completes the authority chain', as
   await expect
     .poll(
       async () => {
-        const candidates = await Promise.all(
-          electronApp.windows().map(async (candidate) => ({
-            candidate,
-            role: await candidate.evaluate(() => window.splitCommand?.windowRole ?? null),
-            command: await candidate.locator('[data-stage19-role="command"]').count(),
-          })),
-        );
-        commandWindow =
-          candidates.find(
-            (candidate) =>
-              candidate.candidate !== page &&
-              candidate.role === 'secondary' &&
-              candidate.command > 0,
-          )?.candidate ?? null;
+        commandWindow = null;
+        for (const candidate of electronApp.windows()) {
+          if (candidate === page || !await candidate.locator('[data-stage19-role="command"]').count()) continue;
+          try {
+            const role = await candidate.evaluate(() => window.splitCommand?.windowRole ?? null);
+            if (role === 'secondary') {
+              commandWindow = candidate;
+              break;
+            }
+          } catch (error) {
+            // The new window can still be navigating away from its initial page.
+            if (!(error instanceof Error) || !error.message.includes('Execution context was destroyed')) throw error;
+          }
+        }
         return Boolean(commandWindow);
       },
       { timeout: 8_000, intervals: [100, 250, 500, 1_000] },
